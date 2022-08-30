@@ -8,9 +8,9 @@ import makjust.utils.ServerMsgThread;
 
 import java.io.*;
 
-public class VertexServer extends AbstractVerticle {
+public class MCCVertex extends AbstractVerticle {
     public static void main(String[] args) {
-        Vertx.vertx().deployVerticle(new VertexServer());
+        Vertx.vertx().deployVerticle(new MCCVertex());
     }
 
     @Override
