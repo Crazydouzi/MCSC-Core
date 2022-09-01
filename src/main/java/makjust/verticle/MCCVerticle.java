@@ -7,21 +7,23 @@ import makjust.serverCore.MCServer;
 import makjust.utils.ServerMsgThread;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
-public class MCCVertex extends AbstractVerticle {
-    public static void main(String[] args) {
-        Vertx.vertx().deployVerticle(new MCCVertex());
-    }
+public class MCCVerticle extends AbstractVerticle {
+//    public static void main(String[] args) {
+//        Vertx.vertx().deployVerticle(new MCCVerticle());
+//    }
 
     @Override
     public void start() throws IOException, InterruptedException {
+//        System.out.println(Class.class.getResource("/").getPath());
         final String DIR = "I:\\Documents\\mcs";
         final String CMD = "cmd";
         //启动服务器时候开启MCServer Process
         MCServer mcServer = new MCServer(new File(DIR), CMD);
         mcServer.start();
         OutputStream os = mcServer.getOutputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(), "GBK"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(), StandardCharsets.UTF_8));
 
         //      创建一个webSocket服务
         HttpServer server = vertx.createHttpServer();
