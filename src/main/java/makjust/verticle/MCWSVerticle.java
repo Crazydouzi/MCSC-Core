@@ -2,6 +2,7 @@ package makjust.verticle;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServer;
 import makjust.serverCore.MCServer;
 import makjust.utils.ServerMsgThread;
@@ -9,21 +10,18 @@ import makjust.utils.ServerMsgThread;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class MCCVerticle extends AbstractVerticle {
-//    public static void main(String[] args) {
-//        Vertx.vertx().deployVerticle(new MCCVerticle());
-//    }
+public class MCWSVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws IOException, InterruptedException {
-//        System.out.println(Class.class.getResource("/").getPath());
-        final String DIR = "I:\\Documents\\mcs";
+        final String DIR = "E:\\";
         final String CMD = "cmd";
         //启动服务器时候开启MCServer Process
         MCServer mcServer = new MCServer(new File(DIR), CMD);
         mcServer.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(), "GBK"));
+        new ServerMsgThread(reader,vertx).start();
         OutputStream os = mcServer.getOutputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(), StandardCharsets.UTF_8));
 
         //      创建一个webSocket服务
         HttpServer server = vertx.createHttpServer();
@@ -36,17 +34,16 @@ public class MCCVerticle extends AbstractVerticle {
                     os.write((socket.toString() + "\n").getBytes());
                     os.flush();
 
-//        打印输出
+                    //                  向客户端发送数据
+                    vertx.eventBus().consumer("psMsg",r->{
+                        webSocket.writeTextMessage((String) r.body());
+                        System.out.println("ws控制台输出："+ r.body());
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                //                  向客户端发送数据
-                try {
-                    //开启一条线程用来向客户端发送消息 避免阻塞
-                    new ServerMsgThread(reader,webSocket).start();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+
+
             });
 //           当断开连接时
             webSocket.closeHandler(close -> {

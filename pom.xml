@@ -54,11 +54,22 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <main.class>makjust.verticle.Main</main.class>
-        <main.verticle>makjust.verticle.MCCVerticle</main.verticle>
+        <main.verticle>makjust.verticle.MCWSVerticle</main.verticle>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     </properties>
     <build>
+        <!--打包时将resource下的文件一起打包-->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -90,6 +101,7 @@
                             </transformers>
                             <artifactSet />
                             <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-prod.jar</outputFile>
+
                         </configuration>
                     </execution>
                 </executions>
