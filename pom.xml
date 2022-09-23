@@ -47,8 +47,8 @@
         <vertx.version>4.3.1</vertx.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <main.class>makjust.verticle.Main</main.class>
-        <main.verticle>makjust.verticle.MCWSVerticle</main.verticle>
+        <main.class>makjust.Main</main.class>
+<!--        <main.verticle>makjust.verticle.MCWSVerticle</main.verticle>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     </properties>
@@ -89,7 +89,7 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>${main.class}</Main-Class>
-                                        <Main-Verticle>${main.verticle}</Main-Verticle>
+<!--                                        <Main-Verticle>${main.verticle}</Main-Verticle>-->
                                     </manifestEntries>
                                 </transformer>
                             </transformers>

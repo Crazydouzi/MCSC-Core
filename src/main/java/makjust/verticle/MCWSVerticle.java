@@ -15,11 +15,10 @@ public class MCWSVerticle extends AbstractVerticle {
                 try {
 //                   打印接受到的数据
                     System.out.println("接收:" + socket.toString());
-                    vertx.eventBus().publish("osMsg", socket.toString());
+                    vertx.eventBus().publish("cmdReq", socket.toString());
                     //                  向客户端发送数据
-                    vertx.eventBus().consumer("psMsg", r -> {
+                    vertx.eventBus().consumer("cmdRes", r -> {
                         webSocket.writeTextMessage((String) r.body());
-                        System.out.println("ws控制台输出：" + r.body());
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
