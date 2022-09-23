@@ -6,6 +6,6 @@ public class getConfig {
         return  path;
     }
     public static String getCorePath(String version) {
-        return  path+version;
+        return  path+"/"+version;
     }
 }

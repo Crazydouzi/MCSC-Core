@@ -1,28 +1,12 @@
 package makjust.verticle;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServer;
-import makjust.serverCore.MCServer;
-import makjust.utils.ServerMsgThread;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class MCWSVerticle extends AbstractVerticle {
 
     @Override
-    public void start() throws IOException, InterruptedException {
-        final String DIR = "E:\\";
-        final String CMD = "cmd";
-        //启动服务器时候开启MCServer Process
-        MCServer mcServer = new MCServer(new File(DIR), CMD);
-        mcServer.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(), "GBK"));
-        new ServerMsgThread(reader,vertx).start();
-        OutputStream os = mcServer.getOutputStream();
-
+    public void start()  {
         //      创建一个webSocket服务
         HttpServer server = vertx.createHttpServer();
         server.webSocketHandler(webSocket -> {
@@ -31,19 +15,15 @@ public class MCWSVerticle extends AbstractVerticle {
                 try {
 //                   打印接受到的数据
                     System.out.println("接收:" + socket.toString());
-                    os.write((socket.toString() + "\n").getBytes());
-                    os.flush();
-
+                    vertx.eventBus().publish("osMsg", socket.toString());
                     //                  向客户端发送数据
-                    vertx.eventBus().consumer("psMsg",r->{
+                    vertx.eventBus().consumer("psMsg", r -> {
                         webSocket.writeTextMessage((String) r.body());
-                        System.out.println("ws控制台输出："+ r.body());
+                        System.out.println("ws控制台输出：" + r.body());
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
             });
 //           当断开连接时
             webSocket.closeHandler(close -> {
