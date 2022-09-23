@@ -1,0 +1,9 @@
+{
+  "mcServer": {
+    "version": "1.9.4",
+    "def_cmd": "cmd",
+  },
+  "wsConfig":{
+    "port": ""
+  }
+}
