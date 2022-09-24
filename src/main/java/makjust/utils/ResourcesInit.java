@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 
-public class ConfigInit {
+public class ResourcesInit {
     private void mkResourcesDIR() throws IOException {
         String directoryPath = getConfig.getBasePath();
         File file = new File(directoryPath);
@@ -36,7 +36,7 @@ public class ConfigInit {
 //        }
     }
 
-    public ConfigInit() throws IOException {
+    public ResourcesInit() throws IOException {
       this.mkResourcesDIR();
     }
 }

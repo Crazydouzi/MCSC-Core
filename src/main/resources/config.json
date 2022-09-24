@@ -1,9 +1,11 @@
 {
+  "coreConfig": {
+    "port": "",
+    "local": "localhost",
+    "colony": "False"
+  },
   "mcServer": {
     "version": "1.9.4",
-    "def_cmd": "cmd",
-  },
-  "wsConfig":{
-    "port": ""
+    "def_cmd": "cmd"
   }
 }
