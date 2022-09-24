@@ -41,6 +41,11 @@
             <artifactId>vertx-sockjs-service-proxy</artifactId>
             <version>4.3.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.17</version>
+        </dependency>
     </dependencies>
 
     <properties>
