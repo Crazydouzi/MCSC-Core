@@ -3,14 +3,14 @@ package makjust.utils;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import org.yaml.snakeyaml.Yaml;
+
 import java.net.URL;
 import java.util.Map;
-
 public class getConfig {
-    public static URL pathURL = getConfig.class.getProtectionDomain().getCodeSource().getLocation();
-    public static JsonObject object = new JsonObject(ConfigInit());
+    private static URL pathURL= getConfig.class.getProtectionDomain().getCodeSource().getLocation();
+    public static JsonObject object = ConfigInit();
 
-    public static String getBasePath() {
+    private static String getBasePath() {
         String path = pathURL.getPath();
         if (path.startsWith("file:")) {
             path = path.replace("file:", "");
@@ -18,18 +18,22 @@ public class getConfig {
         if (path.contains(".jar")) {
             path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
         }
-        System.out.println(path);
         return path;
     }
 
-    private static Map<String,Object> ConfigInit() {
+    private static JsonObject ConfigInit() {
         Yaml yaml=new Yaml();
-        return (Map<String, Object>) yaml.load(Vertx.vertx().fileSystem().readFileBlocking("config.yml").toString());
+        System.out.println(getBasePath() + "resources/" + "config.yml");
+        Map<String, Object> ret = (yaml.load(Vertx.vertx().fileSystem().readFileBlocking(getBasePath() + "resources/" + "config.yml").toString()));
+        return new JsonObject(ret);
     }
 
     public static String getCorePath(String version) {
-        return getBasePath() + version;
+        return getBasePath() + "resources/" + version;
     }
 
+    public static String getResourcesPath() {
+        return getBasePath() + "resources";
+    }
 
 }
