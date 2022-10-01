@@ -18,7 +18,7 @@ public class getConfig {
         if (path.contains(".jar")) {
             path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
         }
-        return path;
+        return path+"/";
     }
 
     private static JsonObject ConfigInit() {

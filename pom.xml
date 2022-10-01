@@ -8,6 +8,7 @@
     <artifactId>mc-control-core</artifactId>
     <version>1.0-SNAPSHOT</version>
     <dependencies>
+        <!--        Vert.X -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
@@ -17,12 +18,6 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
-            <version>${vertx.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-web-client</artifactId>
             <version>${vertx.version}</version>
         </dependency>
 
@@ -41,10 +36,16 @@
             <artifactId>vertx-sockjs-service-proxy</artifactId>
             <version>4.3.3</version>
         </dependency>
+        <!--        Vert.X -->
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.32</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
         </dependency>
     </dependencies>
 

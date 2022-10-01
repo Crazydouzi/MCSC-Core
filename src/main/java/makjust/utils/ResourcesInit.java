@@ -1,30 +1,40 @@
 package makjust.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 
 public class ResourcesInit {
+    private URI path = ResourcesInit.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+    private String resourcesPath = path.getPath() + "/resources";
+    private List<String> checkList=Arrays.asList("config.yml","package");
     public ResourcesInit() throws Exception {
         this.mkResourcesDIR();
     }
     private void mkResourcesDIR() throws Exception {
-        URI path = ResourcesInit.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-        String resourcesPath = path.getPath() + "/resources";
         System.out.println("URI:" + path);
-        System.out.println("resourcesPath:" + resourcesPath);
-        if (path.getPath().contains(".jar")) {
-            System.out.println(path.toString() + "/" + path.getPath() + "=================>" + resourcesPath);
+        if (getENV()) {
+            resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources";
+            System.out.println("resourcesPath" + resourcesPath);
+            copyJarResourcesFileToTemp(path, resourcesPath, "resources");
 
         } else {
-            copy(new File(path.getPath()), new File(resourcesPath), true);
+            checkConfig(resourcesPath);
+            copyLocalResourcesFileToTemp(new File(path.getPath()), new File(resourcesPath), true);
 
         }
 
-//        copy(new File(path),new File(resourcesPath),true);
     }
-    private static void copy(File f, File nf, boolean flag) throws Exception {
+
+    //用于IDEA开发时复制resources
+    private static void copyLocalResourcesFileToTemp(File f, File nf, boolean flag) throws Exception {
         // 判断是否存在
         if (f.exists()) {
             // 判断是否是目录
@@ -46,7 +56,7 @@ public class ResourcesInit {
                     for (File ll : l) {
                         if (ll.isDirectory()) continue;
                         // 循环递归调用
-                        copy(ll, nf, flag);
+                        copyLocalResourcesFileToTemp(ll, nf, flag);
                     }
                 }
             } else {
@@ -67,6 +77,64 @@ public class ResourcesInit {
                 fis.close();
             }
         }
+    }
+
+    //打jar包后复制resources
+    private static void copyJarResourcesFileToTemp(URI path, String tempPath, String filePrefix) {
+        try {
+            List<Map.Entry<ZipEntry, InputStream>> collect =
+                    readJarFile(new JarFile(path.getPath()), filePrefix).collect(Collectors.toList());
+            for (Map.Entry<ZipEntry, InputStream> entry : collect) {
+                // 文件相对路径
+                String key = entry.getKey().getName();
+                System.out.println("filePath:" + key);
+                // 文件流
+                InputStream stream = entry.getValue();
+                File newFile = new File(tempPath + key.replaceAll("resources", ""));
+                if (!newFile.getParentFile().exists()) {
+                    newFile.getParentFile().mkdirs();
+                }
+                org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, newFile);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Stream<Map.Entry<ZipEntry, InputStream>> readJarFile(JarFile jarFile, String prefix) {
+        Stream<Map.Entry<ZipEntry, InputStream>> readingStream =
+                jarFile.stream().filter(entry -> !entry.isDirectory() && entry.getName().startsWith(prefix))
+                        .map(entry -> {
+                            try {
+                                return new AbstractMap.SimpleEntry<>(entry, jarFile.getInputStream(entry));
+                            } catch (IOException e) {
+                                return new AbstractMap.SimpleEntry<>(entry, null);
+                            }
+                        });
+        return readingStream.onClose(() -> {
+            try {
+                jarFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void checkConfig(String resourcesPath) throws IOException {
+//       File file=new File(resourcesPath);
+//        for (String fileName:checkList
+//             ) {
+//            File check=new File(resourcesPath+fileName);
+//            if (check.exists())continue;
+//            else {
+//
+//            }
+//        }
+
+    }
+    //用于判断是跑idea里还是jar里
+    private  Boolean getENV() {
+        return path.getPath().contains(".jar");
     }
 
 
