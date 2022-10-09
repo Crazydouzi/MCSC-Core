@@ -16,8 +16,7 @@ public class Main{
         Vertx vertx = Vertx.vertx();
         System.out.println("主线程启动！");
         new ResourcesInit();
-//        System.out.println(getConfig.object);
-//        System.out.println(getConfig.getResourcesPath());
+        System.out.println(getConfig.object);
         //        vertx.deployVerticle(MCWSVerticle.class.getName());
 //        vertx.deployVerticle(MCCWorkVerticle.class.getName(),new DeploymentOptions().setWorker(true));
 
