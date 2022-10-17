@@ -13,6 +13,7 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
             <version>${vertx.version}</version>
+
         </dependency>
 
         <dependency>
@@ -47,10 +48,16 @@
             <artifactId>commons-io</artifactId>
             <version>2.7</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
         <vertx.version>4.3.1</vertx.version>
+        <slf4j.version>1.7.21</slf4j.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <main.class>makjust.Main</main.class>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: io.vertx:vertx-sockjs-service-proxy:4.3.3">
+    <CLASSES>
+      <root url="jar://D:/Program Files (x86)/apache-maven-3.8.2-bin/repository/io/vertx/vertx-sockjs-service-proxy/4.3.3/vertx-sockjs-service-proxy-4.3.3.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Program Files (x86)/apache-maven-3.8.2-bin/repository/io/vertx/vertx-sockjs-service-proxy/4.3.3/vertx-sockjs-service-proxy-4.3.3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Program Files (x86)/apache-maven-3.8.2-bin/repository/io/vertx/vertx-sockjs-service-proxy/4.3.3/vertx-sockjs-service-proxy-4.3.3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

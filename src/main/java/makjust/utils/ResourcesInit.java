@@ -26,6 +26,7 @@ public class ResourcesInit {
             resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources/";
             System.out.println("resourcesPath" + resourcesPath);
             copyJarResourcesFileToTemp(path, resourcesPath, "resources");
+            copyJarResourcesFileToTemp(path, resourcesPath, "static");
             copyJarResourcesFileToTemp(path, resourcesPath, "plugin");
             copyJarResourcesFileToTemp(path, resourcesPath, "package");
 

@@ -2,6 +2,7 @@ core:
   port: 80
   local: localhost
   colony: False
+  charset: GBK
 
 mcServer:
 #  指定到resources下文件夹
