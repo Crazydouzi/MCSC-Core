@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hello CommonJS!</title>
+</head>
+<body>
+<body>
+<div id="ta" style="overflow:auto;max-width:800px;max-height:300px"></div>
+<br>
+<input type="text" id="inp" value="" placeholder="input">
+<input type="button" id="btn" value="发送" onclick="send()">
+</body>
+
+<script src="./node_modules/sockjs/index.js"></script>
+<script>
+    var sock = new SockJS('http://localhost:8080/CMD');
+    let textarea0 = document.getElementById("ta");
+    sock.onopen = function () {
+        console.log('open');
+    };
+
+    sock.onmessage = function (e) {
+        console.log(d.data);
+        let p = document.createElement('p');
+        p.innerText = d.data;
+        textarea0.append(p);
+        console.log('message', e.data);
+        textarea0.scrollTop = textarea0.scrollHeight;
+    };
+
+    sock.onevent = function (event, message) {
+        console.log('event: %o, message:%o', event, message);
+        return true; // in order to signal that the message has been processed
+    };
+
+    sock.onunhandled = function (json) {
+        console.log('this message has no address:', json);
+    };
+
+    sock.onclose = function () {
+        console.log('close');
+    };
+
+    sock.send('test');
+
+    function send() {
+        let comm = document.getElementById("inp");
+        console.log(comm.value);
+        sock.send(comm.value);
+        sock.onmessage = d => {
+            console.log(d.data);
+            let p = document.createElement('p');
+            p.innerText = d.data;
+            textarea0.append(p)
+        };
+        textarea0.scrollTop = textarea0.scrollHeight;
+
+
+    }
+
+</script>
+</body>
+</html>

@@ -12,7 +12,7 @@ public class MainVerticle extends AbstractVerticle {
     public void start() throws Exception {
         Router router = Router.router(vertx);
         // Create a router endpoint for the static content.
-        router.route().handler(StaticHandler.create().setWebRoot(getConfig.getStaticPath()));
+        router.route().handler(StaticHandler.create().setIndexPage(getConfig.getStaticPath()));
         router.route("/static/*").handler(StaticHandler.create());
         // Allow events for the designated addresses in/out of the event bus bridge
         SockJSHandlerOptions options = new SockJSHandlerOptions();
