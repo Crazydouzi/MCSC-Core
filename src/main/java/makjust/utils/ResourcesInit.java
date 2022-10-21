@@ -26,7 +26,7 @@ public class ResourcesInit {
             resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources/";
             System.out.println("resourcesPath" + resourcesPath);
             copyJarResourcesFileToTemp(path, resourcesPath, "resources");
-            copyJarResourcesFileToTemp(path, resourcesPath, "static");
+            copyJarResourcesFileToTemp(path, resourcesPath, "webroot");
             copyJarResourcesFileToTemp(path, resourcesPath, "plugin");
             copyJarResourcesFileToTemp(path, resourcesPath, "package");
 
@@ -90,7 +90,6 @@ public class ResourcesInit {
             for (Map.Entry<ZipEntry, InputStream> entry : collect) {
                 // 文件相对路径
                 String key = entry.getKey().getName();
-                System.out.println("filePath:" + key);
                 // 文件流
                 InputStream stream = entry.getValue();
                 File newFile = new File(tempPath + key.replaceAll("resources", ""));
@@ -98,6 +97,7 @@ public class ResourcesInit {
                     newFile.getParentFile().mkdirs();
                 }
                 if (newFile.exists()) continue;
+                System.out.println("复制jar包资源：" + key+newFile.getPath());
                 org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, newFile);
             }
         } catch (IOException e) {

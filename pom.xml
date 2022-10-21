@@ -50,10 +50,36 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>${slf4j.version}</version>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.20.0-GA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>
         </dependency>
     </dependencies>
+
 
     <properties>
         <vertx.version>4.3.1</vertx.version>
@@ -61,7 +87,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <main.class>makjust.Main</main.class>
-<!--        <main.verticle>makjust.verticle.MCWSVerticle</main.verticle>-->
+        <!--        <main.verticle>makjust.verticle.MCWSVerticle</main.verticle>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     </properties>
@@ -99,15 +125,17 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>${main.class}</Main-Class>
-<!--                                        <Main-Verticle>${main.verticle}</Main-Verticle>-->
+                                        <!--                                        <Main-Verticle>${main.verticle}</Main-Verticle>-->
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
-                            <artifactSet />
-                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-prod.jar</outputFile>
+                            <artifactSet/>
+                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-prod.jar
+                            </outputFile>
 
                         </configuration>
                     </execution>

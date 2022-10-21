@@ -10,10 +10,9 @@ public class AuthController {
         System.out.println(username + ":" + pwd);
         return new JsonObject().put(username, pwd);
     }
-
-    public JsonObject userRegister(RoutingContext ctx) {
-        String username = ctx.request().getParam("username");
-        String pwd = ctx.request().getParam("pwd");
+    public JsonObject userRegister(JsonObject object) {
+        String username = object.getString("username");
+        String pwd = object.getString("pwd");
         System.out.println(username + ":" + pwd);
         return new JsonObject().put(username, pwd);
     }

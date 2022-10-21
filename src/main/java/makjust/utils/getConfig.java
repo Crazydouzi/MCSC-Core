@@ -6,6 +6,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Map;
 
 public class getConfig {
@@ -47,10 +48,10 @@ public class getConfig {
         String path = pathURL.toURI().getPath();
         if (getENV()) {
             path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
-            return path + "/resources/static/";
+            return path + "/resources/webroot/";
 
         } else {
-            return "static/";
+            return "webroot/";
         }
 
     }
@@ -60,12 +61,12 @@ public class getConfig {
     public static JsonObject getMCConf(){
         return object.getJsonObject("mcServer");
     }
-    public static String getConf(String arg0){
-        String[] arg=arg0.split(".");
+    public static Object getConf(String arg0){
+        String[] arg=arg0.split("\\.");
         return object.getJsonObject(arg[0]).getString(arg[1]);
     }
-    public static String getHttpServerPort() {
-        return object.getJsonObject("core").getString("port");
+    public static int getHttpServerPort() {
+        return object.getJsonObject("core").getInteger("port");
     }
 
 }
