@@ -12,22 +12,30 @@
 <input type="button" id="btn" value="发送" onclick="send()">
 </body>
 
-<script src="./node_modules/sockjs/index.js"></script>
+<script src="./js/sockjs.min.js"></script>
 <script>
     var sock = new SockJS('http://localhost:8080/CMD');
     let textarea0 = document.getElementById("ta");
     sock.onopen = function () {
         console.log('open');
     };
-
-    sock.onmessage = function (e) {
+    sock.onmessage = d => {
         console.log(d.data);
         let p = document.createElement('p');
         p.innerText = d.data;
         textarea0.append(p);
-        console.log('message', e.data);
+        p = null;
         textarea0.scrollTop = textarea0.scrollHeight;
     };
+    // sock.onmessage = function (e) {
+    //     console.log(e.data);
+    //         console.log(e.data);
+    //         let p = document.createElement('p');
+    //         p.innerText = e.data;
+    //         textarea0.append(p)
+    //     console.log('message', e.data);
+    //     textarea0.scrollTop = textarea0.scrollHeight;
+    // };
 
     sock.onevent = function (event, message) {
         console.log('event: %o, message:%o', event, message);
@@ -42,19 +50,16 @@
         console.log('close');
     };
 
-    sock.send('test');
-
     function send() {
         let comm = document.getElementById("inp");
         console.log(comm.value);
         sock.send(comm.value);
-        sock.onmessage = d => {
-            console.log(d.data);
-            let p = document.createElement('p');
-            p.innerText = d.data;
-            textarea0.append(p)
-        };
-        textarea0.scrollTop = textarea0.scrollHeight;
+        // sock.onmessage = d => {
+        //     console.log(d.data);
+        //     let p = document.createElement('p');
+        //     p.innerText = d.data;
+        //     textarea0.append(p)
+        // };
 
 
     }

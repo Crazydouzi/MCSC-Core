@@ -33,24 +33,39 @@ public class getConfig {
         return new JsonObject(ret);
     }
 
-    public static String getCorePath(String version) {
-        return getBasePath() + "resources/" + version;
+    public static String getCorePath(String version) throws URISyntaxException {
+        String path = pathURL.toURI().getPath();
+        if (getENV()){
+            path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
+            return path + "/resources/package/"+version;
+
+        }
+        return  path+"package" + version;
     }
 
     public static String getStaticPath() throws URISyntaxException {
         String path = pathURL.toURI().getPath();
         if (getENV()) {
             path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
-            return path + "/resources/static";
+            return path + "/resources/static/";
 
         } else {
-            return "static";
+            return "static/";
         }
 
     }
-
+    public static JsonObject getCoreConf(){
+        return object.getJsonObject("core");
+    }
+    public static JsonObject getMCConf(){
+        return object.getJsonObject("mcServer");
+    }
+    public static String getConf(String arg0){
+        String[] arg=arg0.split(".");
+        return object.getJsonObject(arg[0]).getString(arg[1]);
+    }
     public static String getHttpServerPort() {
-        return getConfig.object.getJsonObject("core").getString("port");
+        return object.getJsonObject("core").getString("port");
     }
 
 }
