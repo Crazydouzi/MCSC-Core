@@ -10,7 +10,7 @@ public class MCCWorkVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
 
-        final String DIR = getConfig.getCorePath("/");
+        final String DIR = getConfig.getCorePath("/194");
         final String CMD = getConfig.object.getJsonObject("mcServer").getString("def_cmd");
         //启动服务器时候开启MCServer Process
         MCServer mcServer = new MCServer(new File(DIR), CMD);
