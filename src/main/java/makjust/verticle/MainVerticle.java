@@ -8,6 +8,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -124,7 +125,7 @@ public class MainVerticle extends AbstractVerticle {
                         // RequestBody数据解析
                         List<? extends Class<? extends Annotation>> parameterAnnotation = Arrays.stream(parameterAnnotations[i]).map(Annotation::annotationType).collect(Collectors.toList());
                         if (parameterAnnotation.contains(RequestBody.class)) {
-                            String bodyAsString = ctx.getBodyAsString();
+                            String bodyAsString = ctx.body().asString();
                             argValues[i] = Json.decodeValue(bodyAsString, paramType);
                         }
                         // special type
@@ -177,8 +178,6 @@ public class MainVerticle extends AbstractVerticle {
      * @param paramType             参数类型
      * @param paramName             参数名称
      * @param genericParameterTypes 泛型化参数类型
-     * @return
-     * @throws Throwable
      */
     private Object parseSimpleTypeOrArrayOrCollection(MultiMap allParams, Class<?> paramType, String paramName, Type genericParameterTypes) throws Throwable {
         // Array type

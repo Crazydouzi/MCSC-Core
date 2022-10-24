@@ -6,14 +6,15 @@ import makjust.annotation.HttpMethod;
 import makjust.annotation.RequestBody;
 import makjust.annotation.RequestMapping;
 import makjust.annotation.RestController;
+import makjust.pojo.User;
 
 @RestController
 public class AuthController {
     @RequestMapping(value = "/userLogin",method = HttpMethod.POST)
-    public JsonObject userLogin(RoutingContext ctx) {
+    public JsonObject userLogin(@RequestBody  User user, RoutingContext ctx) {
         String username = ctx.body().asJsonObject().getString("username");
         String pwd = ctx.body().asJsonObject().getString("pwd");
-        System.out.println(username + ":" + pwd);
+        System.out.println(user.toString());
         return new JsonObject().put(username, pwd);
     }
     @RequestMapping(value = "/userRegister",method = HttpMethod.POST)
