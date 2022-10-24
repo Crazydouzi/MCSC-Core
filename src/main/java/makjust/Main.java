@@ -1,12 +1,8 @@
 package makjust;
 
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import makjust.utils.ResourcesInit;
-import makjust.utils.getConfig;
-import makjust.verticle.MCCWorkVerticle;
 import makjust.verticle.MainVerticle;
-import makjust.verticle.TestVerticle;
 
 
 /**
@@ -20,6 +16,5 @@ public class Main{
         new ResourcesInit();
         vertx.deployVerticle(MainVerticle.class.getName());
 //        vertx.deployVerticle(MCCWorkVerticle.class.getName(),new DeploymentOptions().setWorker(true));
-//        vertx.deployVerticle(TestVerticle.class.getName());
     }
 }
