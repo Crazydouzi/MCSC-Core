@@ -1,7 +1,6 @@
 package makjust.verticle;
 
 import com.google.common.primitives.Primitives;
-import com.oracle.webservices.internal.api.EnvelopeStyle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -23,15 +22,14 @@ import javassist.bytecode.MethodInfo;
 import makjust.annotation.RequestBody;
 import makjust.annotation.RequestMapping;
 import makjust.annotation.RestController;
-import makjust.controller.AuthController;
+import makjust.utils.ClassScanUtil;
 import makjust.utils.getConfig;
 import org.apache.commons.lang3.StringUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.*;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,24 +40,10 @@ public class MainVerticle extends AbstractVerticle {
         Router router = Router.router(vertx);
         //api路由
         Router apiRouter = Router.router(vertx);
-        // REST API
-        // 登录验证
-        apiRouter.post("/account/login").handler(ctx -> {
-//            ctx.json(new AuthController().userLogin(ctx));
-        });
-        apiRouter.post("/account/register")
-                .handler(ctx -> {
-                    System.out.println(ctx.body().asJsonObject());
-            ctx.json(new AuthController().userRegister(ctx.body().asJsonObject()));
-                });
-        // 服务器状态信息
-        // 插件子路由注册
-        //
-
         //      SockJS服务
         SockJSHandlerOptions options = new SockJSHandlerOptions();
         SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
-        router.route("/CMD/*").subRouter(sockJSHandler.socketHandler(sockJSSocket -> {
+        apiRouter.route("/CMD/*").subRouter(sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("cmdRes", r -> {
                 sockJSSocket.write((String) r.body());
@@ -73,13 +57,20 @@ public class MainVerticle extends AbstractVerticle {
                 }
             });
         }));
+        // 自动加载控制器路由
+        Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.controller", RestController.class);
+        System.out.println(classes);
+        for (Class<?> cls : classes) {
+            Object controller = cls.getConstructor().newInstance();
+            routerMapping(controller, apiRouter);
+        }
+
         // 静态资源路由
         if (getConfig.getCoreConf().getBoolean("enWeb")) {
             System.out.println(getConfig.getStaticPath());
             router.route().handler(StaticHandler.create().setWebRoot(getConfig.getStaticPath()));
         }
         //挂载子路由
-        System.out.println(apiRouter.getRoutes());
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);
         vertx.createHttpServer().requestHandler(router).listen(8080);
 
@@ -126,7 +117,7 @@ public class MainVerticle extends AbstractVerticle {
                     MultiMap params = ctx.request().params();
 
                     Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-                    List<FileUpload> uploads =  ctx.fileUploads();
+                    List<FileUpload> uploads = ctx.fileUploads();
                     Map<String, FileUpload> uploadMap = uploads.stream().collect(Collectors.toMap(FileUpload::name, x -> x));
                     for (int i = 0; i < argValues.length; i++) {
                         Class<?> paramType = paramTypes[i];
@@ -178,6 +169,7 @@ public class MainVerticle extends AbstractVerticle {
             }
         }
     }
+
     /**
      * 解析简单类型以及对应的集合或数组类型
      *

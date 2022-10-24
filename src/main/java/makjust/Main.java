@@ -18,8 +18,8 @@ public class Main{
         Vertx vertx = Vertx.vertx();
         System.out.println("主线程启动！");
         new ResourcesInit();
-//        vertx.deployVerticle(MainVerticle.class.getName());
+        vertx.deployVerticle(MainVerticle.class.getName());
 //        vertx.deployVerticle(MCCWorkVerticle.class.getName(),new DeploymentOptions().setWorker(true));
-        vertx.deployVerticle(TestVerticle.class.getName());
+//        vertx.deployVerticle(TestVerticle.class.getName());
     }
 }
