@@ -4,11 +4,8 @@ import com.google.common.primitives.Primitives;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -91,15 +88,12 @@ public class MainVerticle extends AbstractVerticle {
             if (!method.isAnnotationPresent(RequestMapping.class)) {
                 continue;
             }
-
             RequestMapping methodAnno = method.getAnnotation(RequestMapping.class);
             String requestPath = methodAnno.value();
-
             CtMethod ctMethod = cc.getDeclaredMethod(method.getName());
             MethodInfo methodInfo = ctMethod.getMethodInfo();
             CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
             LocalVariableAttribute attribute = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
-
             Class<?>[] paramTypes = method.getParameterTypes();
             String[] paramNames = new String[ctMethod.getParameterTypes().length];
             if (attribute != null) {
@@ -110,19 +104,16 @@ public class MainVerticle extends AbstractVerticle {
                 }
             }
             String formatPath = requestPath.startsWith("/") ? requestPath : "/" + requestPath;
-
-
             Handler<RoutingContext> requestHandler = ctx -> {
                 try {
                     Object[] argValues = new Object[ctMethod.getParameterTypes().length];
                     MultiMap params = ctx.request().params();
-
                     Annotation[][] parameterAnnotations = method.getParameterAnnotations();
                     List<FileUpload> uploads = ctx.fileUploads();
                     Map<String, FileUpload> uploadMap = uploads.stream().collect(Collectors.toMap(FileUpload::name, x -> x));
                     for (int i = 0; i < argValues.length; i++) {
                         Class<?> paramType = paramTypes[i];
-                        // RequestBody数据解析
+                        // @RequestBody数据解析
                         List<? extends Class<? extends Annotation>> parameterAnnotation = Arrays.stream(parameterAnnotations[i]).map(Annotation::annotationType).collect(Collectors.toList());
                         if (parameterAnnotation.contains(RequestBody.class)) {
                             String bodyAsString = ctx.body().asString();
@@ -144,11 +135,7 @@ public class MainVerticle extends AbstractVerticle {
                             argValues[i] = parseBeanType(params, paramType);
                         }
                     }
-                    HttpServerResponse response = ctx.response();
                     Object result = MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
-                    if (!response.headWritten()) {
-                        response.putHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
-                    }
                     // 返回Json类型结果集
                     ctx.json(result);
                 } catch (Throwable e) {

@@ -6,7 +6,7 @@ import makjust.utils.getConfig;
 
 import java.io.*;
 
-public class MCCWorkVerticle extends AbstractVerticle {
+public class CMDWorkVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
 

@@ -1,7 +1,9 @@
 package makjust;
 
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import makjust.utils.ResourcesInit;
+import makjust.verticle.CMDWorkVerticle;
 import makjust.verticle.MainVerticle;
 
 
@@ -15,6 +17,6 @@ public class Main{
         System.out.println("主线程启动！");
         new ResourcesInit();
         vertx.deployVerticle(MainVerticle.class.getName());
-//        vertx.deployVerticle(MCCWorkVerticle.class.getName(),new DeploymentOptions().setWorker(true));
+        vertx.deployVerticle(CMDWorkVerticle.class.getName(),new DeploymentOptions().setWorker(true));
     }
 }

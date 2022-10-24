@@ -12,17 +12,11 @@ import makjust.pojo.User;
 public class AuthController {
     @RequestMapping(value = "/userLogin",method = HttpMethod.POST)
     public JsonObject userLogin(@RequestBody  User user, RoutingContext ctx) {
-        String username = ctx.body().asJsonObject().getString("username");
-        String pwd = ctx.body().asJsonObject().getString("pwd");
-        System.out.println(user.toString());
-        return new JsonObject().put(username, pwd);
+        return JsonObject.mapFrom(user);
     }
     @RequestMapping(value = "/userRegister",method = HttpMethod.POST)
-    public JsonObject userRegister(JsonObject object) {
-        String username = object.getString("username");
-        String pwd = object.getString("pwd");
-        System.out.println(username + ":" + pwd);
-        return new JsonObject().put(username, pwd);
+    public JsonObject userRegister(@RequestBody  User user) {
+        return JsonObject.mapFrom(user);
     }
 
 }
