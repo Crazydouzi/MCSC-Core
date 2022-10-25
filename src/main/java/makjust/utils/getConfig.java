@@ -51,7 +51,7 @@ public class getConfig {
             return path + "/resources/webroot/";
 
         } else {
-            return "webroot/";
+            return "webroot";
         }
 
     }

@@ -38,23 +38,6 @@ public class MainVerticle extends AbstractVerticle {
         Router router = Router.router(vertx);
         //api路由
         Router apiRouter = Router.router(vertx);
-        //      SockJS服务
-        SockJSHandlerOptions options = new SockJSHandlerOptions();
-        SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
-        apiRouter.route("/CMD/*").subRouter(sockJSHandler.socketHandler(sockJSSocket -> {
-            // 向客户端发送数据
-            vertx.eventBus().consumer("cmdRes", r -> {
-                sockJSSocket.write((String) r.body());
-            });
-            sockJSSocket.handler(ws -> {
-                try {
-                    // 推送接收到的到的数据
-                    vertx.eventBus().publish("cmdReq", ws.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }));
         // 自动加载控制器路由
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.controller", RestController.class);
         System.out.println(classes);
@@ -68,6 +51,23 @@ public class MainVerticle extends AbstractVerticle {
             System.out.println(getConfig.getStaticPath());
             router.route().handler(StaticHandler.create().setWebRoot(getConfig.getStaticPath()));
         }
+        //      SockJS服务
+        SockJSHandlerOptions options = new SockJSHandlerOptions();
+        SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
+        router.route("/api/CMD/*").subRouter(sockJSHandler.socketHandler(sockJSSocket -> {
+            // 向客户端发送数据
+            vertx.eventBus().consumer("cmdRes", r -> {
+                sockJSSocket.write((String) r.body());
+            });
+            sockJSSocket.handler(ws -> {
+                try {
+                    // 推送接收到的到的数据
+                    vertx.eventBus().publish("cmdReq", ws.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }));
         //挂载子路由
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);
         vertx.createHttpServer().requestHandler(router).listen(8080);
