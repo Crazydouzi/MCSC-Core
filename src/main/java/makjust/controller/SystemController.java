@@ -1,9 +1,9 @@
 package makjust.controller;
 
 import io.vertx.core.json.Json;
-import makjust.annotation.RestController;
+import makjust.annotation.Controller;
 
-@RestController
+@Controller
 public class SystemController {
     // 使用率报告
     public Json usageInfo(){

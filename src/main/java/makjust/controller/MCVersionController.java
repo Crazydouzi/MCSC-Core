@@ -1,9 +1,9 @@
 package makjust.controller;
 
 import io.vertx.core.json.Json;
-import makjust.annotation.RestController;
+import makjust.annotation.Controller;
 
-@RestController
+@Controller
 public class MCVersionController {
     // 获取已上传版本列表（可部署版本）
     public Json getVersionList(){

@@ -2,10 +2,10 @@ package makjust.controller;
 
 import io.vertx.core.json.Json;
 import makjust.annotation.RequestBody;
-import makjust.annotation.RestController;
+import makjust.annotation.Controller;
 import makjust.pojo.MCServer;
 
-@RestController
+@Controller
 public class MCServerCoreController {
     // 服务器端口设定
     public Json portSetting(){

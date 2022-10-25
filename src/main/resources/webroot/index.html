@@ -14,7 +14,7 @@
 
 <script src="./js/sockjs.min.js"></script>
 <script>
-    var sock = new SockJS('http://localhost:8080/api/CMD');
+    var sock = new SockJS('http://localhost:8080/ws/CMD/process/');
     let textarea0 = document.getElementById("ta");
     sock.onopen = function () {
         console.log('open');
