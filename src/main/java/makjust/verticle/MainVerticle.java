@@ -25,7 +25,6 @@ import makjust.annotation.Socket;
 import makjust.utils.ClassScanUtil;
 import makjust.utils.getConfig;
 import org.apache.commons.lang3.StringUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
