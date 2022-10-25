@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class MCServer {
+public class ProcessServer {
     private ProcessBuilder builder;
     private Process process;
-    public MCServer(File path, String command){
+    public ProcessServer(File path, String command){
         builder=new ProcessBuilder("cmd","/c",command);
         builder.directory(path);
         builder.redirectErrorStream(true);
