@@ -13,6 +13,10 @@ public class MCVersionController {
     public Json getStoreVersionList(){
         return new Json();
     }
+    //配置远程仓库
+    public Json setStore(){
+        return new Json();
+    }
 
 
 }
