@@ -38,8 +38,8 @@ public class ResourcesInit {
     /**
      * 用于IDEA开发时复制resources
      *
-     * @param f    来源
-     * @param nf   目标
+     * @param f  来源
+     * @param nf 目标
      */
     private static void copyLocalResourcesFileToTemp(File f, File nf) throws Exception {
         // 判断是否存在
@@ -79,7 +79,7 @@ public class ResourcesInit {
     /**
      * 用于打包后复制resources
      *
-     * @param path    来源
+     * @param path       来源
      * @param tempPath   目标
      * @param filePrefix 地址
      */
@@ -97,7 +97,7 @@ public class ResourcesInit {
                     newFile.getParentFile().mkdirs();
                 }
                 if (newFile.exists()) continue;
-                System.out.println("复制jar包资源：" + key+newFile.getPath());
+                System.out.println("复制jar包资源：" + key + newFile.getPath());
                 org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, newFile);
             }
         } catch (IOException e) {
