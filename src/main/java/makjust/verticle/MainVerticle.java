@@ -18,9 +18,9 @@ import javassist.*;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
+import makjust.annotation.Controller;
 import makjust.annotation.RequestBody;
 import makjust.annotation.RequestMapping;
-import makjust.annotation.Controller;
 import makjust.annotation.Socket;
 import makjust.utils.ClassScanUtil;
 import makjust.utils.getConfig;
@@ -39,38 +39,21 @@ public class MainVerticle extends AbstractVerticle {
     public void start() throws Exception {
         // 主路由
         Router router = Router.router(vertx);
-        //api路由
+        //api子路由
         Router apiRouter = Router.router(vertx);
-        // ws路由
+        // ws子路由(SockJs)
         Router wsRouter = Router.router(vertx);
         // 自动加载控制器路由
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.controller", Controller.class);
         for (Class<?> cls : classes) {
             Object controller = cls.getConstructor().newInstance();
-            routerMapping(controller, apiRouter,wsRouter);
+            routerMapping(controller, apiRouter, wsRouter);
         }
 
         // 静态资源路由
         if (getConfig.getCoreConf().getBoolean("enWeb")) {
             router.route().handler(StaticHandler.create().setWebRoot(getConfig.getStaticPath()));
         }
-        //      SockJS服务
-        SockJSHandlerOptions options = new SockJSHandlerOptions();
-        SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
-//        router.route("/api/CMD/*").subRouter(sockJSHandler.socketHandler(sockJSSocket -> {
-//            // 向客户端发送数据
-//            vertx.eventBus().consumer("cmdRes", r -> {
-//                sockJSSocket.write((String) r.body());
-//            });
-//            sockJSSocket.handler(ws -> {
-//                try {
-//                    // 推送接收到的到的数据
-//                    vertx.eventBus().publish("cmdReq", ws.toString());
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            });
-//        }));
         //挂载子路由
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);
         router.route("/ws/*").subRouter(wsRouter);
@@ -79,7 +62,7 @@ public class MainVerticle extends AbstractVerticle {
 
     }
 
-    private <ControllerType> void routerMapping(ControllerType annotatedBean, Router router,Router wsRouter) throws NotFoundException {
+    private <ControllerType> void routerMapping(ControllerType annotatedBean, Router router, Router wsRouter) throws NotFoundException {
         Class<ControllerType> clazz = (Class<ControllerType>) annotatedBean.getClass();
         if (!clazz.isAnnotationPresent(Controller.class)) {
             return;
@@ -112,7 +95,7 @@ public class MainVerticle extends AbstractVerticle {
             if (method.isAnnotationPresent(Socket.class)) {
                 Socket wsMethodAnno = method.getAnnotation(Socket.class);
                 String path = ControllerPath + wsMethodAnno.value();
-                String wsPath = (path.startsWith("/") ? path: "/" + path)+"/*" ;
+                String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
                 System.out.println(wsPath);
                 SockJSHandlerOptions options = new SockJSHandlerOptions();
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
@@ -123,12 +106,12 @@ public class MainVerticle extends AbstractVerticle {
                         argValues[i] = vertx;
                     } else if (paramType == SockJSHandler.class) {
                         argValues[i] = sockJSHandler;
-                    }else if (paramType == Router.class) {
-                        argValues[i] = wsRouter;}
+                    } else if (paramType == Router.class) {
+                        argValues[i] = wsRouter;
+                    }
                 }
                 try {
                     System.out.println(Arrays.toString(argValues));
-//                    Object obj=method.invoke(argValues);
                     Router ws = (Router) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                     wsRouter.route(wsPath).subRouter(ws);
                     continue;

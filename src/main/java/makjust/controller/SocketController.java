@@ -9,7 +9,7 @@ import makjust.annotation.Socket;
 public class SocketController {
     @Socket("/process")
     public Router processSocket(Vertx vertx, SockJSHandler sockJSHandler){
-        Router router=sockJSHandler.socketHandler(sockJSSocket -> {
+        return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("cmdRes", r -> {
                 sockJSSocket.write((String) r.body());
@@ -23,6 +23,5 @@ public class SocketController {
                 }
             });
         });
-        return  router;
     }
 }
