@@ -6,7 +6,11 @@
 
     <groupId>com.makjust</groupId>
     <artifactId>mc-control-core</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>mc-core-pluginsManager</module>
+    </modules>
     <dependencies>
         <!--        Vert.X -->
         <dependency>

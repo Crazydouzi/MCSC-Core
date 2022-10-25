@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/mc-control-core.iml" filepath="$PROJECT_DIR$/.idea/mc-control-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mc-core-pluginsManager/mc-core-pluginsManager.iml" filepath="$PROJECT_DIR$/mc-core-pluginsManager/mc-core-pluginsManager.iml" />
     </modules>
   </component>
 </project>
