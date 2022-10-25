@@ -16,7 +16,9 @@ public class Main{
         Vertx vertx = Vertx.vertx();
         System.out.println("主线程启动！");
         new ResourcesInit();
+        // 服务主容器
         vertx.deployVerticle(MainVerticle.class.getName());
+        // Process容器
         vertx.deployVerticle(CMDWorkVerticle.class.getName(),new DeploymentOptions().setWorker(true));
     }
 }
