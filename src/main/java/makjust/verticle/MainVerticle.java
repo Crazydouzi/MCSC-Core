@@ -79,17 +79,20 @@ public class MainVerticle extends AbstractVerticle {
         if (!clazz.isAnnotationPresent(RestController.class)) {
             return;
         }
-
+        RestController annotation = clazz.getAnnotation(RestController.class);
+        String ControllerPath=annotation.value();
         ClassPool classPool = ClassPool.getDefault();
         classPool.insertClassPath(new ClassClassPath(clazz));
         CtClass cc = classPool.get(clazz.getName());
         Method[] methods = clazz.getDeclaredMethods();
+
         for (Method method : methods) {
             if (!method.isAnnotationPresent(RequestMapping.class)) {
                 continue;
             }
+
             RequestMapping methodAnno = method.getAnnotation(RequestMapping.class);
-            String requestPath = methodAnno.value();
+            String requestPath = ControllerPath+methodAnno.value();
             CtMethod ctMethod = cc.getDeclaredMethod(method.getName());
             MethodInfo methodInfo = ctMethod.getMethodInfo();
             CodeAttribute codeAttribute = methodInfo.getCodeAttribute();

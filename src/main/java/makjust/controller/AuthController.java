@@ -8,7 +8,7 @@ import makjust.annotation.RequestMapping;
 import makjust.annotation.RestController;
 import makjust.pojo.User;
 
-@RestController
+@RestController("/core")
 public class AuthController {
     @RequestMapping(value = "/userLogin",method = HttpMethod.POST)
     public JsonObject userLogin(@RequestBody  User user, RoutingContext ctx) {
@@ -17,6 +17,11 @@ public class AuthController {
     @RequestMapping(value = "/userRegister",method = HttpMethod.POST)
     public JsonObject userRegister(@RequestBody  User user) {
         return JsonObject.mapFrom(user);
+    }
+    @RequestMapping(value = "/userLogout",method = HttpMethod.POST)
+    public JsonObject userLogout(@RequestBody  User user){
+        return JsonObject.mapFrom(user);
+
     }
 
 }
