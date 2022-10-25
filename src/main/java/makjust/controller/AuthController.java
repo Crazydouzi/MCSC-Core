@@ -1,5 +1,6 @@
 package makjust.controller;
 
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import makjust.annotation.HttpMethod;
@@ -22,6 +23,9 @@ public class AuthController {
     public JsonObject userLogout(@RequestBody  User user){
         return JsonObject.mapFrom(user);
 
+    }
+    public JsonObject RemoteAuth(@RequestBody  User user){
+        return new JsonObject();
     }
 
 }
