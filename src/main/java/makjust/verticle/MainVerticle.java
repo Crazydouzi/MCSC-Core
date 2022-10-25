@@ -57,7 +57,6 @@ public class MainVerticle extends AbstractVerticle {
         //挂载子路由
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);
         router.route("/ws/*").subRouter(wsRouter);
-        System.out.println(wsRouter.getRoutes());
         vertx.createHttpServer().requestHandler(router).listen(8080);
 
     }
