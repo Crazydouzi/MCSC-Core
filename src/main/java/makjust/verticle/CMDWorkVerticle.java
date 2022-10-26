@@ -16,7 +16,7 @@ public class CMDWorkVerticle extends AbstractVerticle {
         ProcessServer mcServer = new ProcessServer(new File(DIR), CMD);
         mcServer.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(),
-                getConfig.object.getJsonObject("core").getString("charset")));
+                getConfig.object.getJsonObject("core").getString("cmd_charset")));
         OutputStream os = mcServer.getOutputStream();
         //获取接收到的指令退送到os
         vertx.eventBus().consumer("cmdReq", data -> {

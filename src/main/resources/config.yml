@@ -2,7 +2,7 @@ core:
   port: 8080
   local: localhost
   colony: False
-  charset: GBK
+  cmd_charset: GBK
   enWeb: True # True 启用Web界面 index.html于/resources/static，False为REST API
 
 mcServer:
