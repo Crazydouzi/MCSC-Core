@@ -51,7 +51,7 @@ public class MainVerticle extends AbstractVerticle {
 
         // 静态资源路由
         if (getConfig.getCoreConf().getBoolean("enWeb")) {
-            router.route().handler(StaticHandler.create().setWebRoot(getConfig.getStaticPath()));
+            router.route().handler(StaticHandler.create().setDefaultContentEncoding("utf-8").setWebRoot(getConfig.getStaticPath()));
         }
         //挂载子路由
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);

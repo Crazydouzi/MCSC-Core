@@ -16,6 +16,7 @@ public class Main{
         Vertx vertx = Vertx.vertx();
         System.out.println("主线程启动！");
         new ResourcesInit();
+        System.getProperties().setProperty("vertx.disableDnsResolver","true");
         // 服务主容器
         vertx.deployVerticle(MainVerticle.class.getName());
         // Process容器
