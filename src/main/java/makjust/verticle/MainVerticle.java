@@ -88,8 +88,7 @@ public class MainVerticle extends AbstractVerticle {
                     paramNames[i] = attribute.variableName(i + pos);
                 }
             }
-
-
+            // 判断是否为Socket控制器
             if (method.isAnnotationPresent(Socket.class)) {
                 Socket wsMethodAnno = method.getAnnotation(Socket.class);
                 String path = ControllerPath + wsMethodAnno.value();
@@ -117,7 +116,7 @@ public class MainVerticle extends AbstractVerticle {
                     e.printStackTrace();
                 }
             }
-
+            // Rest控制器
             if (method.isAnnotationPresent(RequestMapping.class)) {
                 Handler<RoutingContext> requestHandler = ctx -> {
                     try {

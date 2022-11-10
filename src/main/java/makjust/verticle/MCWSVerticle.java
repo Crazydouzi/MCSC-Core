@@ -2,7 +2,7 @@ package makjust.verticle;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
-
+@Deprecated
 public class MCWSVerticle extends AbstractVerticle {
 
     @Override
