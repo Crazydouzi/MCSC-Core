@@ -5,6 +5,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.Controller;
 import makjust.annotation.Socket;
+@Deprecated
 @Controller("/CMD")
 public class SocketController {
     @Socket("/process")
