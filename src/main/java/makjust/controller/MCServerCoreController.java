@@ -4,15 +4,22 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import makjust.annotation.RequestBody;
 import makjust.annotation.Controller;
+import makjust.annotation.RequestBody;
 import makjust.annotation.Socket;
 import makjust.pojo.MCServer;
+import makjust.pojo.MCSetting;
+
+import java.util.List;
 
 @Controller("/server")
 public class MCServerCoreController {
-    // 服务器端口设定
-    public Json portSetting(){
+    // 修改服务器选项
+    public Json editSetting(@RequestBody List<MCSetting> settingList){
+        return new Json();
+    }
+    // 根据服务器id查询全部设置
+    public Json getSetting(@RequestBody MCServer server){
         return new Json();
     }
     // 修改MC核心启动参数
