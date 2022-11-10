@@ -3,7 +3,7 @@ package makjust.pojo;
 import lombok.Data;
 
 @Data
-public class Setting {
+public class MCSetting {
     private Integer id;
     private String option;
     private String value;

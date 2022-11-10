@@ -2,6 +2,8 @@ package makjust.pojo;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class MCServer {
     // 版本
@@ -10,4 +12,6 @@ public class MCServer {
     private String location;
     // 启动参数
     private String param;
+    // MC设置
+    private List<MCSetting> setting;
 }
