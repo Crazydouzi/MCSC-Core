@@ -21,23 +21,6 @@
             <artifactId>vertx-web</artifactId>
             <version>${vertx.version}</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>io.vertx</groupId>-->
-<!--            <artifactId>vertx-web-proxy</artifactId>-->
-<!--            <version>${vertx.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>io.vertx</groupId>-->
-<!--            <artifactId>vertx-service-proxy</artifactId>-->
-<!--            <version>${vertx.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>io.vertx</groupId>-->
-<!--            <artifactId>vertx-sockjs-service-proxy</artifactId>-->
-<!--            <version>4.3.3</version>-->
-<!--        </dependency>-->
-        <!--        Vert.X -->
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
