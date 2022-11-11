@@ -15,9 +15,9 @@ public class AuthController {
     public JsonObject userLogin(@RequestBody  User user, RoutingContext ctx) {
         return JsonObject.mapFrom(user);
     }
-    // 用户注册
-    @RequestMapping(value = "/userRegister",method = HttpMethod.POST)
-    public JsonObject userRegister(@RequestBody  User user) {
+    // 修改用户信息
+    @RequestMapping(value = "/userUpdate",method = HttpMethod.POST)
+    public JsonObject userUpdate(@RequestBody  User user) {
         return JsonObject.mapFrom(user);
     }
     // 登出
