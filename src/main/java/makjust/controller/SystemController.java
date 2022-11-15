@@ -17,6 +17,11 @@ public class SystemController {
     public JsonObject usageInfo() throws UnknownHostException {
         return systemService.getSystemInfo();
     }
+    //获取CPU实时占用率
+    @RequestMapping(value = "/getCpuUsage",method = HttpMethod.POST)
+    public JsonObject cpuUsage(){
+        return systemService.getCpuUsage();
+    }
 
 
 }

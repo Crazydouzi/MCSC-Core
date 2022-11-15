@@ -67,6 +67,13 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.13.4.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.3.1</version>
+        </dependency>
+
     </dependencies>
 
 

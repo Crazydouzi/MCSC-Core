@@ -6,4 +6,5 @@ import java.net.UnknownHostException;
 
 public interface SystemService {
     JsonObject getSystemInfo() throws UnknownHostException;
+    JsonObject getCpuUsage();
 }
