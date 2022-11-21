@@ -6,7 +6,7 @@ import makjust.annotation.HttpMethod;
 import makjust.annotation.RequestBody;
 import makjust.annotation.RequestMapping;
 import makjust.annotation.Controller;
-import makjust.pojo.User;
+import makjust.entity.User;
 
 @Controller("/core")
 public class AuthController {

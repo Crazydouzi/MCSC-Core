@@ -7,8 +7,8 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.Controller;
 import makjust.annotation.RequestBody;
 import makjust.annotation.Socket;
-import makjust.pojo.MCServer;
-import makjust.pojo.MCSetting;
+import makjust.entity.MCServer;
+import makjust.entity.MCSetting;
 
 import java.util.List;
 
