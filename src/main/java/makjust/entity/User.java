@@ -1,4 +1,4 @@
-package makjust.pojo;
+package makjust.entity;
 
 import lombok.Data;
 
