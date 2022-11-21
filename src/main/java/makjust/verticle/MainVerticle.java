@@ -116,7 +116,7 @@ public class MainVerticle extends AbstractVerticle {
                     e.printStackTrace();
                 }
             }
-            // Rest控制器
+            // RestFul控制器
             if (method.isAnnotationPresent(RequestMapping.class)) {
                 Handler<RoutingContext> requestHandler = ctx -> {
                     try {
@@ -162,6 +162,7 @@ public class MainVerticle extends AbstractVerticle {
                 RequestMapping methodAnno = method.getAnnotation(RequestMapping.class);
                 String requestPath = ControllerPath + methodAnno.value();
                 String formatPath = requestPath.startsWith("/") ? requestPath : "/" + requestPath;
+                System.out.println("sub路由地址"+formatPath);
                 // bind handler to router
                 if (methodAnno.method().length == 0) {
                     // 默认绑定全部HttpMethod

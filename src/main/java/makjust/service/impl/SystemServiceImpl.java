@@ -3,33 +3,33 @@ package makjust.service.impl;
 import io.vertx.core.json.JsonObject;
 import makjust.service.SystemService;
 import oshi.SystemInfo;
-import oshi.hardware.*;
-import oshi.software.os.NetworkParams;
-import oshi.software.os.OperatingSystem;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.Sensors;
 
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.util.Arrays;
+import java.text.DecimalFormat;
 import java.util.Properties;
 
 public class SystemServiceImpl implements SystemService {
     SystemInfo si = new SystemInfo();
     HardwareAbstractionLayer hal = si.getHardware();
-    CentralProcessor cpu = hal.getProcessor();
+    CentralProcessor processor = hal.getProcessor();
     Sensors sensors = hal.getSensors();
     GlobalMemory memory = hal.getMemory();
+
     @Override
     public JsonObject getSystemInfo() throws UnknownHostException {
         Properties props = System.getProperties();
         InetAddress addr;
         addr = InetAddress.getLocalHost();
-
         JsonObject jsonObject = new JsonObject();
-        jsonObject.put("HostName",addr.getHostName());
+        jsonObject.put("HostName", addr.getHostName());
         jsonObject.put("HostAddress", addr.getHostAddress());
-        jsonObject.put("CPUName", cpu.getProcessorIdentifier().getName());
-        jsonObject.put("CPUCoreCount", cpu.getPhysicalProcessorCount() + "核心/" + cpu.getLogicalProcessorCount() + "线程");
+        jsonObject.put("cpuName", processor.getProcessorIdentifier().getName());
+        jsonObject.put("cpuCoreCount", processor.getPhysicalProcessorCount() + "核心/" + processor.getLogicalProcessorCount() + "线程");
         jsonObject.put("CpuTemperature", sensors.getCpuTemperature() > 0 ? sensors.getCpuTemperature() : "Sensors Error");
         jsonObject.put("memoryInfo", memory.toString().replace("Available:", ""));
         jsonObject.put("totalMemory", String.format("%.1f", memory.getTotal() / 1073741824.0) + " GiB");
@@ -38,9 +38,9 @@ public class SystemServiceImpl implements SystemService {
         return jsonObject;
     }
 
-    public JsonObject getCpuUsage(){
-        long[] prevTicks = cpu.getSystemCpuLoadTicks();
-        long[] ticks = cpu.getSystemCpuLoadTicks();
+    public JsonObject getCpuUsage() {
+        long[] prevTicks = processor.getSystemCpuLoadTicks();
+        long[] ticks = processor.getSystemCpuLoadTicks();
         long nice = ticks[CentralProcessor.TickType.NICE.getIndex()] - prevTicks[CentralProcessor.TickType.NICE.getIndex()];
         long irq = ticks[CentralProcessor.TickType.IRQ.getIndex()] - prevTicks[CentralProcessor.TickType.IRQ.getIndex()];
         long softirq = ticks[CentralProcessor.TickType.SOFTIRQ.getIndex()] - prevTicks[CentralProcessor.TickType.SOFTIRQ.getIndex()];
@@ -50,8 +50,48 @@ public class SystemServiceImpl implements SystemService {
         long iowait = ticks[CentralProcessor.TickType.IOWAIT.getIndex()] - prevTicks[CentralProcessor.TickType.IOWAIT.getIndex()];
         long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
         long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
-        System.out.println("----------------cpu信息----------------");
-        return new JsonObject();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.put("cpuCoreCount", processor.getLogicalProcessorCount());
+        jsonObject.put("cpuSysUsage", new DecimalFormat("#.##%").format(cSys * 1.0 / totalCpu));
+        jsonObject.put("cpuUserUsage", new DecimalFormat("#.##%").format(user * 1.0 / totalCpu));
+        jsonObject.put("cpuWaitPer", new DecimalFormat("#.##%").format(iowait * 1.0 / totalCpu));
+        jsonObject.put("cpuUsage", new DecimalFormat("#.##%").format(1.0 - (idle * 1.0 / totalCpu)));
+        return jsonObject;
+    }
+
+    @Override
+    public JsonObject getMemoryUsage() {
+        System.out.println("----------------主机内存信息----------------");
+        SystemInfo systemInfo = new SystemInfo();
+        GlobalMemory memory = systemInfo.getHardware().getMemory();
+        //总内存
+        long totalByte = memory.getTotal();
+        //剩余
+        long acaliableByte = memory.getAvailable();
+        System.out.println("总内存 = " + formatByte(totalByte));
+        System.out.println("使用" + formatByte(totalByte - acaliableByte));
+        System.out.println("剩余内存 = " + formatByte(acaliableByte));
+        System.out.println("使用率：" + new DecimalFormat("#.##%").format((totalByte - acaliableByte) * 1.0 / totalByte));
+        return null;
+    }
+
+    public static String formatByte(long byteNumber) {
+        //换算单位
+        double FORMAT = 1024.0;
+        double kbNumber = byteNumber / FORMAT;
+        if (kbNumber < FORMAT) {
+            return new DecimalFormat("#.##KB").format(kbNumber);
+        }
+        double mbNumber = kbNumber / FORMAT;
+        if (mbNumber < FORMAT) {
+            return new DecimalFormat("#.##MB").format(mbNumber);
+        }
+        double gbNumber = mbNumber / FORMAT;
+        if (gbNumber < FORMAT) {
+            return new DecimalFormat("#.##GB").format(gbNumber);
+        }
+        double tbNumber = gbNumber / FORMAT;
+        return new DecimalFormat("#.##TB").format(tbNumber);
     }
 
 }

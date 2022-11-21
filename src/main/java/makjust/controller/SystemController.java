@@ -22,6 +22,9 @@ public class SystemController {
     public JsonObject cpuUsage(){
         return systemService.getCpuUsage();
     }
+    //获取内存使用率
+    @RequestMapping(value = "/getMemUsage",method = HttpMethod.POST)
+    public JsonObject memoryUsage(){return systemService.getMemoryUsage();}
 
 
 }
