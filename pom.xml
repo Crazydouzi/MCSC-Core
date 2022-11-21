@@ -7,7 +7,26 @@
     <groupId>com.makjust</groupId>
     <artifactId>mc-control-core</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <properties>
+        <vertx.version>4.3.1</vertx.version>
+        <slf4j.version>1.7.21</slf4j.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <main.class>makjust.Main</main.class>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--        <jna.version>5.12.1</jna.version>-->
+    </properties>
     <dependencies>
+        <!--        <dependency>-->
+        <!--            <groupId>net.java.dev.jna</groupId>-->
+        <!--            <artifactId>jna</artifactId>-->
+        <!--            <version>${jna.version}</version>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>net.java.dev.jna</groupId>-->
+        <!--            <artifactId>jna-platform</artifactId>-->
+        <!--            <version>${jna.version}</version>-->
+        <!--        </dependency>-->
         <!--        Vert.X -->
         <dependency>
             <groupId>io.vertx</groupId>
@@ -32,9 +51,20 @@
             <version>2.7</version>
         </dependency>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>
+        </dependency>
+        <!--        slf4j-->
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.28</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -56,11 +86,7 @@
             <artifactId>javassist</artifactId>
             <version>3.20.0-GA</version>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.18</version>
-        </dependency>
+
         <!--        json-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -71,7 +97,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.3.1</version>
+            <version>6.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -82,16 +108,6 @@
 
     </dependencies>
 
-
-    <properties>
-        <vertx.version>4.3.1</vertx.version>
-        <slf4j.version>1.7.21</slf4j.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <main.class>makjust.Main</main.class>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    </properties>
     <build>
         <!--打包时将resource下的文件一起打包-->
         <resources>
@@ -134,7 +150,8 @@
                                     </manifestEntries>
                                 </transformer>
                                 <!--多语言支持必需加入该转换器-->
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/io.vertx.core.spi.VerticleFactory</resource>
                                 </transformer>
                             </transformers>
