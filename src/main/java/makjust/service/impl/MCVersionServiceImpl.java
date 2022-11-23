@@ -10,7 +10,7 @@ public class MCVersionServiceImpl implements MCVersionService {
     }
 
     @Override
-    public JsonObject etStoreVersionList() {
+    public JsonObject getStoreVersionList() {
         return null;
     }
 

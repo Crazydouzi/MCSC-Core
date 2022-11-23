@@ -24,5 +24,9 @@ public class MCVersionController {
     public JsonObject scanVersion(){
         return new JsonObject();
     }
+    //文件上传
+    public JsonObject fileUpload(){
+        return null;
+    }
 
 }

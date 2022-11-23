@@ -19,12 +19,13 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import makjust.annotation.Controller;
+import makjust.annotation.Request;
 import makjust.annotation.RequestBody;
-import makjust.annotation.RequestMapping;
 import makjust.annotation.Socket;
 import makjust.utils.ClassScanUtil;
 import makjust.utils.getConfig;
 import org.apache.commons.lang3.StringUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -72,7 +73,7 @@ public class MainVerticle extends AbstractVerticle {
         CtClass cc = classPool.get(clazz.getName());
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (!((method.isAnnotationPresent(RequestMapping.class) || method.isAnnotationPresent(Socket.class)))) {
+            if (!((method.isAnnotationPresent(Request.class) || method.isAnnotationPresent(Socket.class)))) {
                 continue;
             }
             CtMethod ctMethod = cc.getDeclaredMethod(method.getName());
@@ -117,7 +118,7 @@ public class MainVerticle extends AbstractVerticle {
                 }
             }
             // RestFul控制器
-            if (method.isAnnotationPresent(RequestMapping.class)) {
+            if (method.isAnnotationPresent(Request.class)) {
                 Handler<RoutingContext> requestHandler = ctx -> {
                     try {
                         Object[] argValues = new Object[ctMethod.getParameterTypes().length];
@@ -159,10 +160,10 @@ public class MainVerticle extends AbstractVerticle {
                         e.printStackTrace();
                     }
                 };
-                RequestMapping methodAnno = method.getAnnotation(RequestMapping.class);
+                Request methodAnno = method.getAnnotation(Request.class);
                 String requestPath = ControllerPath + methodAnno.value();
                 String formatPath = requestPath.startsWith("/") ? requestPath : "/" + requestPath;
-                System.out.println("sub路由地址"+formatPath);
+                System.out.println("sub路由地址" + formatPath);
                 // bind handler to router
                 if (methodAnno.method().length == 0) {
                     // 默认绑定全部HttpMethod
