@@ -2,24 +2,29 @@ package makjust;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import makjust.annotation.Deploy;
+import makjust.utils.ClassScanUtil;
 import makjust.utils.ResourcesInit;
-import makjust.verticle.CMDWorkVerticle;
-import makjust.verticle.MainVerticle;
+
+import java.util.Set;
 
 
 /**
  * Created by chengen on 26/04/2017.
  */
 
-public class Main{
+public class Main {
     public static void main(String[] args) throws Exception {
         Vertx vertx = Vertx.vertx();
         System.out.println("主线程启动！");
         new ResourcesInit();
-        System.getProperties().setProperty("vertx.disableDnsResolver","true");
-        // 服务主容器
-        vertx.deployVerticle(MainVerticle.class.getName());
-        // Process容器
-        vertx.deployVerticle(CMDWorkVerticle.class.getName(),new DeploymentOptions().setWorker(true));
+        // 关闭vert.x内置DNS
+        System.getProperties().setProperty("vertx.disableDnsResolver", "true");
+        Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.verticle", Deploy.class);
+        for (Class<?> cls : classes) {
+            Deploy deployAnnotation = cls.getAnnotation(Deploy.class);
+            boolean worker = deployAnnotation.worker();
+            vertx.deployVerticle(cls.getCanonicalName(), new DeploymentOptions().setWorker(worker));
+        }
     }
 }
