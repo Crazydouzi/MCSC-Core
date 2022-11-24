@@ -1,11 +1,12 @@
 package makjust.verticle;
 
 import io.vertx.core.AbstractVerticle;
+import makjust.annotation.Deploy;
 import makjust.serverCore.ProcessServer;
 import makjust.utils.getConfig;
 
 import java.io.*;
-
+@Deploy
 public class CMDWorkVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
@@ -18,7 +19,7 @@ public class CMDWorkVerticle extends AbstractVerticle {
         BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(),
                 getConfig.object.getJsonObject("core").getString("cmd_charset")));
         OutputStream os = mcServer.getOutputStream();
-        //获取接收到的指令退送到os
+        //获取接收到的指令
         vertx.eventBus().consumer("cmdReq", data -> {
             try {
                 os.write((data.body() + "\n").getBytes());

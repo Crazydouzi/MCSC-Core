@@ -24,7 +24,7 @@ public class Main {
         for (Class<?> cls : classes) {
             Deploy deployAnnotation = cls.getAnnotation(Deploy.class);
             boolean worker = deployAnnotation.worker();
-            vertx.deployVerticle(cls.getCanonicalName(), new DeploymentOptions().setWorker(worker));
+            vertx.deployVerticle(cls.getName(), new DeploymentOptions().setWorker(worker));
         }
     }
 }

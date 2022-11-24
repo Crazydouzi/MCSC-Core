@@ -18,10 +18,7 @@ import javassist.*;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
-import makjust.annotation.Controller;
-import makjust.annotation.Request;
-import makjust.annotation.RequestBody;
-import makjust.annotation.Socket;
+import makjust.annotation.*;
 import makjust.utils.ClassScanUtil;
 import makjust.utils.getConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +30,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
-
+@Deploy
 public class MainVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
