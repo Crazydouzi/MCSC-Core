@@ -43,11 +43,13 @@ public class ClassScanUtil {
             else if ("jar".equals(protocol)) {
                 classNames = scanJar(url, packageName, packageDirName);
             }
+            assert classNames != null;
             for (String cls : classNames) {
                 Class<?> clazz = null;
                 try {
                     clazz = Class.forName(cls);
                 } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
                 if (clazz != null && null != clazz.getAnnotation(annotation)) {
                     classSet.add(clazz);
