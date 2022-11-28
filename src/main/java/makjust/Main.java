@@ -23,8 +23,12 @@ public class Main {
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.verticle", Deploy.class);
         for (Class<?> cls : classes) {
             Deploy deployAnnotation = cls.getAnnotation(Deploy.class);
+            DeploymentOptions options = new DeploymentOptions();
             boolean worker = deployAnnotation.worker();
-            vertx.deployVerticle(cls.getName(), new DeploymentOptions().setWorker(worker));
+            int instance = deployAnnotation.instance();
+            options.setWorker(worker);
+            if (instance != 0) options.setInstances(instance);
+            vertx.deployVerticle(cls.getName(), options);
         }
     }
 }
