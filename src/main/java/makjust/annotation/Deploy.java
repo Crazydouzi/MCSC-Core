@@ -1,5 +1,7 @@
 package makjust.annotation;
 
+import io.vertx.core.DeploymentOptions;
+
 import java.lang.annotation.*;
 
 @Documented
@@ -9,5 +11,5 @@ public @interface Deploy {
     // 开启worker模式
     boolean worker() default false;
     // 部署实例数 0为默认
-    int instance() default  0;
+    int instance() default  DeploymentOptions.DEFAULT_INSTANCES;
 }

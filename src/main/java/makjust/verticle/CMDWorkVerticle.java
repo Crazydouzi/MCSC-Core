@@ -1,26 +1,32 @@
 package makjust.verticle;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
 import makjust.annotation.Deploy;
 import makjust.serverCore.ProcessServer;
 import makjust.utils.getConfig;
 
 import java.io.*;
-@Deploy
+import java.net.URISyntaxException;
+@Deprecated
+//@Deploy(worker = true)
 public class CMDWorkVerticle extends AbstractVerticle {
+     String DIR = getConfig.getCorePath("/194");
+     String CMD = getConfig.object.getJsonObject("mcServer").getString("def_cmd");
+    //启动服务器时候开启MCServer Process
+    ProcessServer mcServer = new ProcessServer(new File(DIR), CMD,vertx);
+
+    public CMDWorkVerticle() throws URISyntaxException {
+    }
+
     @Override
     public void start() throws Exception {
-
-        final String DIR = getConfig.getCorePath("/194");
-        final String CMD = getConfig.object.getJsonObject("mcServer").getString("def_cmd");
-        //启动服务器时候开启MCServer Process
-        ProcessServer mcServer = new ProcessServer(new File(DIR), CMD);
         mcServer.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(),
                 getConfig.object.getJsonObject("core").getString("cmd_charset")));
         OutputStream os = mcServer.getOutputStream();
         //获取接收到的指令
-        vertx.eventBus().consumer("cmdReq", data -> {
+        vertx.eventBus().consumer("processServer.cmdReq", data -> {
             try {
                 os.write((data.body() + "\n").getBytes());
                 os.flush();
@@ -34,7 +40,7 @@ public class CMDWorkVerticle extends AbstractVerticle {
             try {
                 while ((line = reader.readLine()) != null) {
 //              推送消息
-                    vertx.eventBus().publish("cmdRes", line);
+                    vertx.eventBus().publish("processServer.cmdRes", line);
                     System.out.println("控制台输出："+line);
                 }
             } catch (IOException e) {
@@ -42,5 +48,13 @@ public class CMDWorkVerticle extends AbstractVerticle {
             }
         }).start();
     }
+
+    @Override
+    public void stop() throws Exception {
+        System.out.println("关闭");
+        mcServer.stop();
+        super.stop();
+    }
+
 
 }

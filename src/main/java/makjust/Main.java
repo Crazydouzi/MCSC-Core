@@ -20,6 +20,7 @@ public class Main {
         new ResourcesInit();
         // 关闭vert.x内置DNS
         System.getProperties().setProperty("vertx.disableDnsResolver", "true");
+        
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.verticle", Deploy.class);
         for (Class<?> cls : classes) {
             Deploy deployAnnotation = cls.getAnnotation(Deploy.class);
@@ -27,7 +28,7 @@ public class Main {
             boolean worker = deployAnnotation.worker();
             int instance = deployAnnotation.instance();
             options.setWorker(worker);
-            if (instance != 0) options.setInstances(instance);
+            options.setInstances(instance);
             vertx.deployVerticle(cls.getName(), options);
         }
     }

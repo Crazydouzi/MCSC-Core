@@ -1,10 +1,7 @@
 package makjust.verticle;
 
 import com.google.common.primitives.Primitives;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
-import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.FileUpload;
@@ -20,6 +17,7 @@ import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import makjust.annotation.*;
 import makjust.utils.ClassScanUtil;
+import makjust.utils.ResourcesInit;
 import makjust.utils.getConfig;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,6 +28,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
 @Deploy
 public class MainVerticle extends AbstractVerticle {
     @Override
@@ -134,6 +133,8 @@ public class MainVerticle extends AbstractVerticle {
                             // special type
                             else if (paramType == RoutingContext.class) {
                                 argValues[i] = ctx;
+                            } else if (paramType == Vertx.class) {
+                                argValues[i] = vertx;
                             } else if (paramType == FileUpload.class) {
                                 argValues[i] = uploadMap.get(paramNames[i]);
                             }
@@ -286,4 +287,5 @@ public class MainVerticle extends AbstractVerticle {
         }
         return bean;
     }
+
 }

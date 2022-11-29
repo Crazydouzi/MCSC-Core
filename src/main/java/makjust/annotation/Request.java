@@ -7,5 +7,5 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Request {
     String value() default "";
-    HttpMethod[] method() default {};
+    HttpMethod[] method() default {HttpMethod.GET};
 }
