@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Vertx vertx = Vertx.vertx();
         System.out.println("主线程启动！");
-        new ResourcesInit();
+        new ResourcesInit(vertx);
         // 关闭vert.x内置DNS
         System.getProperties().setProperty("vertx.disableDnsResolver", "true");
         

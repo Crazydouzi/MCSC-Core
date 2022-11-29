@@ -1,5 +1,7 @@
 package makjust.utils;
 
+import io.vertx.core.Vertx;
+
 import java.io.*;
 import java.net.URI;
 import java.util.AbstractMap;
@@ -15,9 +17,11 @@ public class ResourcesInit {
     private URI path = ResourcesInit.class.getProtectionDomain().getCodeSource().getLocation().toURI();
     //    目标资源地址
     private String resourcesPath = path.getPath() + "resources";
-
-    public ResourcesInit() throws Exception {
+    Vertx vertx;
+    public ResourcesInit(Vertx vertx) throws Exception {
         this.mkResourcesDIR();
+        this.vertx=vertx;
+
     }
 
     private void mkResourcesDIR() throws Exception {

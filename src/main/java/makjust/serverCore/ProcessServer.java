@@ -1,7 +1,7 @@
 package makjust.serverCore;
 
 import io.vertx.core.Vertx;
-import makjust.utils.getConfig;
+import makjust.utils.sysConfig;
 
 import java.io.*;
 
@@ -9,6 +9,7 @@ public class ProcessServer {
     private ProcessBuilder builder;
     private Process process;
     private Vertx vertx;
+    public ProcessServer(){}
     public ProcessServer(File path, String command,Vertx vertx){
         this.vertx=vertx;
         builder=new ProcessBuilder("cmd","/c",command);
@@ -18,7 +19,7 @@ public class ProcessServer {
     public void start() throws IOException {
         process=builder.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream(),
-                getConfig.object.getJsonObject("core").getString("cmd_charset")));
+                sysConfig.object.getJsonObject("core").getString("cmd_charset")));
         OutputStream os = getOutputStream();
         //获取接收到的指令
         vertx.eventBus().consumer("processServer.cmdReq", data -> {

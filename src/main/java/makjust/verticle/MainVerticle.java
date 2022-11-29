@@ -17,8 +17,7 @@ import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import makjust.annotation.*;
 import makjust.utils.ClassScanUtil;
-import makjust.utils.ResourcesInit;
-import makjust.utils.getConfig;
+import makjust.utils.sysConfig;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -47,8 +46,8 @@ public class MainVerticle extends AbstractVerticle {
         }
 
         // 静态资源路由
-        if (getConfig.getCoreConf().getBoolean("enWeb")) {
-            router.route().handler(StaticHandler.create().setDefaultContentEncoding("utf-8").setWebRoot(getConfig.getStaticPath()));
+        if (sysConfig.getCoreConf().getBoolean("enWeb")) {
+            router.route().handler(StaticHandler.create().setDefaultContentEncoding("utf-8").setWebRoot(sysConfig.getStaticPath()));
         }
         //挂载子路由
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);
@@ -90,7 +89,7 @@ public class MainVerticle extends AbstractVerticle {
                 Socket wsMethodAnno = method.getAnnotation(Socket.class);
                 String path = ControllerPath + wsMethodAnno.value();
                 String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
-                System.out.println(wsPath);
+                System.out.println("webSocket路由地址"+"/ws"+wsPath);
                 SockJSHandlerOptions options = new SockJSHandlerOptions();
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
                 Object[] argValues = new Object[ctMethod.getParameterTypes().length];
@@ -105,7 +104,7 @@ public class MainVerticle extends AbstractVerticle {
                     }
                 }
                 try {
-                    System.out.println(Arrays.toString(argValues));
+//                    System.out.println(Arrays.toString(argValues));
                     Router ws = (Router) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                     wsRouter.route(wsPath).subRouter(ws);
                     continue;
@@ -161,7 +160,7 @@ public class MainVerticle extends AbstractVerticle {
                 Request methodAnno = method.getAnnotation(Request.class);
                 String requestPath = ControllerPath + methodAnno.value();
                 String formatPath = requestPath.startsWith("/") ? requestPath : "/" + requestPath;
-                System.out.println("sub路由地址" + formatPath);
+                System.out.println("API路由地址：" +"/api"+formatPath);
                 // bind handler to router
                 if (methodAnno.method().length == 0) {
                     // 默认绑定全部HttpMethod

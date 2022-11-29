@@ -1,18 +1,16 @@
 package makjust.verticle;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
-import makjust.annotation.Deploy;
 import makjust.serverCore.ProcessServer;
-import makjust.utils.getConfig;
+import makjust.utils.sysConfig;
 
 import java.io.*;
 import java.net.URISyntaxException;
 @Deprecated
 //@Deploy(worker = true)
 public class CMDWorkVerticle extends AbstractVerticle {
-     String DIR = getConfig.getCorePath("/194");
-     String CMD = getConfig.object.getJsonObject("mcServer").getString("def_cmd");
+     String DIR = sysConfig.getCorePath("/194");
+     String CMD = sysConfig.object.getJsonObject("mcServer").getString("def_cmd");
     //启动服务器时候开启MCServer Process
     ProcessServer mcServer = new ProcessServer(new File(DIR), CMD,vertx);
 
@@ -23,7 +21,7 @@ public class CMDWorkVerticle extends AbstractVerticle {
     public void start() throws Exception {
         mcServer.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(mcServer.getInputStream(),
-                getConfig.object.getJsonObject("core").getString("cmd_charset")));
+                sysConfig.object.getJsonObject("core").getString("cmd_charset")));
         OutputStream os = mcServer.getOutputStream();
         //获取接收到的指令
         vertx.eventBus().consumer("processServer.cmdReq", data -> {

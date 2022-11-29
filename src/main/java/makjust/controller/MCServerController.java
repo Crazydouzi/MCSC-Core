@@ -8,44 +8,52 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
 import makjust.entity.MCServer;
 import makjust.entity.MCSetting;
-import makjust.serverCore.ProcessServer;
-import makjust.utils.getConfig;
+import makjust.service.MCServerService;
+import makjust.service.impl.MCServerServiceImpl;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
 @Controller("/server")
-public class MCServerCoreController {
-    ProcessServer mcServer;
+public class MCServerController {
+    MCServerService serverService = new MCServerServiceImpl();
+    
     // 修改服务器选项
-    public Json editSetting(@RequestBody List<MCSetting> settingList){
+    public Json editSetting(@RequestBody List<MCSetting> settingList) {
         return new Json();
     }
+
     // 根据服务器id查询全部设置
-    public Json getSetting(@RequestBody MCServer server){
+    public Json getSetting(@RequestBody MCServer server) {
         return new Json();
     }
+
     // 修改MC核心启动参数
-    public Json coreParamSetting(@RequestBody MCServer mcServer){
+    public Json coreParamSetting(@RequestBody MCServer mcServer) {
         return new Json();
     }
-    @Request(value = "/start",method = HttpMethod.POST)
+
+    // 开启MC服务器
+    @Request(value = "/start", method = HttpMethod.POST)
     public JsonObject serverStart(Vertx vertx) throws URISyntaxException, IOException {
-        String DIR = getConfig.getCorePath("/194");
-        String CMD = getConfig.object.getJsonObject("mcServer").getString("def_cmd");
-        mcServer = new ProcessServer(new File(DIR), CMD,vertx);
-        mcServer.start();
-        return new JsonObject();
+        JsonObject jsonObject = new JsonObject();
+        boolean flag = serverService.serverStart(vertx);
+        if (flag) return jsonObject.put("msg:", "启动成功");
+        else return jsonObject.put("msg", "启动失败");
     }
-    @Request(value = "/stop",method = HttpMethod.POST)
-    public JsonObject serverStop(Vertx vertx) throws IOException {
-        mcServer.stop();
-        return new JsonObject();
+
+    // 关闭MC服务器
+    @Request(value = "/stop", method = HttpMethod.POST)
+    public JsonObject serverStop(Vertx vertx) {
+        JsonObject jsonObject = new JsonObject();
+        boolean flag = serverService.serverStop(vertx);
+        if (flag) return jsonObject.put("msg", "服务器关闭成功");
+        else return jsonObject.put("msg", "关闭失败");
     }
+
     @Socket("/process")
-    public Router processSocket(Vertx vertx, SockJSHandler sockJSHandler){
+    public Router processSocket(Vertx vertx, SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {
