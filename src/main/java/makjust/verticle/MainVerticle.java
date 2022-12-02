@@ -17,7 +17,7 @@ import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import makjust.annotation.*;
 import makjust.utils.ClassScanUtil;
-import makjust.utils.sysConfig;
+import makjust.utils.SysConfig;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -46,8 +46,8 @@ public class MainVerticle extends AbstractVerticle {
         }
 
         // 静态资源路由
-        if (sysConfig.getCoreConf().getBoolean("enWeb")) {
-            router.route().handler(StaticHandler.create().setDefaultContentEncoding("utf-8").setWebRoot(sysConfig.getStaticPath()));
+        if (SysConfig.getCoreConf().getBoolean("enWeb")) {
+            router.route().handler(StaticHandler.create().setDefaultContentEncoding("utf-8").setWebRoot(SysConfig.getStaticPath()));
         }
         //挂载子路由
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);

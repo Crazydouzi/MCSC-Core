@@ -8,8 +8,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
-public class sysConfig {
-    private static URL pathURL = sysConfig.class.getProtectionDomain().getCodeSource().getLocation();
+public class SysConfig {
+    private static URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
     public static JsonObject object = ConfigInit();
     Vertx vertx;
     private static Boolean getENV() {
@@ -25,6 +25,9 @@ public class sysConfig {
             path = path.replace("file:", "");
             return path;
         }
+    }
+    public static String resourcesPath(){
+        return getBasePath()+"resources/";
     }
 
     private static JsonObject ConfigInit() {

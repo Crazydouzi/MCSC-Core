@@ -7,7 +7,6 @@ import makjust.annotation.RequestBody;
 import makjust.annotation.Request;
 import makjust.annotation.Controller;
 import makjust.entity.User;
-import makjust.env.EnvOptions;
 
 @Controller("/core")
 public class AuthController {

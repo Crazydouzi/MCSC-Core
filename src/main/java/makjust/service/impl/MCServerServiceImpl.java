@@ -2,17 +2,17 @@ package makjust.service.impl;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import makjust.env.EnvOptions;
+import makjust.utils.EnvOptions;
 import makjust.serverCore.ProcessServer;
 import makjust.service.MCServerService;
-import makjust.utils.sysConfig;
+import makjust.utils.SysConfig;
 
 import java.io.File;
 import java.io.IOException;
 
 public class MCServerServiceImpl implements MCServerService {
-    String DIR = sysConfig.getCorePath("/194");
-    String CMD = sysConfig.object.getJsonObject("mcServer").getString("def_cmd");
+    String DIR = SysConfig.getCorePath("/194");
+    String CMD = SysConfig.object.getJsonObject("mcServer").getString("def_cmd");
     ProcessServer mcServer = new ProcessServer();
 
     public MCServerServiceImpl() {

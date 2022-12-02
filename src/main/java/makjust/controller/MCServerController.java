@@ -10,13 +10,14 @@ import makjust.entity.MCServer;
 import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
+import org.checkerframework.checker.units.qual.A;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
 @Controller("/server")
-public class MCServerController {
+public class MCServerController extends AbstractController {
     MCServerService serverService = new MCServerServiceImpl();
     
     // 修改服务器选项
@@ -36,7 +37,7 @@ public class MCServerController {
 
     // 开启MC服务器
     @Request(value = "/start", method = HttpMethod.POST)
-    public JsonObject serverStart(Vertx vertx) throws URISyntaxException, IOException {
+    public JsonObject serverStart() throws URISyntaxException, IOException {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStart(vertx);
         if (flag) return jsonObject.put("msg:", "启动成功");
@@ -45,7 +46,7 @@ public class MCServerController {
 
     // 关闭MC服务器
     @Request(value = "/stop", method = HttpMethod.POST)
-    public JsonObject serverStop(Vertx vertx) {
+    public JsonObject serverStop() {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
         if (flag) return jsonObject.put("msg", "服务器关闭成功");
@@ -53,7 +54,7 @@ public class MCServerController {
     }
 
     @Socket("/process")
-    public Router processSocket(Vertx vertx, SockJSHandler sockJSHandler) {
+    public Router processSocket( SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {

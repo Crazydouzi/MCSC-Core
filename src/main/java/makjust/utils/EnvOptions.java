@@ -1,4 +1,4 @@
-package makjust.env;
+package makjust.utils;
 
 public class EnvOptions {
     private static boolean serverStatus=false;
