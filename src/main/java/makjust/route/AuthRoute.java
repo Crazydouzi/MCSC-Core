@@ -21,13 +21,13 @@ public class AuthRoute {
         return JsonObject.mapFrom(user);
     }
     // 修改用户信息
-//    @Request(value = "/userUpdate",method = HttpMethod.POST,async = true)
-    public Handler<RoutingContext> userUpdate(Vertx vertx) {
-        return ctx->{
-            userService.modifyUser(vertx,ar->{
-                ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end(ar.result().encode());
-            });
-        };
+    @Request(value = "/userUpdate",method = HttpMethod.POST,async = true)
+    public RoutingContext userUpdate(Vertx vertx,RoutingContext ctx) {
+        userService.modifyUser(vertx,ar->{
+            ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end(ar.result().encode());
+        });
+
+        return ctx;
     }
     // 登出
     @Request(value = "/userLogout",method = HttpMethod.POST)
