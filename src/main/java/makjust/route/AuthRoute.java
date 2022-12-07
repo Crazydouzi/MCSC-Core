@@ -35,12 +35,10 @@ public class AuthRoute {
         return JsonObject.mapFrom(user);
 
     }
-//    @Request(value = "/asyncFindUser",method = HttpMethod.POST,async = true)
-    public Handler<RoutingContext> findUser(@RequestBody  User user,Vertx vertx){
-        return ctx->{
-            System.out.println(user.toString());
-            userService.findUser(vertx,ar-> ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end(ar.result().encode()));
-        };
+    @Request(value = "/asyncFindUser",method = HttpMethod.POST,async = true)
+    public RoutingContext findUser(@RequestBody  User user,Vertx vertx,RoutingContext ctx){
+        userService.findUser(vertx,ar->ctx.json(ar.result()));
+        return ctx;
     }
     // 远程认证
     public JsonObject RemoteAuth(@RequestBody  User user){

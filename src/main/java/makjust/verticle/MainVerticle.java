@@ -39,7 +39,7 @@ public class MainVerticle extends AbstractVerticle {
         // ws子路由(SockJs)
         Router wsRouter = Router.router(vertx);
         // 自动加载控制器路由
-        Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.controller", RoutePath.class);
+        Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.route", RoutePath.class);
         for (Class<?> cls : classes) {
             Object controller = cls.getConstructor().newInstance();
             routerMapping(controller, apiRouter, wsRouter);
@@ -147,9 +147,15 @@ public class MainVerticle extends AbstractVerticle {
                                 argValues[i] = parseBeanType(params, paramType);
                             }
                         }
-                        Object result = MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
-                        // 返回Json类型结果集
-                        ctx.json(result);
+                        if ( method.getAnnotation(Request.class).async()){
+                            ctx= (RoutingContext) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
+
+                        }else {
+                            Object result = MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
+                            // 返回Json类型结果集
+                            ctx.json(result);
+                        }
+
                     } catch (Throwable e) {
                         HashMap<String, Object> result = new HashMap<>();
                         result.put("message", "system error");
