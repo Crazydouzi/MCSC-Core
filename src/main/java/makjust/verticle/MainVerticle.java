@@ -39,7 +39,7 @@ public class MainVerticle extends AbstractVerticle {
         // ws子路由(SockJs)
         Router wsRouter = Router.router(vertx);
         // 自动加载控制器路由
-        Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.controller", Controller.class);
+        Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.controller", RoutePath.class);
         for (Class<?> cls : classes) {
             Object controller = cls.getConstructor().newInstance();
             routerMapping(controller, apiRouter, wsRouter);
@@ -58,10 +58,10 @@ public class MainVerticle extends AbstractVerticle {
 
     private <ControllerType> void routerMapping(ControllerType annotatedBean, Router router, Router wsRouter) throws NotFoundException {
         Class<ControllerType> clazz = (Class<ControllerType>) annotatedBean.getClass();
-        if (!clazz.isAnnotationPresent(Controller.class)) {
+        if (!clazz.isAnnotationPresent(RoutePath.class)) {
             return;
         }
-        Controller annotation = clazz.getAnnotation(Controller.class);
+        RoutePath annotation = clazz.getAnnotation(RoutePath.class);
         String ControllerPath = annotation.value();
         ClassPool classPool = ClassPool.getDefault();
         classPool.insertClassPath(new ClassClassPath(clazz));

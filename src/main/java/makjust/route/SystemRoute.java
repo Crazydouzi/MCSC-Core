@@ -1,7 +1,7 @@
-package makjust.controller;
+package makjust.route;
 
 import io.vertx.core.json.JsonObject;
-import makjust.annotation.Controller;
+import makjust.annotation.RoutePath;
 import makjust.annotation.HttpMethod;
 import makjust.annotation.Request;
 import makjust.service.SystemService;
@@ -9,8 +9,8 @@ import makjust.service.impl.SystemServiceImpl;
 
 import java.net.UnknownHostException;
 
-@Controller("/system")
-public class SystemController {
+@RoutePath("/system")
+public class SystemRoute {
     SystemService systemService= new SystemServiceImpl();
     // 使用率报告
     @Request(value = "/getInfo",method = HttpMethod.POST)

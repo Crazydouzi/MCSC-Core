@@ -1,24 +1,21 @@
-package makjust.controller;
+package makjust.route;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
 import makjust.entity.MCServer;
 import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
-import org.checkerframework.checker.units.qual.A;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-@Controller("/server")
-public class MCServerController extends AbstractController {
-    MCServerService serverService = new MCServerServiceImpl();
+@RoutePath("/server")
+public class MCServerRoute extends AbstractRoute {
+    private MCServerService serverService = new MCServerServiceImpl();
     
     // 修改服务器选项
     public Json editSetting(@RequestBody List<MCSetting> settingList) {
@@ -54,7 +51,7 @@ public class MCServerController extends AbstractController {
     }
 
     @Socket("/process")
-    public Router processSocket( SockJSHandler sockJSHandler) {
+    public io.vertx.ext.web.Router processSocket(SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {

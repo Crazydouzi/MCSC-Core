@@ -1,12 +1,12 @@
-package makjust.controller;
+package makjust.route;
 
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-import makjust.annotation.Controller;
+import makjust.annotation.RoutePath;
 import makjust.service.MCVersionService;
 
-@Controller
-public class MCVersionController {
+@RoutePath
+public class MCVersionRoute {
     MCVersionService versionService;
     // 获取已上传版本列表（可部署版本）
     public Json getVersionList(){
