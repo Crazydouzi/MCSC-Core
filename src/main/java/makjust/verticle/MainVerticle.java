@@ -1,16 +1,24 @@
 package makjust.verticle;
 
 import com.google.common.primitives.Primitives;
-import io.vertx.core.*;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.CookieSameSite;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
+import io.vertx.ext.web.sstore.ClusteredSessionStore;
+import io.vertx.ext.web.sstore.LocalSessionStore;
+import io.vertx.ext.web.sstore.SessionStore;
 import javassist.*;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
@@ -38,6 +46,12 @@ public class MainVerticle extends AbstractVerticle {
         Router apiRouter = Router.router(vertx);
         // ws子路由(SockJs)
         Router wsRouter = Router.router(vertx);
+        //开启Session
+//        SessionStore store = ClusteredSessionStore.create(vertx);
+//        SessionHandler sessionHandler = SessionHandler.create(store);
+//        SessionStore store1 = LocalSessionStore.create(vertx);
+//        sessionHandler.setCookieSameSite(CookieSameSite.STRICT);
+//        router.route().handler(sessionHandler);
         // 自动加载控制器路由
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.route", RoutePath.class);
         for (Class<?> cls : classes) {
@@ -49,6 +63,7 @@ public class MainVerticle extends AbstractVerticle {
         if (SysConfig.getCoreConf().getBoolean("enWeb")) {
             router.route().handler(StaticHandler.create().setDefaultContentEncoding("utf-8").setWebRoot(SysConfig.getStaticPath()));
         }
+
         //挂载子路由
         router.route("/api/*").consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);
         router.route("/ws/*").subRouter(wsRouter);
@@ -147,9 +162,10 @@ public class MainVerticle extends AbstractVerticle {
                                 argValues[i] = parseBeanType(params, paramType);
                             }
                         }
+                        //异步处理
                         if ( method.getAnnotation(Request.class).async()){
                             ctx= (RoutingContext) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
-
+                            //同步处理
                         }else {
                             Object result = MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                             // 返回Json类型结果集
@@ -159,7 +175,7 @@ public class MainVerticle extends AbstractVerticle {
                     } catch (Throwable e) {
                         HashMap<String, Object> result = new HashMap<>();
                         result.put("message", "system error");
-                        ctx.response().end(Json.encode(result));
+                        ctx.response().setStatusCode(500).end(Json.encode(result));
                         e.printStackTrace();
                     }
                 };

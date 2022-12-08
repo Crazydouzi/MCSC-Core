@@ -7,6 +7,6 @@ core:
 
 mcServer:
 #  指定到resources下文件夹
-  version: 1.9.4
+  version: \
   port: 23356
-  def_cmd: start
+  def_cmd: cmd

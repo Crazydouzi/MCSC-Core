@@ -2,12 +2,14 @@ package makjust.route;
 
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
 import makjust.entity.MCServer;
 import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
+import makjust.utils.EnvOptions;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -51,19 +53,30 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     @Socket("/process")
-    public io.vertx.ext.web.Router processSocket(SockJSHandler sockJSHandler) {
+    public Router processSocket(SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {
-                sockJSSocket.write((String) r.body());
+                if (EnvOptions.getServerStatus()) {
+                    sockJSSocket.write((String) r.body());
+                } else {
+                    sockJSSocket.write("服务器尚未启动");
+
+                }
             });
             sockJSSocket.handler(ws -> {
                 try {
-                    // 推送接收到的到的数据
-                    vertx.eventBus().publish("processServer.cmdReq", ws.toString());
+                    if (EnvOptions.getServerStatus()) {
+                        // 推送接收到的到的数据
+                        vertx.eventBus().publish("processServer.cmdReq", ws.toString());
+                    } else {
+                        sockJSSocket.write("服务器尚未启动");
+
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             });
         });
     }

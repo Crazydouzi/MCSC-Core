@@ -16,12 +16,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void findUser(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler) {
         userDao.selectUser(vertx).onSuccess(ar->{
-            JsonArray jsonArray=new JsonArray();
+            JsonObject jsonObject = new JsonObject();
             for (Row row:ar){
-                jsonArray.add(row.toJson());
+                jsonObject = row.toJson();
             }
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)
-            ));
+            resultHandler.handle(Future.succeededFuture(jsonObject));
 
         });
     }

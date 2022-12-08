@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class MCServerServiceImpl implements MCServerService {
-    String DIR = SysConfig.getCorePath("/194");
-    String CMD = SysConfig.object.getJsonObject("mcServer").getString("def_cmd");
-    ProcessServer mcServer = new ProcessServer();
+    private String DIR = SysConfig.getCorePath("/");
+    private String CMD = SysConfig.object.getJsonObject("mcServer").getString("def_cmd");
+    private ProcessServer mcServer;
 
     public MCServerServiceImpl() {
     }
@@ -47,7 +47,7 @@ public class MCServerServiceImpl implements MCServerService {
     @Override
     public boolean serverStop(Vertx vertx) {
         boolean serverStatus = EnvOptions.getServerStatus();
-        if (serverStatus) {
+        if (serverStatus&&mcServer!=null) {
             try {
                 mcServer.stop();
                 EnvOptions.setServerStatus(false);
