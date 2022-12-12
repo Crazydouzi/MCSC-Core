@@ -14,19 +14,18 @@ import makjust.service.UserService;
 import makjust.service.impl.UserServiceImpl;
 
 @RoutePath("/user")
-public class UserRoute {
+public class UserRoute extends AbstractRoute{
     private UserService userService=new UserServiceImpl();
     // 用户登录
     @Request(value = "/userLogin",method = HttpMethod.POST,async = true)
     public RoutingContext userLogin(@RequestBody  User user, RoutingContext ctx,Vertx vertx) {
         System.out.println(user);
         userService.findUser(vertx,ar->{
-            System.out.println(ar.result());
             User u= Json.decodeValue(ar.result().toString(),User.class);
             System.out.println(u);
             ctx.session().put("User",u);
-            ctx.json((ar.result().put("msg","登录成功")));
-//            ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end.encode());
+            ctx.response().setStatusCode(200);
+            ctx.json(returnJson(200,"登录成功"));
         });
         return ctx;
     }
@@ -45,14 +44,14 @@ public class UserRoute {
         User user=ctx.session().get("User");
         if (user!=null){
             ctx.session().remove("User");
-            return new JsonObject().put("msg","退出成功");
+            return returnJson(200,"退出成功");
         }
-        return new JsonObject().put("msg","error");
+        return returnJson(200,"您还没有登录");
 
     }
     @Request(value = "/asyncFindUser",method = HttpMethod.POST,async = true)
     public RoutingContext findUser(@RequestBody  User user,Vertx vertx,RoutingContext ctx){
-        userService.findUser(vertx,ar->ctx.json(ar.result()));
+        userService.findUser(vertx,ar->ctx.json(returnJson(200,"成功",ar.result())));
         return ctx;
     }
     // 远程认证
