@@ -24,7 +24,7 @@ public class UserRoute {
             System.out.println(ar.result());
             User u= Json.decodeValue(ar.result().toString(),User.class);
             System.out.println(u);
-//            ctx.session().put("User",u);
+            ctx.session().put("User",u);
             ctx.json((ar.result().put("msg","登录成功")));
 //            ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end.encode());
         });
@@ -45,8 +45,9 @@ public class UserRoute {
         User user=ctx.session().get("User");
         if (user!=null){
             ctx.session().remove("User");
+            return new JsonObject().put("msg","退出成功");
         }
-        return new JsonObject().put("msg","退出成功");
+        return new JsonObject().put("msg","error");
 
     }
     @Request(value = "/asyncFindUser",method = HttpMethod.POST,async = true)

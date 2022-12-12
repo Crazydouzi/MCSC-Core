@@ -5,6 +5,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.Cookie;
 import io.vertx.core.http.CookieSameSite;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
@@ -33,6 +34,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.*;
+import java.net.CookieHandler;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,12 +48,14 @@ public class MainVerticle extends AbstractVerticle {
         Router apiRouter = Router.router(vertx);
         // ws子路由(SockJs)
         Router wsRouter = Router.router(vertx);
-        //开启Session
+        // 启用Cookie
+        //开启集群Session
 //        SessionStore store = ClusteredSessionStore.create(vertx);
-//        SessionHandler sessionHandler = SessionHandler.create(store);
-//        SessionStore store1 = LocalSessionStore.create(vertx);
+        // 开启本地Session
+        SessionStore store = SessionStore.create(vertx);
+        SessionHandler sessionHandler = SessionHandler.create(store);
 //        sessionHandler.setCookieSameSite(CookieSameSite.STRICT);
-//        router.route().handler(sessionHandler);
+        router.route().handler(sessionHandler);
         // 自动加载控制器路由
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.route", RoutePath.class);
         for (Class<?> cls : classes) {
