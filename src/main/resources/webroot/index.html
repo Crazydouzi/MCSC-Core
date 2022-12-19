@@ -11,15 +11,14 @@
 <br>
 <input type="text" id="inp" value="" placeholder="input">
 <input type="button" id="btn" value="发送" onclick="send()">
+<input type="button" id="OpenBtn" value="建立连接" onclick="openSock()">
+<input type="button" id="closeBtn" value="关闭" onclick="closeSock()">
 </body>
 
 <script src="./js/sockjs.min.js"></script>
 <script>
-    var sock = new SockJS('http://localhost:8080/ws/server/process/');
+    var  sock = new SockJS('http://localhost:8080/ws/server/process/');
     let textarea0 = document.getElementById("ta");
-    sock.onopen = function () {
-        console.log('open');
-    };
     sock.onmessage = d => {
         console.log(d.data);
         let p = document.createElement('p');
@@ -37,22 +36,33 @@
         console.log('this message has no address:', json);
     };
 
-    sock.onclose = function () {
-        console.log('close');
-    };
+    function openSock() {
+        sock = new SockJS('http://localhost:8080/ws/server/process/');
+        sock.onopen = function () {
+            console.log('open');
+        };
+        sock.onmessage = d => {
+            console.log(d.data);
+            let p = document.createElement('p');
+            p.innerText = d.data;
+            textarea0.append(p);
+            p = null;
+            textarea0.scrollTop = textarea0.scrollHeight;
+        };
+    }
 
+    function closeSock() {
+        sock.close();
+        sock.onclose = function () {
+            alert("Socket关闭")
+            console.log('close');
+        };
+
+    }
     function send() {
         let comm = document.getElementById("inp");
-        console.log(comm.value);
-        sock.send(comm.value);
-        // sock.onmessage = d => {
-        //     console.log(d.data);
-        //     let p = document.createElement('p');
-        //     p.innerText = d.data;
-        //     textarea0.append(p)
-        // };
-
-
+        console.log(comm.value)
+        sock.send(comm.value)
     }
 
 </script>

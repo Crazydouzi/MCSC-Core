@@ -48,7 +48,10 @@ public class MCServerRoute extends AbstractRoute {
     public JsonObject serverStop() {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
-        if (flag) return jsonObject.put("msg", "服务器关闭成功");
+        if (flag) {
+            vertx.eventBus().publish("processServer.cmdRes","");
+            return jsonObject.put("msg", "服务器关闭成功");
+        }
         else return jsonObject.put("msg", "关闭失败");
     }
 
@@ -60,23 +63,23 @@ public class MCServerRoute extends AbstractRoute {
                 if (EnvOptions.getServerStatus()) {
                     sockJSSocket.write((String) r.body());
                 } else {
-                    sockJSSocket.write("服务器尚未启动");
+                    sockJSSocket.write("服务器已关闭。。。");
 
                 }
             });
+            //接收Client发送的消息
             sockJSSocket.handler(ws -> {
                 try {
+                    System.out.println("ws:"+ws.toString()+"processStatus:"+EnvOptions.getServerStatus());
                     if (EnvOptions.getServerStatus()) {
                         // 推送接收到的到的数据
                         vertx.eventBus().publish("processServer.cmdReq", ws.toString());
                     } else {
-                        sockJSSocket.write("服务器尚未启动");
-
+                        sockJSSocket.write("服务器已关闭。。。");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             });
         });
     }

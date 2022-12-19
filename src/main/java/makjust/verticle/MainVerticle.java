@@ -109,6 +109,8 @@ public class MainVerticle extends AbstractVerticle {
                 String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
                 System.out.println("webSocket路由地址"+"/ws"+wsPath);
                 SockJSHandlerOptions options = new SockJSHandlerOptions();
+                options
+                        .setHeartbeatInterval(2000);
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
                 Object[] argValues = new Object[ctMethod.getParameterTypes().length];
                 for (int i = 0; i < argValues.length; i++) {
