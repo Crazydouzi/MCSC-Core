@@ -9,25 +9,34 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import makjust.dao.UserDao;
 import makjust.dao.impl.UserDaoImpl;
+import makjust.entity.User;
 import makjust.service.UserService;
 
 public class UserServiceImpl implements UserService {
     private UserDao userDao=new UserDaoImpl();
     @Override
-    public void findUser(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.selectUser(vertx).onSuccess(ar->{
-            JsonObject jsonObject = new JsonObject();
+    public void userLogin(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+        userDao.selectUserByName(vertx,user.getUsername()).onSuccess(ar->{
+            JsonObject result = new JsonObject();
             for (Row row:ar){
-                jsonObject = row.toJson();
+                result = row.toJson();
             }
-            resultHandler.handle(Future.succeededFuture(jsonObject));
+            if (result.isEmpty()){
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","用户不存在")));
+            }
+            else if (result.getString("pwd").equals(user.getPwd())){
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","登录成功")));
+            }else{
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","密码错误")));
+
+            }
 
         });
     }
 
     @Override
-    public void addUser(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.insertUser(vertx).onSuccess(ar->{
+    public void addUser(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+        userDao.insertUser(vertx,user).onSuccess(ar->{
             JsonArray jsonArray=new JsonArray();
             for (Row row:ar){
                 jsonArray.add(row.toJson());

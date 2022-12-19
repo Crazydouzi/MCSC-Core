@@ -3,10 +3,14 @@ package makjust.dao.impl;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.UserDao;
+import makjust.entity.User;
 import makjust.utils.DBUtil;
+
+import java.util.ArrayList;
 
 public class UserDaoImpl implements UserDao {
     private DBUtil dbUtil=new DBUtil();
@@ -15,22 +19,27 @@ public class UserDaoImpl implements UserDao {
 //        this.vertx=vertx;
 //    }
     @Override
-    public Future<RowSet<Row>> insertUser(Vertx vertx) {
-        return dbUtil.query("select role from User;",new JsonArray());
+    public Future<RowSet<Row>> insertUser(Vertx vertx,User user) {
+        return dbUtil.executeRowSQL("insert into user ();");
     }
 
     @Override
     public Future<RowSet<Row>> updateUser(Vertx vertx) {
-        return dbUtil.query("select username from User;",new JsonArray());
+        return dbUtil.executeRowSQL("select username from User;");
     }
 
     @Override
     public Future<RowSet<Row>> selectUser(Vertx vertx) {
-        return dbUtil.query("select * from User;",new JsonArray());
+        return dbUtil.executeRowSQL("select * from User;");
 //        vertx.eventBus().consumer("userDao.selectUser").handler(message->{
 //            dbUtil.query("select * from User;",new JsonArray()).onSuccess(ar->{
 //               message.reply(dbUtil.toJson(ar));
 //            });
 //        });
+    }
+
+    @Override
+    public Future<RowSet<Row>> selectUserByName(Vertx vertx, String username) {
+        return dbUtil.executeRowSQL("select username,pwd from User where username=?;",username);
     }
 }

@@ -1,14 +1,17 @@
 package makjust.utils;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.Tuple;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DBUtil {
     private static Vertx vertx;
@@ -38,15 +41,40 @@ public class DBUtil {
         }
         return jsonArray;
     }
-    public Future<RowSet<Row>> query(String query, JsonArray params) {
+
+    //执行自定义SQL
+    public Future<RowSet<Row>> executeRowSQL(String sql){
+        if (sql == null || sql.isEmpty()) {
+            return Future.failedFuture("Query is null or empty");
+        }
+        if (!sql.endsWith(";")) {
+            sql = sql + ";";
+        }
+        return pool.preparedQuery(sql).execute();
+    }
+    //简单查询
+    public Future<RowSet<Row>> executeRowSQL(String query, Object... param) {
         if (query == null || query.isEmpty()) {
             return Future.failedFuture("Query is null or empty");
         }
         if (!query.endsWith(";")) {
             query = query + ";";
         }
-        Handler<AsyncResult<JsonObject>> resultHandler;
-        return pool.preparedQuery(query).execute();
-//        return queryResultFuture;
+        if (param.length == 0){
+            return pool.preparedQuery(query).execute();
+        }else {
+            List<Object> params = new ArrayList<>(Arrays.asList(param));
+            return pool.preparedQuery(query).execute(Tuple.tuple(params));
+        }
+    }
+    //简单插入
+    public Future<RowSet<Row>> insert(String table, JsonObject param) {
+        if (table == null || table.isEmpty()) {
+            return Future.failedFuture("Query is null or empty");
+        }
+        String key= param.getMap().keySet().toString().replace("[","(").replace("]",")").replace(" ","");
+        System.out.println(key);
+        String query="insert into "+"aa"+" "+key+" VALUES "+key.replaceAll("([A-Za-z0-9]+)\\b","?");
+        return pool.preparedQuery(query).execute(Tuple.tuple(Arrays.asList(param.getMap().keySet().toArray())));
     }
 }

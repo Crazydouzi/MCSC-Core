@@ -1,16 +1,15 @@
 package makjust.route;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 public abstract class AbstractRoute {
     public static Vertx vertx;
-    public static Router router;
+    public static RoutingContext ctx;
+
     public void sendToBus(String path, String code, JsonObject object) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("code:", code);

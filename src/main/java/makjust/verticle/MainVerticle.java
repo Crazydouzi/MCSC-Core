@@ -5,8 +5,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.Cookie;
-import io.vertx.core.http.CookieSameSite;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.FileUpload;
@@ -17,24 +15,23 @@ import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
-import io.vertx.ext.web.sstore.ClusteredSessionStore;
-import io.vertx.ext.web.sstore.LocalSessionStore;
 import io.vertx.ext.web.sstore.SessionStore;
 import javassist.*;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import makjust.annotation.*;
+import makjust.route.AbstractRoute;
 import makjust.utils.ClassScanUtil;
 import makjust.utils.SysConfig;
 import org.apache.commons.lang3.StringUtils;
 
+import java.beans.IntrospectionException;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.*;
-import java.net.CookieHandler;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,6 +45,8 @@ public class MainVerticle extends AbstractVerticle {
         Router apiRouter = Router.router(vertx);
         // ws子路由(SockJs)
         Router wsRouter = Router.router(vertx);
+        //
+        AbstractRoute.vertx=vertx;
         // 启用Cookie
         //开启集群Session
 //        SessionStore store = ClusteredSessionStore.create(vertx);
@@ -75,13 +74,13 @@ public class MainVerticle extends AbstractVerticle {
 
     }
 
-    private <ControllerType> void routerMapping(ControllerType annotatedBean, Router router, Router wsRouter) throws NotFoundException {
-        Class<ControllerType> clazz = (Class<ControllerType>) annotatedBean.getClass();
+    private <RouteType> void routerMapping(RouteType annotatedBean, Router router, Router wsRouter) throws NotFoundException, IllegalAccessException, InstantiationException, IntrospectionException {
+        Class<RouteType> clazz = (Class<RouteType>) annotatedBean.getClass();
         if (!clazz.isAnnotationPresent(RoutePath.class)) {
             return;
         }
         RoutePath annotation = clazz.getAnnotation(RoutePath.class);
-        String ControllerPath = annotation.value();
+        String RoutePath = annotation.value();
         ClassPool classPool = ClassPool.getDefault();
         classPool.insertClassPath(new ClassClassPath(clazz));
         CtClass cc = classPool.get(clazz.getName());
@@ -106,7 +105,7 @@ public class MainVerticle extends AbstractVerticle {
             // 判断是否为Socket控制器
             if (method.isAnnotationPresent(Socket.class)) {
                 Socket wsMethodAnno = method.getAnnotation(Socket.class);
-                String path = ControllerPath + wsMethodAnno.value();
+                String path = RoutePath + wsMethodAnno.value();
                 String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
                 System.out.println("webSocket路由地址"+"/ws"+wsPath);
                 SockJSHandlerOptions options = new SockJSHandlerOptions();
@@ -123,7 +122,6 @@ public class MainVerticle extends AbstractVerticle {
                     }
                 }
                 try {
-//                    System.out.println(Arrays.toString(argValues));
                     Router ws = (Router) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                     wsRouter.route(wsPath).subRouter(ws);
                     continue;
@@ -135,6 +133,7 @@ public class MainVerticle extends AbstractVerticle {
             if (method.isAnnotationPresent(Request.class)) {
                 Handler<RoutingContext> requestHandler = ctx -> {
                     try {
+                        AbstractRoute.ctx = ctx;
                         Object[] argValues = new Object[ctMethod.getParameterTypes().length];
                         MultiMap params = ctx.request().params();
                         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
@@ -184,7 +183,7 @@ public class MainVerticle extends AbstractVerticle {
                     }
                 };
                 Request methodAnno = method.getAnnotation(Request.class);
-                String requestPath = ControllerPath + methodAnno.value();
+                String requestPath = RoutePath + methodAnno.value();
                 String formatPath = requestPath.startsWith("/") ? requestPath : "/" + requestPath;
                 System.out.println("API路由地址：" +"/api"+formatPath);
                 // bind handler to router

@@ -43,7 +43,7 @@ class Connect {
     void queryTest() {
         Vertx vertx = Vertx.vertx();
         DBUtil dbUtil = new DBUtil();
-        dbUtil.query("select * from user;", new JsonArray())
+        dbUtil.executeRowSQL("select * from user;")
                 .onSuccess(ar -> {
                     System.out.println("完成");
                     vertx.eventBus().publish("queryTest.query", DBUtil.toJsonArray(ar));
