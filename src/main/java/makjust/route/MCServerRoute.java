@@ -35,7 +35,7 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 开启MC服务器
-    @Request(value = "/start", method = HttpMethod.POST)
+    @Request(value = "/start", method = HttpMethod.POST,async = false)
     public JsonObject serverStart() throws URISyntaxException, IOException {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStart(vertx);
@@ -44,7 +44,7 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 关闭MC服务器
-    @Request(value = "/stop", method = HttpMethod.POST)
+    @Request(value = "/stop", method = HttpMethod.POST,async = false)
     public JsonObject serverStop() {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);

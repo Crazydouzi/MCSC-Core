@@ -59,7 +59,16 @@ class Connect {
         });
 
     }
-
+    @Test
+    void insertTest(){
+        DBUtil dbUtil = new DBUtil();
+        DBUtil.conn(Vertx.vertx());
+        JsonObject object=new JsonObject();
+        object.put("username","test");
+        object.put("pwd","test");
+        object.put("role","r");
+        dbUtil.insert("user",object);
+    }
     @AfterAll
     static void sleep() throws InterruptedException {
         Thread.sleep(1500);

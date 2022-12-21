@@ -168,7 +168,7 @@ public class MainVerticle extends AbstractVerticle {
                             }
                         }
                         //异步处理
-                        if ( method.getAnnotation(Request.class).async()){
+                        if (method.getAnnotation(Request.class).async()){
                             ctx= (RoutingContext) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                             //同步处理
                         }else {

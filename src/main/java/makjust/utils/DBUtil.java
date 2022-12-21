@@ -11,6 +11,7 @@ import io.vertx.sqlclient.Tuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class DBUtil {
@@ -67,6 +68,16 @@ public class DBUtil {
             return pool.preparedQuery(query).execute(Tuple.tuple(params));
         }
     }
+    //简单更新
+    public Future<RowSet<Row>> update(String table, JsonObject param) {
+        if (table == null || table.isEmpty()) {
+            return Future.failedFuture("Query is null or empty");
+        }
+        String key= param.getMap().keySet().toString().replace("[","(").replace("]",")").replace(" ","");
+        System.out.println(key);
+        String query="update"+table+" set "+key+" VALUES "+key.replaceAll("([A-Za-z0-9]+)\\b","?");
+        return pool.preparedQuery(query).execute(Tuple.tuple(Arrays.asList(param.getMap().keySet().toArray())));
+    }
     //简单插入
     public Future<RowSet<Row>> insert(String table, JsonObject param) {
         if (table == null || table.isEmpty()) {
@@ -74,7 +85,7 @@ public class DBUtil {
         }
         String key= param.getMap().keySet().toString().replace("[","(").replace("]",")").replace(" ","");
         System.out.println(key);
-        String query="insert into "+"aa"+" "+key+" VALUES "+key.replaceAll("([A-Za-z0-9]+)\\b","?");
-        return pool.preparedQuery(query).execute(Tuple.tuple(Arrays.asList(param.getMap().keySet().toArray())));
+        String query="insert into "+table+" "+key+" VALUES "+key.replaceAll("([A-Za-z0-9]+)\\b","?");
+        return pool.preparedQuery(query).execute(Tuple.tuple(new ArrayList<>(param.getMap().values())));
     }
 }

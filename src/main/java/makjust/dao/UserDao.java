@@ -22,7 +22,7 @@ public interface UserDao {
 
     Future<RowSet<Row>> insertUser(Vertx vertx,User user);
 
-    Future<RowSet<Row>> updateUser(Vertx vertx);
+    Future<RowSet<Row>> updateUser(Vertx vertx,User user);
 
     Future<RowSet<Row>> selectUser(Vertx vertx);
 

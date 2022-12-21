@@ -8,5 +8,5 @@ import java.lang.annotation.*;
 public @interface Request {
     String value() default "";
     HttpMethod[] method() default {HttpMethod.GET};
-    boolean async() default false;
+    boolean async() default true;
 }

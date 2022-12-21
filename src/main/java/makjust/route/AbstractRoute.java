@@ -16,12 +16,16 @@ public abstract class AbstractRoute {
         jsonObject.put("data", object);
         vertx.eventBus().send(path, jsonObject);
     }
+
     public JsonObject returnJson(int statusCode,String msg, JsonArray data){
         JsonObject jsonObject=new JsonObject();
         jsonObject.put("code",statusCode);
         jsonObject.put("msg",msg);
         jsonObject.put("data",data);
         return jsonObject;
+    }
+    public JsonObject returnJson(int statusCode, JsonObject data){
+        return returnJson(statusCode,"OK",data);
     }
     public JsonObject returnJson(int statusCode,String msg , JsonObject data){
         JsonObject jsonObject=new JsonObject();
@@ -35,7 +39,7 @@ public abstract class AbstractRoute {
         return jsonObject;
 
     }
-    public JsonObject returnJson(int statusCode,String msg ) {
+    public JsonObject returnJson(int statusCode,String msg) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("code", statusCode);
         jsonObject.put("msg", msg);

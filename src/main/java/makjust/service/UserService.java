@@ -12,6 +12,6 @@ import makjust.entity.User;
 public interface UserService {
     void userLogin(Vertx vertx, User user,Handler<AsyncResult<JsonObject>> resultHandler);
     void addUser(Vertx vertx, User user, Handler<AsyncResult<JsonObject>> resultHandler);
-    void modifyUser(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler);
+    void modifyUser(Vertx vertx, User user,Handler<AsyncResult<JsonObject>> resultHandler);
 
 }

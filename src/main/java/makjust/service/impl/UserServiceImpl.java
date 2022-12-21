@@ -21,16 +21,11 @@ public class UserServiceImpl implements UserService {
             for (Row row:ar){
                 result = row.toJson();
             }
-            if (result.isEmpty()){
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","用户不存在")));
-            }
-            else if (result.getString("pwd").equals(user.getPwd())){
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","登录成功")));
+            if (result.getString("pwd").equals(user.getPwd())) {
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "登录成功")));
             }else{
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","密码错误")));
-
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","用户或密码错误")));
             }
-
         });
     }
 
@@ -48,8 +43,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void modifyUser(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.updateUser((vertx)).onSuccess(ar->{
+    public void modifyUser(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+        userDao.updateUser((vertx),user).onSuccess(ar->{
             JsonArray jsonArray=new JsonArray();
             for (Row row:ar){
                 jsonArray.add(row.toJson());
