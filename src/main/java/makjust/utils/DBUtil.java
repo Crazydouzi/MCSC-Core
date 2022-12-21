@@ -68,15 +68,15 @@ public class DBUtil {
         Pattern pattern = Pattern.compile("#\\{\\w*}");
         Matcher matcher = pattern.matcher(sql);
         List<String> keyList = new ArrayList<>();
-        List<Object> po = new ArrayList<>();
+        List<Object> tupleList = new ArrayList<>();
         while (matcher.find()) {
             keyList.add(matcher.group().replaceAll("[#{}]", ""));
         }
         sql=sql.replaceAll("#\\{\\w*}","?");
         keyList.forEach(v -> {
-            po.add(param.getString(v));
+            tupleList.add(param.getString(v));
         });
-        return pool.preparedQuery(sql).execute(Tuple.tuple(po));
+        return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
     //简单更新
     public Future<RowSet<Row>> update(String table, JsonObject param) {
