@@ -43,6 +43,7 @@ class Connect {
     void queryTest() {
         Vertx vertx = Vertx.vertx();
         DBUtil dbUtil = new DBUtil();
+        DBUtil.conn(vertx);
         dbUtil.executeRowSQL("select * from user;")
                 .onSuccess(ar -> {
                     System.out.println("完成");
@@ -67,7 +68,11 @@ class Connect {
         object.put("username","test");
         object.put("pwd","test");
         object.put("role","r");
-        dbUtil.insert("user",object);
+        dbUtil.insert("user",object).onSuccess(ar->{
+            System.out.println(DBUtil.toJsonArray(ar));
+        }).onComplete(ar->{
+            System.out.println(ar.result());
+        }).onFailure(Throwable::printStackTrace);
     }
     @AfterAll
     static void sleep() throws InterruptedException {

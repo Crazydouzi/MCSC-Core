@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DBUtil {
     private static Vertx vertx;
@@ -43,19 +45,9 @@ public class DBUtil {
         return jsonArray;
     }
 
-    //执行自定义SQL
-    public Future<RowSet<Row>> executeRowSQL(String sql){
-        if (sql == null || sql.isEmpty()) {
-            return Future.failedFuture("Query is null or empty");
-        }
-        if (!sql.endsWith(";")) {
-            sql = sql + ";";
-        }
-        return pool.preparedQuery(sql).execute();
-    }
     //简单查询
     public Future<RowSet<Row>> executeRowSQL(String query, Object... param) {
-        if (query == null || query.isEmpty()) {
+        if (checkEmpty(query)) {
             return Future.failedFuture("Query is null or empty");
         }
         if (!query.endsWith(";")) {
@@ -68,24 +60,55 @@ public class DBUtil {
             return pool.preparedQuery(query).execute(Tuple.tuple(params));
         }
     }
-    //简单更新
-    public Future<RowSet<Row>> update(String table, JsonObject param) {
-        if (table == null || table.isEmpty()) {
+    //执行自定义SQL
+    public Future<RowSet<Row>> executeSQL(String sql, JsonObject param) {
+        if (checkEmpty(sql)) {
             return Future.failedFuture("Query is null or empty");
         }
-        String key= param.getMap().keySet().toString().replace("[","(").replace("]",")").replace(" ","");
-        System.out.println(key);
-        String query="update"+table+" set "+key+" VALUES "+key.replaceAll("([A-Za-z0-9]+)\\b","?");
-        return pool.preparedQuery(query).execute(Tuple.tuple(Arrays.asList(param.getMap().keySet().toArray())));
+        Pattern pattern = Pattern.compile("#\\{\\w*}");
+        Matcher matcher = pattern.matcher(sql);
+        List<String> keyList = new ArrayList<>();
+        List<Object> po = new ArrayList<>();
+        while (matcher.find()) {
+            keyList.add(matcher.group().replaceAll("[#{}]", ""));
+        }
+        sql=sql.replaceAll("#\\{\\w*}","?");
+        keyList.forEach(v -> {
+            po.add(param.getString(v));
+        });
+        return pool.preparedQuery(sql).execute(Tuple.tuple(po));
+    }
+    //简单更新
+    public Future<RowSet<Row>> update(String table, JsonObject param) {
+        if (checkEmpty(table)) {
+            return Future.failedFuture("Query is null or empty");
+        }
+        String sql="update "+table+" set ";
+        Pattern pattern = Pattern.compile("#\\{\\w*}");
+        Matcher matcher = pattern.matcher(sql);
+        List<Object> keyList = new ArrayList<>();
+        while (matcher.find()){
+            keyList.add(matcher.group().replaceAll("[#{}]",""));
+        }
+        sql=sql.replaceAll("#\\{\\w*}","?");
+        return pool.preparedQuery(sql).execute(Tuple.tuple(keyList));
+    }
+    public  Future<RowSet<Row>> update(String table, Object param){
+        return  update(table, JsonObject.mapFrom(param));
     }
     //简单插入
     public Future<RowSet<Row>> insert(String table, JsonObject param) {
-        if (table == null || table.isEmpty()) {
+        if (checkEmpty(table)) {
             return Future.failedFuture("Query is null or empty");
         }
         String key= param.getMap().keySet().toString().replace("[","(").replace("]",")").replace(" ","");
-        System.out.println(key);
-        String query="insert into "+table+" "+key+" VALUES "+key.replaceAll("([A-Za-z0-9]+)\\b","?");
+        String query="insert into "+table+key+" VALUES "+key.replaceAll("([A-Za-z0-9]+)\\b","?");
         return pool.preparedQuery(query).execute(Tuple.tuple(new ArrayList<>(param.getMap().values())));
+    }
+    public Future<RowSet<Row>> insert(String table, Object param){
+       return insert(table,JsonObject.mapFrom(param));
+    }
+    private boolean checkEmpty(String p){
+        return p == null || p.isEmpty();
     }
 }

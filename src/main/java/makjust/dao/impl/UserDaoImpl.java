@@ -20,7 +20,7 @@ public class UserDaoImpl implements UserDao {
 //    }
     @Override
     public Future<RowSet<Row>> insertUser(Vertx vertx,User user) {
-        return dbUtil.executeRowSQL("insert into user ();");
+        return dbUtil.insert("User",user);
     }
 
     @Override
@@ -32,11 +32,6 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Future<RowSet<Row>> selectUser(Vertx vertx) {
         return dbUtil.executeRowSQL("select * from User;");
-//        vertx.eventBus().consumer("userDao.selectUser").handler(message->{
-//            dbUtil.query("select * from User;",new JsonArray()).onSuccess(ar->{
-//               message.reply(dbUtil.toJson(ar));
-//            });
-//        });
     }
 
     @Override
