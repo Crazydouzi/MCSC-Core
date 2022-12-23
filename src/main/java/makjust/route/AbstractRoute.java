@@ -16,34 +16,23 @@ public abstract class AbstractRoute {
         jsonObject.put("data", object);
         vertx.eventBus().send(path, jsonObject);
     }
-
-    public JsonObject returnJson(int statusCode,String msg, JsonArray data){
+    private JsonObject returnJson(int statusCode, String msg, JsonObject data){
         JsonObject jsonObject=new JsonObject();
         jsonObject.put("code",statusCode);
         jsonObject.put("msg",msg);
-        jsonObject.put("data",data);
-        return jsonObject;
-    }
-    public JsonObject returnJson(int statusCode, JsonObject data){
-        return returnJson(statusCode,"OK",data);
-    }
-    public JsonObject returnJson(int statusCode,String msg , JsonObject data){
-        JsonObject jsonObject=new JsonObject();
-        jsonObject.put("code",statusCode);
-        jsonObject.put("msg",msg);
-        if (data.getJsonObject("data")!=null){
-            jsonObject.put("data",data.getJsonObject("data"));
+        if (data.getValue("data")!=null){
+            jsonObject.put("data",data.getValue("data"));
         }else {
             jsonObject.put("data",data);
         }
         return jsonObject;
 
     }
-    public JsonObject returnJson(int statusCode,String msg) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.put("code", statusCode);
-        jsonObject.put("msg", msg);
-        return jsonObject;
+    JsonObject returnJson(int statusCode, JsonObject data){
+        return returnJson(statusCode,"OK",data);
+    }
+    JsonObject returnJson(int statusCode, String msg) {
+        return returnJson(statusCode,msg,new JsonObject());
     }
 
     public MessageConsumer<Object> getMsgFromBus(String name) {

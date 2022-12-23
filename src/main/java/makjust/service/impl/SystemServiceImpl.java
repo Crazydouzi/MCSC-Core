@@ -1,5 +1,6 @@
 package makjust.service.impl;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import makjust.service.SystemService;
 import oshi.SystemInfo;
@@ -8,17 +9,18 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
 import oshi.util.Util;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.Properties;
 
 public class SystemServiceImpl implements SystemService {
-    SystemInfo si = new SystemInfo();
-    HardwareAbstractionLayer hal = si.getHardware();
-    CentralProcessor processor = hal.getProcessor();
-    Sensors sensors = hal.getSensors();
-    GlobalMemory memory = hal.getMemory();
+    private SystemInfo si = new SystemInfo();
+    private HardwareAbstractionLayer hal = si.getHardware();
+    private CentralProcessor processor = hal.getProcessor();
+    private Sensors sensors = hal.getSensors();
+    private GlobalMemory memory = hal.getMemory();
     @Override
     public JsonObject getSystemInfo() throws UnknownHostException {
         Properties props = System.getProperties();
@@ -67,6 +69,13 @@ public class SystemServiceImpl implements SystemService {
 
     @Override
     public JsonObject getMemoryUsage() {
+        //当前JVM占用的内存总数(M)
+        double total = (Runtime.getRuntime().totalMemory()) / (1024.0 * 1024);
+        //JVM最大可用内存总数(M)
+        double max = (Runtime.getRuntime().maxMemory()) / (1024.0 * 1024);
+        //JVM空闲内存(M)
+        double free = (Runtime.getRuntime().freeMemory()) / (1024.0 * 1024);
+
         System.out.println("----------------主机内存信息----------------");
         SystemInfo systemInfo = new SystemInfo();
         GlobalMemory memory = systemInfo.getHardware().getMemory();
@@ -82,11 +91,14 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("memTotal", formatByte(totalByte));
         jsonObject.put("memUse", formatByte(acaliableByte));
         jsonObject.put("memFree", formatByte(acaliableByte));
+        jsonObject.put("jvmMemTotal", max);
+        jsonObject.put("jvmMemUse", total);
+        jsonObject.put("jvmMemFree", free);
         jsonObject.put("memUsage", new DecimalFormat("#.##%").format((totalByte - acaliableByte) * 1.0 / totalByte));
         return jsonObject;
     }
 
-    public static String formatByte(long byteNumber) {
+    private static String formatByte(long byteNumber) {
         //换算单位
         double FORMAT = 1024.0;
         double kbNumber = byteNumber / FORMAT;

@@ -2,12 +2,11 @@ package DBTest;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;
 import makjust.entity.User;
-import makjust.utils.DBUtil;
+import makjust.utils.DBUtils;
 import makjust.utils.SysConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -42,12 +41,12 @@ class Connect {
     @Test
     void queryTest() {
         Vertx vertx = Vertx.vertx();
-        DBUtil dbUtil = new DBUtil();
-        DBUtil.conn(vertx);
+        DBUtils dbUtil = new DBUtils();
+        DBUtils.conn(vertx);
         dbUtil.executeRowSQL("select * from user;")
                 .onSuccess(ar -> {
                     System.out.println("完成");
-                    vertx.eventBus().publish("queryTest.query", DBUtil.toJsonArray(ar));
+                    vertx.eventBus().publish("queryTest.query", DBUtils.toJsonArray(ar));
                 })
                 .onFailure(Throwable::printStackTrace)
                 .onComplete(ar -> {
@@ -62,14 +61,14 @@ class Connect {
     }
     @Test
     void insertTest(){
-        DBUtil dbUtil = new DBUtil();
-        DBUtil.conn(Vertx.vertx());
+        DBUtils dbUtil = new DBUtils();
+        DBUtils.conn(Vertx.vertx());
         JsonObject object=new JsonObject();
         object.put("username","test");
         object.put("pwd","test");
         object.put("role","r");
         dbUtil.insert("user",object).onSuccess(ar->{
-            System.out.println(DBUtil.toJsonArray(ar));
+            System.out.println(DBUtils.toJsonArray(ar));
         }).onComplete(ar->{
             System.out.println(ar.result());
         }).onFailure(Throwable::printStackTrace);

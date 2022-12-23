@@ -3,6 +3,7 @@ package makjust.route;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
 import makjust.entity.MCServer;
@@ -25,8 +26,13 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 根据服务器id查询全部设置
-    public Json getSetting(@RequestBody MCServer server) {
-        return new Json();
+    @Request(value = "/getSettingList",method = HttpMethod.POST)
+    public RoutingContext getSetting(@RequestBody MCServer server) {
+        serverService.getSetting(vertx,server,ar->{
+            ctx.response().setStatusCode(200);
+            ctx.json(returnJson(20,ar.result()));
+        });
+        return ctx;
     }
 
     // 修改MC核心启动参数

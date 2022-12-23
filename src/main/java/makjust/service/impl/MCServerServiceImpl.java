@@ -1,7 +1,15 @@
 package makjust.service.impl;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.sqlclient.Row;
+import makjust.dao.MCServerDao;
+import makjust.dao.impl.MCServerDaoImpl;
+import makjust.entity.MCServer;
 import makjust.utils.EnvOptions;
 import makjust.serverCore.ProcessServer;
 import makjust.service.MCServerService;
@@ -14,18 +22,24 @@ public class MCServerServiceImpl implements MCServerService {
     private String DIR = SysConfig.getCorePath("/");
     private String CMD = SysConfig.object.getJsonObject("mcServer").getString("def_cmd");
     private ProcessServer mcServer;
-
-    public MCServerServiceImpl() {
-    }
-
+    private MCServerDao mcServerDao=new MCServerDaoImpl();
     @Override
     public JsonObject editSetting() {
         return new JsonObject();
     }
 
+
     @Override
-    public JsonObject getSetting() {
-        return new JsonObject();
+    public void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
+        mcServerDao.getSettingById(mcServer.getId()).onSuccess(ar->{
+            JsonArray jsonArray=new JsonArray();
+            jsonArray.add(mcServer);
+            for (Row row:ar){
+                jsonArray.add(row.toJson());
+            }
+            System.out.println(jsonArray);
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)));
+        });
     }
 
     @Override
