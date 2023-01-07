@@ -41,9 +41,8 @@ class Connect {
     @Test
     void queryTest() {
         Vertx vertx = Vertx.vertx();
-        DBUtils dbUtil = new DBUtils();
         DBUtils.conn(vertx);
-        dbUtil.executeRowSQL("select * from user;")
+        DBUtils.executeRowSQL("select * from user;")
                 .onSuccess(ar -> {
                     System.out.println("完成");
                     vertx.eventBus().publish("queryTest.query", DBUtils.toJsonArray(ar));
@@ -67,7 +66,7 @@ class Connect {
         object.put("username","test");
         object.put("pwd","test");
         object.put("role","r");
-        dbUtil.insert("user",object).onSuccess(ar->{
+        DBUtils.insert("user",object).onSuccess(ar->{
             System.out.println(DBUtils.toJsonArray(ar));
         }).onComplete(ar->{
             System.out.println(ar.result());

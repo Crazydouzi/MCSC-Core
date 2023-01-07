@@ -73,4 +73,9 @@ public class MCServerServiceImpl implements MCServerService {
         }
         return false;
     }
+
+    @Override
+    public JsonObject getEnableServer() {
+        return null;
+    }
 }
