@@ -6,7 +6,7 @@ import io.vertx.sqlclient.RowSet;
 import makjust.dao.MCServerDao;
 import makjust.utils.DBUtils;
 
-public class MCVersionDao implements makjust.dao.MCVersionDao {
+public class MCVersionDaoImpl implements makjust.dao.MCVersionDao {
 
     @Override
     public Future<RowSet<Row>> selectServerByEnable(boolean flag) {
