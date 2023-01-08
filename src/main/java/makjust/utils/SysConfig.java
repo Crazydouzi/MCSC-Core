@@ -59,7 +59,7 @@ public class SysConfig {
                 return path + "/resources/webroot/";
 
             } else {
-                return "/resources/webroot";
+                return "resources/webroot";
             }
         } catch (URISyntaxException e) {
             return "";
