@@ -1,12 +1,13 @@
 package ResourceTest;
 
+import io.vertx.core.Vertx;
 import makjust.utils.ResourcesInit;
 import org.junit.jupiter.api.Test;
 
 class CopyTest {
-    ResourcesInit resourcesInit;
+    private ResourcesInit resourcesInit;
     @Test
     void copyTest() throws Exception{
-        resourcesInit=new ResourcesInit();
+        resourcesInit=new ResourcesInit(Vertx.vertx());
 
     }}

@@ -19,22 +19,42 @@ public class ResourcesInit {
     private String resourcesPath = path.getPath() + "resources";
     private Vertx vertx;
     public ResourcesInit(Vertx vertx) throws Exception {
-        this.mkResourcesDIR();
+        this.copyResources();
         this.vertx=vertx;
-
     }
 
+    public ResourcesInit(String... file) throws Exception {
+        for (String f : file) {
+            this.copyResources(f);
+        }
+    }
     public ResourcesInit() throws Exception {
-        this.mkResourcesDIR();
     }
 
-    private void mkResourcesDIR() throws Exception {
+    //复制某一个文件（文件夹）
+    /**
+     * /复制某一个文件
+     *
+     * @param file  文件名
+     *              默认为父级文件夹(config/package/plugins)
+     *
+     */
+    public void copyResources(String file) throws Exception {
+        resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources/";
+        if (getENV()) {
+            copyJarResourcesFileToTemp(path, resourcesPath, file);
+        } else {
+            copyLocalResourcesFileToTemp(new File(path.getPath() + "/" + file), new File(resourcesPath));
+        }
+    }
+
+    //复制全部
+    private void copyResources() throws Exception {
         System.out.println("URI:" + path);
         if (getENV()) {
             resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources/";
-            System.out.println("resourcesPath" + resourcesPath);
             copyJarResourcesFileToTemp(path, resourcesPath, "webroot");
-            copyJarResourcesFileToTemp(path, resourcesPath, "plugin");
+            copyJarResourcesFileToTemp(path, resourcesPath, "plugins");
             copyJarResourcesFileToTemp(path, resourcesPath, "package");
             copyJarResourcesFileToTemp(path, resourcesPath, "config");
 
@@ -89,8 +109,6 @@ public class ResourcesInit {
                             fos.close();
                             fis.close();
                         }
-
-
                 }
             }
         }
