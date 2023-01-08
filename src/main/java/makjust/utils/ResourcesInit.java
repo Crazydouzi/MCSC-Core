@@ -17,11 +17,15 @@ public class ResourcesInit {
     private URI path = ResourcesInit.class.getProtectionDomain().getCodeSource().getLocation().toURI();
     //    目标资源地址
     private String resourcesPath = path.getPath() + "resources";
-    Vertx vertx;
+    private Vertx vertx;
     public ResourcesInit(Vertx vertx) throws Exception {
         this.mkResourcesDIR();
         this.vertx=vertx;
 
+    }
+
+    public ResourcesInit() throws Exception {
+        this.mkResourcesDIR();
     }
 
     private void mkResourcesDIR() throws Exception {
@@ -29,10 +33,10 @@ public class ResourcesInit {
         if (getENV()) {
             resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources/";
             System.out.println("resourcesPath" + resourcesPath);
-            copyJarResourcesFileToTemp(path, resourcesPath, "resources");
             copyJarResourcesFileToTemp(path, resourcesPath, "webroot");
             copyJarResourcesFileToTemp(path, resourcesPath, "plugin");
             copyJarResourcesFileToTemp(path, resourcesPath, "package");
+            copyJarResourcesFileToTemp(path, resourcesPath, "config");
 
         } else {
             copyLocalResourcesFileToTemp(new File(path.getPath()), new File(resourcesPath));
@@ -46,16 +50,28 @@ public class ResourcesInit {
      * @param nf 目标
      */
     private static void copyLocalResourcesFileToTemp(File f, File nf) throws Exception {
+        System.out.println(f.getPath()+"-----------------------"+nf.getPath());
         // 判断是否存在
         if (f.exists()) {
             if (f.isDirectory()) {
-                if (!nf.exists()) nf.mkdirs();
                 File[] array = f.listFiles();
                 assert array != null;
+                if (!nf.exists()) {
+                   if (nf.mkdirs()){
+                       System.out.println("create direct:"+nf.getName());
+                   }
+                }else {
+                    return;
+                }
                 for (File file : array
                 ) {
-                    if (!file.isDirectory()) {
-                        if (!new File(nf.getAbsolutePath() + "/" + file.getName()).exists()) {
+                    File cf = new File(nf.getAbsolutePath() + "/" + file.getName());
+                    if (!cf.exists()) {
+                        if (file.isDirectory()) {
+                            System.out.println("copy:"+file.getPath()+"\n       to------>"+cf.getPath());
+                            copyLocalResourcesFileToTemp(new File(file.getPath()), new File(cf.getAbsolutePath()));
+                            continue;
+                        }
                             //复制文件
                             System.out.println("正在复制：" + file.getAbsolutePath());
                             System.out.println("到：" + nf.getAbsolutePath() + "\\" + file.getName());
@@ -74,7 +90,7 @@ public class ResourcesInit {
                             fis.close();
                         }
 
-                    }
+
                 }
             }
         }
@@ -98,7 +114,9 @@ public class ResourcesInit {
                 InputStream stream = entry.getValue();
                 File newFile = new File(tempPath + key.replaceAll("resources", ""));
                 if (!newFile.getParentFile().exists()) {
-                    newFile.getParentFile().mkdirs();
+                    if (newFile.getParentFile().mkdirs()){
+                        System.out.println("create direct:"+newFile.getParentFile().getName());
+                    }
                 }
                 if (newFile.exists()) continue;
                 System.out.println("复制jar包资源：" + key + newFile.getPath());

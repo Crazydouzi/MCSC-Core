@@ -32,7 +32,7 @@ public class SysConfig {
 
     private static JsonObject ConfigInit() {
         Yaml yaml = new Yaml();
-        Map<String, Object> ret = (yaml.load(Vertx.vertx().fileSystem().readFileBlocking(getBasePath() + "resources/" + "config.yml").toString()));
+        Map<String, Object> ret = (yaml.load(Vertx.vertx().fileSystem().readFileBlocking(getBasePath() + "resources/" + "config/config.yml").toString()));
         return new JsonObject(ret);
     }
 
@@ -59,7 +59,7 @@ public class SysConfig {
                 return path + "/resources/webroot/";
 
             } else {
-                return "webroot";
+                return "/resources/webroot";
             }
         } catch (URISyntaxException e) {
             return "";
