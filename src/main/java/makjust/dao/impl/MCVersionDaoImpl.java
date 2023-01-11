@@ -9,7 +9,6 @@ public class MCVersionDaoImpl implements makjust.dao.MCVersionDao {
 
     @Override
     public Future<RowSet<Row>> selectServerByEnable(boolean flag) {
-        DBUtils.executeRowSQL("select * from mc_server where enable=?",flag);
-        return null;
+        return  DBUtils.executeRowSQL("select * from mc_server where enable=?",flag);
     }
 }
