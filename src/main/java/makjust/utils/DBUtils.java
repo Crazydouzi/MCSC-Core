@@ -55,8 +55,7 @@ public class DBUtils{
         if (param.length == 0){
             return pool.preparedQuery(query).execute();
         }else {
-            List<Object> params = new ArrayList<>(Arrays.asList(param));
-            return pool.preparedQuery(query).execute(Tuple.tuple(params));
+            return pool.preparedQuery(query).execute(Tuple.from(param));
         }
     }
     //执行自定义SQL

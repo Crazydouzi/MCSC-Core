@@ -29,6 +29,7 @@ public abstract class AbstractRoute {
 
     }
     JsonObject returnJson(int statusCode, JsonObject data){
+        if(data.containsKey("msg")) return returnJson(statusCode,data.getString("msg"),data);
         return returnJson(statusCode,"OK",data);
     }
     JsonObject returnJson(int statusCode, String msg) {

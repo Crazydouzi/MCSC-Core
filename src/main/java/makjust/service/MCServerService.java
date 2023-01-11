@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 public interface MCServerService {
     JsonObject editSetting();
     void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler);
-    boolean serverStart(Vertx vertx) ;
+    void serverStart(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler) ;
     boolean serverStop(Vertx vertx);
     JsonObject getEnableServer();
 }

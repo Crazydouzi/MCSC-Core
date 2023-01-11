@@ -30,7 +30,7 @@ public class MCServerRoute extends AbstractRoute {
     public RoutingContext getSetting(@RequestBody MCServer server) {
         serverService.getSetting(vertx,server,ar->{
             ctx.response().setStatusCode(200);
-            ctx.json(returnJson(20,ar.result()));
+            ctx.json(returnJson(200, ar.result()));
         });
         return ctx;
     }
@@ -41,12 +41,19 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 开启MC服务器
-    @Request(value = "/start", method = HttpMethod.POST,async = false)
-    public JsonObject serverStart() throws URISyntaxException, IOException {
-        JsonObject jsonObject = new JsonObject();
-        boolean flag = serverService.serverStart(vertx);
-        if (flag) return jsonObject.put("msg:", "启动成功");
-        else return jsonObject.put("msg", "启动失败");
+    @Request(value = "/start", method = HttpMethod.POST)
+    public RoutingContext serverStart() throws URISyntaxException, IOException {
+        serverService.serverStart(vertx, ar -> {
+            if (ar.succeeded()) {
+                ctx.response().setStatusCode(200);
+                ctx.json(returnJson(20, "启动成功！"));
+            } else {
+                ctx.response().setStatusCode(200);
+                ctx.json(returnJson(200, "启动失败！请重新扫描服务器"));
+
+            }
+        });
+        return ctx;
     }
 
     // 关闭MC服务器

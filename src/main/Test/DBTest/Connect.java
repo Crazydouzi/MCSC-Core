@@ -1,10 +1,14 @@
 package DBTest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;
+import makjust.entity.MCServer;
 import makjust.entity.User;
 import makjust.utils.DBUtils;
 import makjust.utils.SysConfig;
@@ -40,22 +44,34 @@ class Connect {
 
     @Test
     void queryTest() {
+//        JsonObject jsonObject=new JsonObject();
+//        jsonObject.put("id",1);
+//        jsonObject.put("server_name","test");
+//        jsonObject.put("version","1");
+//        jsonObject.put("location","1");
+//        jsonObject.put("enable",1);
+//        MCServer mcServer=Json.decodeValue(jsonObject.toString(), MCServer.class);
+//        System.out.println(mcServer);
         Vertx vertx = Vertx.vertx();
         DBUtils.conn(vertx);
-        DBUtils.executeRowSQL("select * from user;")
+        DBUtils.executeRowSQL("select * from mc_server where enable=? LIMIT 1;",true)
                 .onSuccess(ar -> {
                     System.out.println("完成");
-                    vertx.eventBus().publish("queryTest.query", DBUtils.toJsonArray(ar));
+                    MCServer mcServer=new MCServer();
+                    for (Row row:ar){
+                        mcServer=Json.decodeValue(row.toJson().toString(), MCServer.class);
+//                        ObjectMapper mapper=new ObjectMapper();
+//                        try {
+//                            mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+//                            mcServer=mapper.readValue(row.toJson().toString(),MCServer.class);
+//
+//                        } catch (JsonProcessingException e) {
+//                            e.printStackTrace();
+//                        }
+                    }
+                    System.out.println(mcServer);
                 })
-                .onFailure(Throwable::printStackTrace)
-                .onComplete(ar -> {
-                    System.out.println(ar.result());
-                    System.out.println(ar.mapEmpty());
-                    System.out.println("完成");
-                });
-        vertx.eventBus().consumer("queryTest.query").handler(msg->{
-            System.out.println(msg.body());
-        });
+                .onFailure(Throwable::printStackTrace);
 
     }
     @Test
