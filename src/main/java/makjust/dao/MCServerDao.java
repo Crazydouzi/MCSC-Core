@@ -8,4 +8,5 @@ import makjust.entity.MCServer;
 
 public interface MCServerDao {
     Future<RowSet<Row>> getSettingById(Integer id);
+    Future<RowSet<Row>> selectServerByEnable(boolean flag);
 }
