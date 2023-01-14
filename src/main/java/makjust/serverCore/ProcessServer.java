@@ -32,7 +32,7 @@ public class ProcessServer {
         });
 //      新开一条线程避免阻塞，用于推送消息
         new Thread(() -> {
-            String line = "";
+            String line;
             try {
                 while ((line = reader.readLine()) != null) {
 //              推送消息

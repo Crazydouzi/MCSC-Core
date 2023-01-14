@@ -6,8 +6,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import makjust.entity.MCServer;
-
-import java.net.URISyntaxException;
 @ProxyGen
 public interface MCServerService {
     JsonObject editSetting();
