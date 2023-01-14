@@ -20,10 +20,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class MCServerServiceImpl implements MCServerService {
-    private String DIR = SysConfig.getCorePath("/");
-    private String CMD = SysConfig.object.getJsonObject("mcServer").getString("def_cmd");
+    private final String DIR = SysConfig.getCorePath("/");
+    private final String CMD = SysConfig.object.getJsonObject("mcServer").getString("def_cmd");
     private ProcessServer Server;
-    private MCServerDao mcServerDao=new MCServerDaoImpl();
+    private final MCServerDao mcServerDao=new MCServerDaoImpl();
     @Override
     public JsonObject editSetting() {
         return new JsonObject();
@@ -52,7 +52,6 @@ public class MCServerServiceImpl implements MCServerService {
                 ar -> {
                     MCServer mcServer = new MCServer();
                     for (Row row : ar) {
-                        System.out.println(row.toJson());
                         mcServer = Json.decodeValue(row.toJson().toString(), MCServer.class);
                     }
                     if (mcServer != null) {
