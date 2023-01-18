@@ -12,6 +12,7 @@ public class SysConfig {
     private static final URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
     public static JsonObject object = ConfigInit();
     Vertx vertx;
+
     private static Boolean getENV() {
         return pathURL.getPath().contains(".jar");
     }
@@ -26,8 +27,9 @@ public class SysConfig {
             return path;
         }
     }
-    public static String resourcesPath(){
-        return getBasePath()+"resources/";
+
+    public static String resourcesPath() {
+        return getBasePath() + "resources/";
     }
 
     private static JsonObject ConfigInit() {
@@ -38,8 +40,11 @@ public class SysConfig {
 
     public static String getCorePath(String version) {
         try {
-            String path = pathURL.toURI().getPath()+"resources/";
-            return path + "package" + version;
+            String path = pathURL.toURI().getPath();
+            if (getENV()) {
+                path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
+            }
+            return path + "/resources/package/" + version;
         } catch (URISyntaxException e) {
             return "";
         }
