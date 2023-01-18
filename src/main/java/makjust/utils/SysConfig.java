@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.Map;
 
 public class SysConfig {
-    private static URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
+    private static final URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
     public static JsonObject object = ConfigInit();
     Vertx vertx;
     private static Boolean getENV() {
@@ -38,11 +38,7 @@ public class SysConfig {
 
     public static String getCorePath(String version) {
         try {
-            String path = pathURL.toURI().getPath();
-            if (getENV()) {
-                path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
-                return path + "/resources/package/" + version;
-            }
+            String path = pathURL.toURI().getPath()+"resources/";
             return path + "package" + version;
         } catch (URISyntaxException e) {
             return "";
