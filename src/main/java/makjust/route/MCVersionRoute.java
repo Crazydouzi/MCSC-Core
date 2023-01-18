@@ -1,32 +1,45 @@
 package makjust.route;
 
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
+import makjust.annotation.HttpMethod;
+import makjust.annotation.Request;
 import makjust.annotation.RoutePath;
 import makjust.service.MCVersionService;
+import makjust.service.impl.MCVersionServiceImpl;
 
-@RoutePath
-public class MCVersionRoute {
-    MCVersionService versionService;
+@RoutePath("/version")
+public class MCVersionRoute extends AbstractRoute {
+    MCVersionService versionService = new MCVersionServiceImpl();
+
     // 获取已上传版本列表（可部署版本）
-    public Json getVersionList(){
-        return new Json();
+    public RoutingContext getVersionList(RoutingContext ctx) {
+        return ctx;
     }
+
     //获取远程仓库可用版本
-    public Json getStoreVersionList(){
-        return new Json();
-    }
-    //配置远程仓库
-    public Json setStore(){
-        return new Json();
-    }
-    //扫描版本
-    public JsonObject scanVersion(){
-        return new JsonObject();
-    }
-    //文件上传
-    public JsonObject fileUpload(){
+    public JsonObject getStoreVersionList() {
         return null;
+    }
+
+    //配置远程仓库
+    public JsonObject setStore() {
+        return null;
+    }
+
+
+    //文件上传
+    public JsonObject fileUpload() {
+        return null;
+    }
+
+    @Request(value = "/scanVersion", method = HttpMethod.POST)
+    //扫描版本
+    public RoutingContext scanVersion() {
+        versionService.serverScanner(vertx, ar -> {
+            ctx.json(returnJson(200, ar.result()));
+        });
+        return ctx;
     }
 
 }
