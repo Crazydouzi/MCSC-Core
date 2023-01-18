@@ -1,6 +1,5 @@
 package makjust.route;
 
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -12,23 +11,21 @@ import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
 import makjust.utils.EnvOptions;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 @RoutePath("/server")
 public class MCServerRoute extends AbstractRoute {
-    private MCServerService serverService = new MCServerServiceImpl();
-    
+    private final MCServerService serverService = new MCServerServiceImpl();
+
     // 修改服务器选项
-    public Json editSetting(@RequestBody List<MCSetting> settingList) {
-        return new Json();
+    public RoutingContext editSetting(@RequestBody List<MCSetting> settingList) {
+        return ctx;
     }
 
     // 根据服务器id查询全部设置
-    @Request(value = "/getSettingList",method = HttpMethod.POST)
+    @Request(value = "/getSettingList", method = HttpMethod.POST)
     public RoutingContext getSetting(@RequestBody MCServer server) {
-        serverService.getSetting(vertx,server,ar->{
+        serverService.getSetting(vertx, server, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
         });
@@ -36,13 +33,13 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 修改MC核心启动参数
-    public Json coreParamSetting(@RequestBody MCServer mcServer) {
-        return new Json();
+    public RoutingContext coreParamSetting(@RequestBody MCServer mcServer) {
+        return ctx;
     }
 
     // 开启MC服务器
     @Request(value = "/start", method = HttpMethod.POST)
-    public RoutingContext serverStart() throws URISyntaxException, IOException {
+    public RoutingContext serverStart() {
         serverService.serverStart(vertx, ar -> {
             if (ar.succeeded()) {
                 ctx.response().setStatusCode(200);
@@ -57,15 +54,14 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 关闭MC服务器
-    @Request(value = "/stop", method = HttpMethod.POST,async = false)
+    @Request(value = "/stop", method = HttpMethod.POST, async = false)
     public JsonObject serverStop() {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
         if (flag) {
-            vertx.eventBus().publish("processServer.cmdRes","");
+            vertx.eventBus().publish("processServer.cmdRes", "");
             return jsonObject.put("msg", "服务器关闭成功");
-        }
-        else return jsonObject.put("msg", "关闭失败");
+        } else return jsonObject.put("msg", "关闭失败");
     }
 
     @Socket("/process")
@@ -83,7 +79,7 @@ public class MCServerRoute extends AbstractRoute {
             //接收Client发送的消息
             sockJSSocket.handler(ws -> {
                 try {
-                    System.out.println("ws:"+ws.toString()+"processStatus:"+EnvOptions.getServerStatus());
+                    System.out.println("ws:" + ws.toString() + "processStatus:" + EnvOptions.getServerStatus());
                     if (EnvOptions.getServerStatus()) {
                         // 推送接收到的到的数据
                         vertx.eventBus().publish("processServer.cmdReq", ws.toString());
