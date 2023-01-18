@@ -14,13 +14,14 @@ import java.util.zip.ZipEntry;
 
 public class ResourcesInit {
     //    根路径
-    private URI path = ResourcesInit.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+    private final URI path = ResourcesInit.class.getProtectionDomain().getCodeSource().getLocation().toURI();
     //    目标资源地址
     private String resourcesPath = path.getPath() + "resources";
     private Vertx vertx;
+
     public ResourcesInit(Vertx vertx) throws Exception {
         this.copyResources();
-        this.vertx=vertx;
+        this.vertx = vertx;
     }
 
     public ResourcesInit(String... file) throws Exception {
@@ -28,16 +29,17 @@ public class ResourcesInit {
             this.copyResources(f);
         }
     }
+
     public ResourcesInit() throws Exception {
     }
 
     //复制某一个文件（文件夹）
+
     /**
      * /复制某一个文件
      *
-     * @param file  文件名
-     *              默认为父级文件夹(config/package/plugins)
-     *
+     * @param file 文件名
+     *             默认为父级文件夹(config/package/plugins)
      */
     public void copyResources(String file) throws Exception {
         resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources/";
@@ -70,45 +72,44 @@ public class ResourcesInit {
      * @param nf 目标
      */
     private static void copyLocalResourcesFileToTemp(File f, File nf) throws Exception {
-        System.out.println(f.getPath()+"-----------------------"+nf.getPath());
+        System.out.println(f.getPath() + "-----------------------" + nf.getPath());
         // 判断是否存在
         if (f.exists()) {
             if (f.isDirectory()) {
                 File[] array = f.listFiles();
                 assert array != null;
                 if (!nf.exists()) {
-                   if (nf.mkdirs()){
-                       System.out.println("create direct:"+nf.getName());
-                   }
-                }else {
+                    if (nf.mkdirs()) {
+                        System.out.println("create direct:" + nf.getName());
+                    }
+                } else {
                     return;
                 }
-                for (File file : array
-                ) {
+                for (File file : array) {
                     File cf = new File(nf.getAbsolutePath() + "/" + file.getName());
                     if (!cf.exists()) {
                         if (file.isDirectory()) {
-                            System.out.println("copy:"+file.getPath()+"\n       to------>"+cf.getPath());
+                            System.out.println("copy:" + file.getPath() + "\n       to------>" + cf.getPath());
                             copyLocalResourcesFileToTemp(new File(file.getPath()), new File(cf.getAbsolutePath()));
                             continue;
                         }
-                            //复制文件
-                            System.out.println("正在复制：" + file.getAbsolutePath());
-                            System.out.println("到：" + nf.getAbsolutePath() + "\\" + file.getName());
-                            // 获取输入流
-                            FileInputStream fis = new FileInputStream(file);
-                            // 获取输出流
-                            FileOutputStream fos = new FileOutputStream(nf + "/" + file.getName());
-                            byte[] b = new byte[1024];
-                            // 读取文件
-                            int len;
-                            while ((len = fis.read(b)) != -1) {
-                                // 写入文件，复制
-                                fos.write(b, 0, len);
-                            }
-                            fos.close();
-                            fis.close();
+                        //复制文件
+                        System.out.println("正在复制：" + file.getAbsolutePath());
+                        System.out.println("到：" + nf.getAbsolutePath() + "\\" + file.getName());
+                        // 获取输入流
+                        FileInputStream fis = new FileInputStream(file);
+                        // 获取输出流
+                        FileOutputStream fos = new FileOutputStream(nf + "/" + file.getName());
+                        byte[] b = new byte[1024];
+                        // 读取文件
+                        int len;
+                        while ((len = fis.read(b)) != -1) {
+                            // 写入文件，复制
+                            fos.write(b, 0, len);
                         }
+                        fos.close();
+                        fis.close();
+                    }
                 }
             }
         }
@@ -123,8 +124,7 @@ public class ResourcesInit {
      */
     private static void copyJarResourcesFileToTemp(URI path, String tempPath, String filePrefix) {
         try {
-            List<Map.Entry<ZipEntry, InputStream>> collect =
-                    readJarFile(new JarFile(path.getPath()), filePrefix).collect(Collectors.toList());
+            List<Map.Entry<ZipEntry, InputStream>> collect = readJarFile(new JarFile(path.getPath()), filePrefix).collect(Collectors.toList());
             for (Map.Entry<ZipEntry, InputStream> entry : collect) {
                 // 文件相对路径
                 String key = entry.getKey().getName();
@@ -132,8 +132,8 @@ public class ResourcesInit {
                 InputStream stream = entry.getValue();
                 File newFile = new File(tempPath + key.replaceAll("resources", ""));
                 if (!newFile.getParentFile().exists()) {
-                    if (newFile.getParentFile().mkdirs()){
-                        System.out.println("create direct:"+newFile.getParentFile().getName());
+                    if (newFile.getParentFile().mkdirs()) {
+                        System.out.println("create direct:" + newFile.getParentFile().getName());
                     }
                 }
                 if (newFile.exists()) continue;
@@ -146,15 +146,13 @@ public class ResourcesInit {
     }
 
     private static Stream<Map.Entry<ZipEntry, InputStream>> readJarFile(JarFile jarFile, String prefix) {
-        Stream<Map.Entry<ZipEntry, InputStream>> readingStream =
-                jarFile.stream().filter(entry -> !entry.isDirectory() && entry.getName().startsWith(prefix))
-                        .map(entry -> {
-                            try {
-                                return new AbstractMap.SimpleEntry<>(entry, jarFile.getInputStream(entry));
-                            } catch (IOException e) {
-                                return new AbstractMap.SimpleEntry<>(entry, null);
-                            }
-                        });
+        Stream<Map.Entry<ZipEntry, InputStream>> readingStream = jarFile.stream().filter(entry -> !entry.isDirectory() && entry.getName().startsWith(prefix)).map(entry -> {
+            try {
+                return new AbstractMap.SimpleEntry<>(entry, jarFile.getInputStream(entry));
+            } catch (IOException e) {
+                return new AbstractMap.SimpleEntry<>(entry, null);
+            }
+        });
         return readingStream.onClose(() -> {
             try {
                 jarFile.close();
