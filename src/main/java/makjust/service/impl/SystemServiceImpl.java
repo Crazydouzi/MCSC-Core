@@ -1,6 +1,5 @@
 package makjust.service.impl;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import makjust.service.SystemService;
 import oshi.SystemInfo;
@@ -16,11 +15,12 @@ import java.text.DecimalFormat;
 import java.util.Properties;
 
 public class SystemServiceImpl implements SystemService {
-    private SystemInfo si = new SystemInfo();
-    private HardwareAbstractionLayer hal = si.getHardware();
-    private CentralProcessor processor = hal.getProcessor();
-    private Sensors sensors = hal.getSensors();
-    private GlobalMemory memory = hal.getMemory();
+    private final SystemInfo si = new SystemInfo();
+    private final HardwareAbstractionLayer hal = si.getHardware();
+    private final CentralProcessor processor = hal.getProcessor();
+    private final Sensors sensors = hal.getSensors();
+    private final GlobalMemory memory = hal.getMemory();
+
     @Override
     public JsonObject getSystemInfo() throws UnknownHostException {
         Properties props = System.getProperties();
@@ -38,11 +38,12 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("javaVersion", props.getProperty("java.version"));
         return jsonObject;
     }
+
     // 这玩意根本不准
     public JsonObject getCpuUsage() {
         JsonObject jsonObject = new JsonObject();
         long[] prevTicks = processor.getSystemCpuLoadTicks();
-        Util.sleep(1000);
+        Util.sleep(500);
         long[] ticks = processor.getSystemCpuLoadTicks();
         long nice = ticks[CentralProcessor.TickType.NICE.getIndex()] - prevTicks[CentralProcessor.TickType.NICE.getIndex()];
         long irq = ticks[CentralProcessor.TickType.IRQ.getIndex()] - prevTicks[CentralProcessor.TickType.IRQ.getIndex()];
