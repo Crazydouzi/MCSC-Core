@@ -1,9 +1,12 @@
 package makjust.service;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 public interface MCVersionService {
     JsonObject getVersionList();
     JsonObject getStoreVersionList();
-    JsonObject scanVersion();
+    void serverScanner(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler);
 }
