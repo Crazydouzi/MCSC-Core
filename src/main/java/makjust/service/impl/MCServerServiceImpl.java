@@ -37,7 +37,6 @@ public class MCServerServiceImpl implements MCServerService {
             jsonArray.add(mcServer);
             for (Row row:ar){
                 jsonArray.add(row.toJson());
-
             }
             System.out.println(jsonArray);
             resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)));
