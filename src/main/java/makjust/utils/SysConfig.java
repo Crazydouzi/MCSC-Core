@@ -14,18 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class SysConfig {
     private static final URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
-    public static JsonObject object;
-
-
-    static {
-        try {
-            object = ConfigInit();
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static Vertx vertx;
-
+    public static JsonObject object=new JsonObject();
     private static Boolean getENV() {
         return pathURL.getPath().contains(".jar");
     }
@@ -45,7 +34,7 @@ public class SysConfig {
         return getBasePath() + "resources/";
     }
 
-    private static JsonObject ConfigInit() throws ExecutionException{
+    public static void ConfigInit(Vertx vertx) throws ExecutionException{
         ConfigStoreOptions store = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("yaml")
@@ -60,7 +49,7 @@ public class SysConfig {
         try {
             JsonObject yaml=retriever.getConfig().toCompletionStage().toCompletableFuture().get();
             System.out.println(yaml);
-            return yaml;
+            object=yaml;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
