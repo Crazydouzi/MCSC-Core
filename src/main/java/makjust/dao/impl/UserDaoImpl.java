@@ -1,6 +1,5 @@
 package makjust.dao.impl;
 
-import ch.qos.logback.core.db.dialect.DBUtil;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;

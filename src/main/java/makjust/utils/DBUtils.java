@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class DBUtils{
     public static Vertx vertx;
     private static JDBCPool pool;
-    private static JsonObject config = new JsonObject()
+    private static final JsonObject config = new JsonObject()
             .put("url", "jdbc:sqlite:" + SysConfig.resourcesPath() + "config/core.db")
             .put("driver_class", "org.sqlite.JDBC")
             .put("max_pool_size", 5);
