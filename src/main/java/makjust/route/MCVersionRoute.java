@@ -36,9 +36,7 @@ public class MCVersionRoute extends AbstractRoute {
     @Request(value = "/scanVersion", method = HttpMethod.POST)
     //扫描版本
     public RoutingContext scanVersion() {
-        versionService.serverScanner(vertx, ar -> {
-            ctx.json(returnJson(200, ar.result()));
-        });
+        versionService.serverScanner(vertx, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
 

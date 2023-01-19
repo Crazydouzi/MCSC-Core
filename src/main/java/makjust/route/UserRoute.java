@@ -12,7 +12,7 @@ import makjust.service.impl.UserServiceImpl;
 
 @RoutePath("/user")
 public class UserRoute extends AbstractRoute{
-    private UserService userService=new UserServiceImpl();
+    private final UserService userService=new UserServiceImpl();
     // 用户登录
     @Request(value = "/userLogin",method = HttpMethod.POST)
     public RoutingContext userLogin(@RequestBody User user) {
@@ -35,9 +35,7 @@ public class UserRoute extends AbstractRoute{
     // 修改用户信息
     @Request(value = "/userUpdate",method = HttpMethod.POST)
     public RoutingContext userUpdate(@RequestBody User user) {
-        userService.modifyUser(vertx,user,ar->{
-            ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end(ar.result().encode());
-        });
+        userService.modifyUser(vertx,user,ar-> ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end(ar.result().encode()));
 
         return ctx;
     }

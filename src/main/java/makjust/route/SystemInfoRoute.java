@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 
 @RoutePath("/system")
 public class SystemInfoRoute extends AbstractRoute {
-    private SystemService systemService= new SystemServiceImpl();
+    private final SystemService systemService= new SystemServiceImpl();
     // 使用率报告
     @Request(value = "/getInfo",method = HttpMethod.POST)
     public RoutingContext usageInfo() throws UnknownHostException {
