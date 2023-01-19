@@ -5,16 +5,15 @@ import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.yaml.snakeyaml.Yaml;
 
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class SysConfig {
     private static final URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
-    public static JsonObject object=new JsonObject();
+    public static JsonObject object = new JsonObject();
+
     private static Boolean getENV() {
         return pathURL.getPath().contains(".jar");
     }
@@ -34,22 +33,19 @@ public class SysConfig {
         return getBasePath() + "resources/";
     }
 
-    public static void ConfigInit(Vertx vertx) throws ExecutionException{
+    public static void ConfigInit(Vertx vertx) throws ExecutionException {
         ConfigStoreOptions store = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("yaml")
                 .setConfig(new JsonObject()
                         .put("path", getBasePath() + "resources/" + "config/config.yml")
-                )
-                ;
+                );
         ConfigRetriever retriever = ConfigRetriever.create(vertx,
                 new ConfigRetrieverOptions().addStore(store));
-        //        Yaml yaml = new Yaml();
-//        Map<String, Object> ret = (yaml.load(Vertx.vertx().fileSystem().readFileBlocking(getBasePath() + "resources/" + "config/config.yml").toString()));
         try {
-            JsonObject yaml=retriever.getConfig().toCompletionStage().toCompletableFuture().get();
+            JsonObject yaml = retriever.getConfig().toCompletionStage().toCompletableFuture().get();
             System.out.println(yaml);
-            object=yaml;
+            object = yaml;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -70,7 +66,7 @@ public class SysConfig {
     }
 
     public static String getStaticPath() {
-        String path = null;
+        String path;
         try {
             path = pathURL.toURI().getPath();
             if (getENV()) {

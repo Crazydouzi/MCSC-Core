@@ -17,11 +17,9 @@ public class ResourcesInit {
     private final URI path = ResourcesInit.class.getProtectionDomain().getCodeSource().getLocation().toURI();
     //    目标资源地址
     private String resourcesPath = path.getPath() + "resources";
-    private Vertx vertx;
 
     public ResourcesInit(Vertx vertx) throws Exception {
         this.copyResources();
-        this.vertx = vertx;
     }
 
     public ResourcesInit(String... file) throws Exception {

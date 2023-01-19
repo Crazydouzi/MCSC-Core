@@ -26,7 +26,6 @@ import makjust.utils.ClassScanUtil;
 import makjust.utils.SysConfig;
 import org.apache.commons.lang3.StringUtils;
 
-import java.beans.IntrospectionException;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -46,7 +45,7 @@ public class MainVerticle extends AbstractVerticle {
         // ws子路由(SockJs)
         Router wsRouter = Router.router(vertx);
         //
-        AbstractRoute.vertx=vertx;
+        AbstractRoute.vertx = vertx;
         // 启用Cookie
         //开启集群Session
 //        SessionStore store = ClusteredSessionStore.create(vertx);
@@ -74,7 +73,7 @@ public class MainVerticle extends AbstractVerticle {
 
     }
 
-    private <RouteType> void routerMapping(RouteType annotatedBean, Router router, Router wsRouter) throws NotFoundException, IllegalAccessException, InstantiationException, IntrospectionException {
+    private <RouteType> void routerMapping(RouteType annotatedBean, Router router, Router wsRouter) throws NotFoundException {
         Class<RouteType> clazz = (Class<RouteType>) annotatedBean.getClass();
         if (!clazz.isAnnotationPresent(RoutePath.class)) {
             return;
@@ -107,10 +106,9 @@ public class MainVerticle extends AbstractVerticle {
                 Socket wsMethodAnno = method.getAnnotation(Socket.class);
                 String path = RoutePath + wsMethodAnno.value();
                 String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
-                System.out.println("webSocket路由地址"+"/ws"+wsPath);
+                System.out.println("webSocket路由地址" + "/ws" + wsPath);
                 SockJSHandlerOptions options = new SockJSHandlerOptions();
-                options
-                        .setHeartbeatInterval(2000);
+                options.setHeartbeatInterval(2000);
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
                 Object[] argValues = new Object[ctMethod.getParameterTypes().length];
                 for (int i = 0; i < argValues.length; i++) {
@@ -168,10 +166,10 @@ public class MainVerticle extends AbstractVerticle {
                             }
                         }
                         //异步处理
-                        if (method.getAnnotation(Request.class).async()){
-                            ctx= (RoutingContext) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
+                        if (method.getAnnotation(Request.class).async()) {
+                            ctx = (RoutingContext) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                             //同步处理
-                        }else {
+                        } else {
                             Object result = MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                             // 返回Json类型结果集
                             ctx.json(result);
@@ -187,7 +185,7 @@ public class MainVerticle extends AbstractVerticle {
                 Request methodAnno = method.getAnnotation(Request.class);
                 String requestPath = RoutePath + methodAnno.value();
                 String formatPath = requestPath.startsWith("/") ? requestPath : "/" + requestPath;
-                System.out.println("API路由地址：" +"/api"+formatPath);
+                System.out.println("API路由地址：" + "/api" + formatPath);
                 // bind handler to router
                 if (methodAnno.method().length == 0) {
                     // 默认绑定全部HttpMethod
@@ -268,7 +266,7 @@ public class MainVerticle extends AbstractVerticle {
      * @param values               请求参数值
      * @param genericParameterType from Method::getGenericParameterTypes
      */
-    private Collection parseCollectionType(List<String> values, Type genericParameterType) throws Throwable {
+    private Collection<Object> parseCollectionType(List<String> values, Type genericParameterType) throws Throwable {
         Class<?> actualTypeArgument = String.class; // 无泛型参数默认用String类型
         Class<?> rawType;
         // 参数带泛型
@@ -280,13 +278,13 @@ public class MainVerticle extends AbstractVerticle {
             rawType = (Class<?>) genericParameterType;
         }
 
-        Collection coll;
+        Collection<Object> coll;
         if (rawType == List.class) {
             coll = new ArrayList<>();
         } else if (rawType == Set.class) {
             coll = new HashSet<>();
         } else {
-            coll = (Collection) rawType.newInstance();
+            coll = (Collection<Object>) rawType.newInstance();
         }
 
         for (String value : values) {
