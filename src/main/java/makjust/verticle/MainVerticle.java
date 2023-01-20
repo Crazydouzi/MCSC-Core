@@ -63,7 +63,7 @@ public class MainVerticle extends AbstractVerticle {
 
         // 静态资源路由
         if (SysConfig.getCoreConf().getBoolean("enWeb")) {
-            router.route().handler(StaticHandler.create().setDefaultContentEncoding("utf-8").setWebRoot(SysConfig.getStaticPath()));
+            router.route().handler(StaticHandler.create(SysConfig.getStaticPath()).setDefaultContentEncoding("utf-8"));
         }
 
         //挂载子路由
