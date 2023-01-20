@@ -74,7 +74,7 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     private <RouteType> void routerMapping(RouteType annotatedBean, Router router, Router wsRouter) throws NotFoundException {
-        Class<RouteType> clazz = (Class<RouteType>) annotatedBean.getClass();
+        Class<RouteType> clazz = cast(annotatedBean.getClass());
         if (!clazz.isAnnotationPresent(RoutePath.class)) {
             return;
         }
@@ -284,7 +284,9 @@ public class MainVerticle extends AbstractVerticle {
         } else if (rawType == Set.class) {
             coll = new HashSet<>();
         } else {
-            coll = (Collection<Object>) rawType.newInstance();
+//            coll = (Collection<Object>) rawType.newInstance();
+            coll = cast(rawType.newInstance());
+
         }
 
         for (String value : values) {
@@ -310,6 +312,11 @@ public class MainVerticle extends AbstractVerticle {
             field.set(bean, value);
         }
         return bean;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T cast(Object obj) {
+        return (T) obj;
     }
 
 }
