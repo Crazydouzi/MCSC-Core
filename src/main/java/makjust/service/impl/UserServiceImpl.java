@@ -13,7 +13,7 @@ import makjust.entity.User;
 import makjust.service.UserService;
 
 public class UserServiceImpl implements UserService {
-    private UserDao userDao=new UserDaoImpl();
+    private final UserDao userDao=new UserDaoImpl();
     @Override
     public void userLogin(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
         userDao.selectUserByName(vertx,user.getUsername()).onSuccess(ar->{
