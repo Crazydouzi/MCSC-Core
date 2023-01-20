@@ -31,7 +31,7 @@
         }；
      }
      @Request(value = "/userLogin",method = HttpMethod.POST)
-          public RoutingContext userLogin(@RequestBody User user) {
+          public JsonObject userLogin(@RequestBody User user) {
              JsonObject object =new JsonObject();
              do something.......
              return object；
