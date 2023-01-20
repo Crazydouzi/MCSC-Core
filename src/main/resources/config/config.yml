@@ -4,9 +4,3 @@ core:
   colony: False
   cmd_charset: GBK
   enWeb: True # True 启用Web界面 index.html于/resources/static，False为REST API
-
-mcServer:
-#  指定到resources下文件夹
-  version: \
-  port: 23356
-  def_cmd: cmd

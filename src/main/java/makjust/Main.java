@@ -16,8 +16,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Vertx vertx = Vertx.vertx();
         System.out.println("主线程启动！");
-        SysConfig.ConfigInit(vertx);
         new ResourcesInit(vertx);
+        new SysConfig().ConfigInit(vertx);
         // 关闭vert.x内置DNS
         System.getProperties().setProperty("vertx.disableDnsResolver", "true");
         AbstractRoute.vertx=vertx;

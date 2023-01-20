@@ -1,14 +1,12 @@
 package makjust.utils;
 
-import io.vertx.config.ConfigRetriever;
-import io.vertx.config.ConfigRetrieverOptions;
-import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.yaml.snakeyaml.Yaml;
 
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 
 public class SysConfig {
     private static final URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
@@ -33,23 +31,11 @@ public class SysConfig {
         return getBasePath() + "resources/";
     }
 
-    public static void ConfigInit(Vertx vertx) throws ExecutionException {
-        ConfigStoreOptions store = new ConfigStoreOptions()
-                .setType("file")
-                .setFormat("yaml")
-                .setConfig(new JsonObject()
-                        .put("path", getBasePath() + "resources/" + "config/config.yml")
-                );
-        ConfigRetriever retriever = ConfigRetriever.create(vertx,
-                new ConfigRetrieverOptions().addStore(store));
-        try {
-            JsonObject yaml = retriever.getConfig().toCompletionStage().toCompletableFuture().get();
-            System.out.println(yaml);
-            object = yaml;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
+    public void ConfigInit(Vertx vertx) {
+        Yaml yaml = new Yaml();
+        Map<String, Object> ret = yaml.load(Vertx.vertx().fileSystem().readFileBlocking(getBasePath() + "resources/" + "config/config.yml").toString());
+        JsonObject.mapFrom(ret);
+        object = JsonObject.mapFrom(ret);
     }
 
     public static String getCorePath(String version) {
@@ -89,7 +75,7 @@ public class SysConfig {
         return object.getJsonObject("mcServer");
     }
 
-    public static Object getConf(String arg0) {
+    public static String getConf(String arg0) {
         String[] arg = arg0.split("\\.");
         return object.getJsonObject(arg[0]).getString(arg[1]);
     }

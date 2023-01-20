@@ -21,7 +21,7 @@ import java.io.IOException;
 
 public class MCServerServiceImpl implements MCServerService {
     private final String DIR = SysConfig.getCorePath("/");
-    private final String CMD = SysConfig.object.getJsonObject("mcServer").getString("def_cmd");
+    private final String CMD ="CMD";
     private ProcessServer Server;
     private final MCServerDao mcServerDao=new MCServerDaoImpl();
     @Override

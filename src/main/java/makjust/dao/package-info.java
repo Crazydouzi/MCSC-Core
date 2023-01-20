@@ -1,3 +1,3 @@
-@ModuleGen(groupPackage = "makjust.dao", name = "dao", useFutures = true)
+//@ModuleGen(groupPackage = "makjust.dao", name = "dao", useFutures = true)
 package makjust.dao;
-import io.vertx.codegen.annotations.ModuleGen;
+//import io.vertx.codegen.annotations.ModuleGen;
