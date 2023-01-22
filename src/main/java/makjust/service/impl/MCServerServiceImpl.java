@@ -21,9 +21,10 @@ import java.io.IOException;
 
 public class MCServerServiceImpl implements MCServerService {
     private final String DIR = SysConfig.getCorePath("/");
-    private final String CMD ="CMD";
+    private final String CMD = "CMD";
     private ProcessServer Server;
-    private final MCServerDao mcServerDao=new MCServerDaoImpl();
+    private final MCServerDao mcServerDao = new MCServerDaoImpl();
+
     @Override
     public JsonObject editSetting() {
         return new JsonObject();
@@ -32,14 +33,14 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
-        mcServerDao.getSettingById(mcServer.getId()).onSuccess(ar->{
-            JsonArray jsonArray=new JsonArray();
+        mcServerDao.getSettingById(mcServer.getId()).onSuccess(ar -> {
+            JsonArray jsonArray = new JsonArray();
             jsonArray.add(mcServer);
-            for (Row row:ar){
+            for (Row row : ar) {
                 jsonArray.add(row.toJson());
             }
             System.out.println(jsonArray);
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)));
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", jsonArray)));
         });
     }
 
@@ -48,31 +49,26 @@ public class MCServerServiceImpl implements MCServerService {
         boolean serverStatus = EnvOptions.getServerStatus();
         // 如果已创建Process(启动服务器)则直接跳过
         if (serverStatus) return;
-        mcServerDao.selectServerByEnable(true).onSuccess(
-                ar -> {
-                    MCServer mcServer = new MCServer();
-                    for (Row row : ar) {
-                        mcServer = Json.decodeValue(row.toJson().toString(), MCServer.class);
-                    }
-                    if (mcServer != null) {
-                        File location = new File(DIR + mcServer.getLocation());
-                        if (!location.exists()) {
-                            resultHandler.handle(Future.failedFuture("启动失败，服务器不存在！请扫描服务器"));
-                        } else {
-                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
-                            try {
-                                Server.start();
-                                resultHandler.handle(Future.succeededFuture());
-                                EnvOptions.setServerStatus(true);
-                            } catch (IOException e) {
-                                resultHandler.handle(Future.failedFuture("启动失败"));
-                                e.printStackTrace();
-                            }
-                        }
+        getEnableServer(ar->{
+            MCServer mcServer;
+            mcServer=Json.decodeValue(ar.result().toString(),MCServer.class);
+            if (mcServer != null) {
+                File location = new File(DIR + mcServer.getLocation());
+                if (!location.exists()) {
+                    resultHandler.handle(Future.failedFuture("启动失败，服务器不存在！请扫描服务器"));
+                } else {
+                    Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
+                    try {
+                        Server.start();
+                        resultHandler.handle(Future.succeededFuture());
+                        EnvOptions.setServerStatus(true);
+                    } catch (IOException e) {
+                        resultHandler.handle(Future.failedFuture("启动失败"));
+                        e.printStackTrace();
                     }
                 }
-        );
-
+            }
+        });
     }
 
     @Override
@@ -92,7 +88,17 @@ public class MCServerServiceImpl implements MCServerService {
     }
 
     @Override
-    public JsonObject getEnableServer() {
-        return null;
+    public void getEnableServer(Handler<AsyncResult<JsonObject>> resultHandler) {
+        mcServerDao.selectServerByEnable(true).onSuccess(ar -> {
+            JsonObject object=new JsonObject();
+            for (Row row : ar) {
+                object=row.toJson();
+            }
+            if (object.isEmpty()){
+                object.put("data",null);
+            }
+            System.out.println(object);
+            resultHandler.handle(Future.succeededFuture(object));
+        }).onFailure(Throwable::printStackTrace);
     }
 }

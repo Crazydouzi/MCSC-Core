@@ -10,5 +10,5 @@ public interface MCServerService {
     void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler);
     void serverStart(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler) ;
     boolean serverStop(Vertx vertx);
-    JsonObject getEnableServer();
+    void getEnableServer(Handler<AsyncResult<JsonObject>> resultHandler);
 }
