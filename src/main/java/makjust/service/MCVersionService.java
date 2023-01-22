@@ -6,7 +6,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 public interface MCVersionService {
-    JsonObject getVersionList();
+    void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler);
     JsonObject getStoreVersionList();
     void serverScanner(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler);
 }

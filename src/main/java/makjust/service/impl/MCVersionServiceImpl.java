@@ -7,6 +7,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import makjust.dao.MCVersionDao;
+import makjust.dao.impl.MCVersionDaoImpl;
 import makjust.service.MCVersionService;
 import makjust.utils.SysConfig;
 
@@ -14,15 +16,22 @@ import java.util.List;
 
 public class MCVersionServiceImpl implements MCVersionService {
     private final String DIR = SysConfig.getCorePath("/");
+    private final MCVersionDao mcVersionDao = new MCVersionDaoImpl();
 
     @Override
-    public JsonObject getVersionList() {
-        return null;
+    public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
+        mcVersionDao.selectMCServerList().onSuccess(ar -> {
+            if (ar!=null){
+                JsonArray jsonArray=new JsonArray();
+                ar.forEach(r->jsonArray.add(r.toJson()));
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)));
+            }
+        });
     }
 
     @Override
     public JsonObject getStoreVersionList() {
-        return null;
+        return new JsonObject();
     }
 
     @Override
