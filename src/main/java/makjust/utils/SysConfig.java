@@ -16,7 +16,7 @@ public class SysConfig {
         return pathURL.getPath().contains(".jar");
     }
 
-    public static String getBasePath() {
+    private static String getBasePath() {
         String path = pathURL.getPath();
         if (getENV()) {
             path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
@@ -37,7 +37,7 @@ public class SysConfig {
         JsonObject.mapFrom(ret);
         object = JsonObject.mapFrom(ret);
     }
-
+    //定位到MC服务器包下
     public static String getCorePath(String version) {
         try {
             String path = pathURL.toURI().getPath();
@@ -50,7 +50,7 @@ public class SysConfig {
         }
 
     }
-
+    //定位到静态资源位置
     public static String getStaticPath() {
         String path;
         try {
@@ -69,10 +69,6 @@ public class SysConfig {
 
     public static JsonObject getCoreConf() {
         return object.getJsonObject("core");
-    }
-
-    public static JsonObject getMCConf() {
-        return object.getJsonObject("mcServer");
     }
 
     public static String getConf(String arg0) {
