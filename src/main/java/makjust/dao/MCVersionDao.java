@@ -6,5 +6,4 @@ import io.vertx.sqlclient.RowSet;
 
 public interface MCVersionDao {
     Future<RowSet<Row>> selectMCServerList();
-
 }
