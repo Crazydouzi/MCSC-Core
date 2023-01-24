@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class SysConfig {
     private static final URL pathURL = SysConfig.class.getProtectionDomain().getCodeSource().getLocation();
-    public static JsonObject object = new JsonObject();
+    private static JsonObject object = new JsonObject();
 
     private static Boolean getENV() {
         return pathURL.getPath().contains(".jar");
@@ -66,18 +66,21 @@ public class SysConfig {
             return "";
         }
     }
+    public static Object getConf(String key) {
+        if (key.contains(".")){
+            String[] arg = key.split("\\.");
+            return object.getJsonObject(arg[0]).getString(arg[1]);
+        } else {
+            return object.getValue(key);
+        }
 
-    public static JsonObject getCoreConf() {
-        return object.getJsonObject("core");
-    }
-
-    public static String getConf(String arg0) {
-        String[] arg = arg0.split("\\.");
-        return object.getJsonObject(arg[0]).getString(arg[1]);
     }
 
     public static int getHttpServerPort() {
-        return object.getJsonObject("core").getInteger("port");
+        return object.getInteger("port");
+    }
+    public static JsonObject getConf(){
+        return object;
     }
 
 }

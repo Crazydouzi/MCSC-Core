@@ -19,7 +19,7 @@ public class ProcessServer {
     public void start() throws IOException {
         process=builder.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream(),
-                SysConfig.object.getJsonObject("core").getString("cmd_charset")));
+                (String) SysConfig.getConf("cmd_charset")));
         OutputStream os = getOutputStream();
         //获取接收到的指令
         vertx.eventBus().consumer("processServer.cmdReq", data -> {
