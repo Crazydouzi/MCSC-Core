@@ -177,7 +177,6 @@ public class RouteUtils {
                             List<? extends Class<? extends Annotation>> parameterAnnotation = Arrays.stream(parameterAnnotations[i]).map(Annotation::annotationType).collect(Collectors.toList());
                             if (parameterAnnotation.contains(RequestBody.class)) {
                                 String bodyAsString = ctx.body().asString();
-                                System.out.println(bodyAsString);
                                 if (bodyAsString==null){
                                     argValues[i]=null;
                                 }else {
