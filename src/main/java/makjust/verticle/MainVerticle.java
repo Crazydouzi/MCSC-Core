@@ -17,7 +17,8 @@ public class MainVerticle extends AbstractVerticle {
         routeUtils.createLocalSession();
         if ((Boolean) SysConfig.getConf("enWeb")) routeUtils.setStaticRoute(SysConfig.getStaticPath());
         routeUtils.mountAllRoute("/api/*","/ws/*");
-        vertx.createHttpServer().requestHandler(routeUtils.getRouter()).listen(8080);
+        routeUtils.startHttpServer(8080);
+//        vertx.createHttpServer().requestHandler(routeUtils.getRouter()).listen(8080);
 
     }
 }
