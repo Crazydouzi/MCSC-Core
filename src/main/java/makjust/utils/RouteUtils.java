@@ -63,12 +63,13 @@ public class RouteUtils {
         }
     }
 
-    public void setStaticRoute() {
-        setStaticRoute(null);
-    }
-
     public void setStaticRoute(String webRoot) {
         router.route().handler(StaticHandler.create(webRoot).setDefaultContentEncoding("utf-8"));
+    }
+
+    // null Function
+    public void setStaticRoute() {
+        setStaticRoute(null);
     }
 
     /**
@@ -96,7 +97,13 @@ public class RouteUtils {
         SessionHandler sessionHandler = SessionHandler.create(store);
         router.route().handler(sessionHandler);
     }
-
+    public void startHttpServer(int port){
+        vertx.createHttpServer().requestHandler(getRouter()).listen(port);
+    }
+    // this is a default port ,it will use port 8080;
+    public void startHttpServer(){
+        startHttpServer(8080);
+    }
     //装载到子路由
     private void routerMapping(Object annotatedBean, Router apiRouter, Router wsRouter) throws NotFoundException {
         Class<?> clazz = annotatedBean.getClass();
@@ -170,7 +177,12 @@ public class RouteUtils {
                             List<? extends Class<? extends Annotation>> parameterAnnotation = Arrays.stream(parameterAnnotations[i]).map(Annotation::annotationType).collect(Collectors.toList());
                             if (parameterAnnotation.contains(RequestBody.class)) {
                                 String bodyAsString = ctx.body().asString();
-                                argValues[i] = Json.decodeValue(bodyAsString, paramType);
+                                System.out.println(bodyAsString);
+                                if (bodyAsString==null){
+                                    argValues[i]=null;
+                                }else {
+                                    argValues[i] = Json.decodeValue(bodyAsString, paramType);
+                                }
                             }
                             // special type
                             else if (paramType == RoutingContext.class) {
