@@ -6,19 +6,34 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
 import makjust.entity.MCServer;
-import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
 import makjust.utils.EnvOptions;
 
-import java.util.List;
+import java.util.Map;
 
 @RoutePath("/server")
 public class MCServerRoute extends AbstractRoute {
     private final MCServerService serverService = new MCServerServiceImpl();
 
     // 修改服务器选项
-    public RoutingContext editSetting(@RequestBody List<MCSetting> settingList) {
+    @Request(value = "/modifyServerOption", method = HttpMethod.POST)
+    public RoutingContext editServerOption(@RequestBody Map<String, Object> optionMap) {
+        if (!(optionMap.containsKey("serverId") && optionMap.containsKey("settings"))) {
+            ctx.response().setStatusCode(400);
+            ctx.json(returnJson(400, "错误的请求参数"));
+            return ctx;
+        }
+        serverService.setServerSetting(optionMap, ar -> ctx.json(returnJson(200, ar.result())));
+
+        return ctx;
+    }
+
+    // 修改MC核心启动参数
+    @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
+    public RoutingContext editCoreSetting(@RequestBody MCServer mcServer) {
+        System.out.println(mcServer);
+        ctx.json(returnJson(200, new JsonObject().put("data", mcServer)));
         return ctx;
     }
 
@@ -32,10 +47,6 @@ public class MCServerRoute extends AbstractRoute {
         return ctx;
     }
 
-    // 修改MC核心启动参数
-    public RoutingContext coreParamSetting(@RequestBody MCServer mcServer) {
-        return ctx;
-    }
 
     // 开启MC服务器
     @Request(value = "/start", method = HttpMethod.POST)

@@ -11,6 +11,7 @@ import io.vertx.sqlclient.Row;
 import makjust.dao.MCServerDao;
 import makjust.dao.impl.MCServerDaoImpl;
 import makjust.entity.MCServer;
+import makjust.entity.MCSetting;
 import makjust.serverCore.ProcessServer;
 import makjust.service.MCServerService;
 import makjust.utils.EnvOptions;
@@ -18,6 +19,9 @@ import makjust.utils.SysConfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class MCServerServiceImpl implements MCServerService {
     private final String DIR = SysConfig.getCorePath("/");
@@ -25,11 +29,23 @@ public class MCServerServiceImpl implements MCServerService {
     private ProcessServer Server;
     private final MCServerDao mcServerDao = new MCServerDaoImpl();
 
+
     @Override
-    public JsonObject editSetting() {
-        return new JsonObject();
+    public void setCoreSetting(MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
+
     }
 
+    @Override
+    public void setServerSetting(Map<String, Object> optionMap, Handler<AsyncResult<JsonObject>> resultHandler) {
+        int id= (int) optionMap.get("serverId");
+        System.out.println(optionMap.get("settings"));
+        List<MCSetting> list=new ArrayList<>();
+        for (Object o:((List<?>) optionMap.get("settings")).toArray()){
+            System.out.print(o.getClass());
+            list.add(Json.decodeValue(JsonObject.mapFrom(o).toString(),MCSetting.class));
+        }
+        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",list)));
+    }
 
     @Override
     public void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
