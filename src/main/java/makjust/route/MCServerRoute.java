@@ -29,7 +29,7 @@ public class MCServerRoute extends AbstractRoute {
         return ctx;
     }
 
-    // 修改MC核心启动参数
+    // 修改MC服务器信息
     @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
     public RoutingContext editCoreSetting(@RequestBody MCServer mcServer) {
         System.out.println(mcServer);
