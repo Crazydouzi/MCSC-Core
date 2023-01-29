@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-class selectTest {
+class selectTestClass {
     static {
         Vertx vertx = Vertx.vertx();
         DBPool.conn(vertx);

@@ -11,7 +11,7 @@ import makjust.dao.MCVersionDao;
 import makjust.dao.impl.MCVersionDaoImpl;
 import makjust.entity.MCServer;
 import makjust.service.MCVersionService;
-import makjust.utils.DBPool;
+import makjust.utils.EnvOptions;
 import makjust.utils.SysConfig;
 
 import java.util.List;
@@ -23,10 +23,10 @@ public class MCVersionServiceImpl implements MCVersionService {
     @Override
     public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
         mcVersionDao.selectMCServerList().onSuccess(ar -> {
-            if (ar!=null){
-                JsonArray jsonArray=new JsonArray();
-                ar.forEach(r->jsonArray.add(r.toJson()));
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)));
+            if (ar != null) {
+                JsonArray jsonArray = new JsonArray();
+                ar.forEach(r -> jsonArray.add(r.toJson()));
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", jsonArray)));
             }
         });
     }
@@ -54,11 +54,21 @@ public class MCVersionServiceImpl implements MCVersionService {
     }
 
     @Override
-    public void changeEnableVersion(MCServer server,Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void changeEnableVersion(MCServer server, Handler<AsyncResult<JsonObject>> resultHandler) {
         server.setEnable(true);
-        mcVersionDao.updateMCServerEnable(server).onSuccess(ar->{
-            System.out.println(ar.size());
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",ar.size())));
-        });
+        boolean serverStatus = EnvOptions.getServerStatus();
+        if (serverStatus) {
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "服务器运行中！无法切换版本")));
+        } else {
+            mcVersionDao.updateMCServerEnable(server).onSuccess(ar -> {
+                System.out.println(ar.rowCount());
+                if (ar.rowCount() >= 1) {
+                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "切换成功")));
+                } else {
+                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "切换失败")));
+                }
+            }).onFailure(Throwable::printStackTrace);
+        }
+
     }
 }

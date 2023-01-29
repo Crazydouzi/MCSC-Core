@@ -25,7 +25,7 @@ public class DBPool {
         pool = JDBCPool.pool(vertx, config);
     }
 
-    public JDBCPool getPool() {
+    public static JDBCPool getPool() {
         return pool;
     }
 
@@ -73,11 +73,23 @@ public class DBPool {
             keyList.add(matcher.group().replaceAll("[#{}]", ""));
         }
         sql = sql.replaceAll("#\\{\\w*}", "?");
-        keyList.forEach(v -> tupleList.add(param.getString(v)));
+        keyList.forEach(v -> {
+            if (param.getString(v).equals("false") || param.getString(v).equals("False")) {
+                tupleList.add(0);
+            } else if (param.getString(v).equals("True") || param.getString(v).equals("true")) {
+                tupleList.add(1);
+            } else {
+                tupleList.add(param.getString(v));
+
+            }
+        });
+
+
         return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
-    public static Future<RowSet<Row>> executeSQL(String sql, Object param){
-        return executeSQL(sql,JsonObject.mapFrom(param));
+
+    public static Future<RowSet<Row>> executeSQL(String sql, Object param) {
+        return executeSQL(sql, JsonObject.mapFrom(param));
     }
 
     //简单更新
@@ -191,10 +203,11 @@ public class DBPool {
                 flag = false;
             }
             rowIndex++;
-            flag=true;
+            flag = true;
         }
         return pojo;
     }
+
     /**
      * 用于大写转驼峰
      */
