@@ -76,6 +76,9 @@ public class DBPool {
         keyList.forEach(v -> tupleList.add(param.getString(v)));
         return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
+    public static Future<RowSet<Row>> executeSQL(String sql, Object param){
+        return executeSQL(sql,JsonObject.mapFrom(param));
+    }
 
     //简单更新
     public static Future<RowSet<Row>> update(String table, JsonObject param) {
@@ -192,7 +195,9 @@ public class DBPool {
         }
         return pojo;
     }
-
+    /**
+     * 用于大写转驼峰
+     */
     private static String toCase(String key) {
         Matcher matcher = Pattern.compile("[A-Z]").matcher(key);
         StringBuffer sb = new StringBuffer();
