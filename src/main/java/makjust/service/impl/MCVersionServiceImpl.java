@@ -9,7 +9,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import makjust.dao.MCVersionDao;
 import makjust.dao.impl.MCVersionDaoImpl;
+import makjust.entity.MCServer;
 import makjust.service.MCVersionService;
+import makjust.utils.DBPool;
 import makjust.utils.SysConfig;
 
 import java.util.List;
@@ -48,6 +50,15 @@ public class MCVersionServiceImpl implements MCVersionService {
             }
             resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", jsonArray)));
 
+        });
+    }
+
+    @Override
+    public void changeEnableVersion(MCServer server,Handler<AsyncResult<JsonObject>> resultHandler) {
+        server.setEnable(true);
+        mcVersionDao.updateMCServerEnable(server).onSuccess(ar->{
+            System.out.println(ar.size());
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",ar.size())));
         });
     }
 }
