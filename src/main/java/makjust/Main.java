@@ -5,7 +5,7 @@ import io.vertx.core.Vertx;
 import makjust.annotation.Deploy;
 import makjust.route.AbstractRoute;
 import makjust.utils.ClassScanUtil;
-import makjust.utils.DBUtils;
+import makjust.utils.DBPool;
 import makjust.utils.ResourcesInit;
 import makjust.utils.SysConfig;
 
@@ -21,7 +21,7 @@ public class Main {
         // 关闭vert.x内置DNS
         System.getProperties().setProperty("vertx.disableDnsResolver", "true");
         AbstractRoute.vertx=vertx;
-        DBUtils.conn(vertx);
+        DBPool.conn(vertx);
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.verticle", Deploy.class);
         for (Class<?> cls : classes) {
             Deploy deployAnnotation = cls.getAnnotation(Deploy.class);

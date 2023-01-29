@@ -7,7 +7,7 @@ import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.UserDao;
 import makjust.entity.User;
-import makjust.utils.DBUtils;
+import makjust.utils.DBPool;
 
 public class UserDaoImpl implements UserDao {
     //    private Vertx vertx;
@@ -16,22 +16,22 @@ public class UserDaoImpl implements UserDao {
 //    }
     @Override
     public Future<RowSet<Row>> insertUser(Vertx vertx,User user) {
-        return DBUtils.insert("User", user);
+        return DBPool.insert("User", user);
     }
 
     @Override
     public Future<RowSet<Row>> updateUser(Vertx vertx,User user) {
         JsonObject object=JsonObject.mapFrom(user);
-        return DBUtils.update("user",object);
+        return DBPool.update("user",object);
     }
 
     @Override
     public Future<RowSet<Row>> selectUser(Vertx vertx) {
-        return DBUtils.executeRowSQL("select * from User;");
+        return DBPool.executeRowSQL("select * from User;");
     }
 
     @Override
     public Future<RowSet<Row>> selectUserByName(Vertx vertx, String username) {
-        return DBUtils.executeRowSQL("select username,pwd from User where username=?;",username);
+        return DBPool.executeRowSQL("select username,pwd from User where username=?;",username);
     }
 }

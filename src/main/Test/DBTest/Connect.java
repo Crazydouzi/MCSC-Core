@@ -7,7 +7,7 @@ import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;
 import makjust.entity.MCServer;
 import makjust.entity.User;
-import makjust.utils.DBUtils;
+import makjust.utils.DBPool;
 import makjust.utils.SysConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -44,8 +44,8 @@ class Connect {
 //        MCServer mcServer=Json.decodeValue(jsonObject.toString(), MCServer.class);
 //        System.out.println(mcServer);
         Vertx vertx = Vertx.vertx();
-        DBUtils.conn(vertx);
-        DBUtils.executeRowSQL("select * from mc_server;").onSuccess(ar -> {
+        DBPool.conn(vertx);
+        DBPool.executeRowSQL("select * from mc_server;").onSuccess(ar -> {
             JsonObject mapping = new JsonObject();
             mapping.put("id", "id");
             mapping.put("server_name", "serverName");
@@ -53,7 +53,7 @@ class Connect {
             mapping.put("location", "location");
             mapping.put("enable", "enable");
 
-            JsonObject v = DBUtils.mapping(mapping, ar);
+            JsonObject v = DBPool.mapping(mapping, ar);
             System.out.println(v);
             List<MCServer> mcServerList=new ArrayList<>();
             v.getJsonArray("pojo").forEach(al->mcServerList.add(Json.decodeValue(al.toString(),MCServer.class)));
@@ -70,14 +70,14 @@ class Connect {
 
     @Test
     void insertTest() {
-        DBUtils dbUtil = new DBUtils();
-        DBUtils.conn(Vertx.vertx());
+        DBPool dbUtil = new DBPool();
+        DBPool.conn(Vertx.vertx());
         JsonObject object = new JsonObject();
         object.put("username", "test");
         object.put("pwd", "test");
         object.put("role", "r");
-        DBUtils.insert("user", object).onSuccess(ar -> {
-            System.out.println(DBUtils.toJsonArray(ar));
+        DBPool.insert("user", object).onSuccess(ar -> {
+            System.out.println(DBPool.toJsonArray(ar));
         }).onComplete(ar -> {
             System.out.println(ar.result());
         }).onFailure(Throwable::printStackTrace);
