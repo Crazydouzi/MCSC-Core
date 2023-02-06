@@ -7,8 +7,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import makjust.dao.MCVersionDao;
-import makjust.dao.impl.MCVersionDaoImpl;
+import makjust.dao.MCServerDao;
+import makjust.dao.MCSettingDao;
+import makjust.dao.impl.MCServerDaoImpl;
+import makjust.dao.impl.MCSettingDaoImpl;
 import makjust.entity.MCServer;
 import makjust.service.MCVersionService;
 import makjust.utils.EnvOptions;
@@ -18,11 +20,11 @@ import java.util.List;
 
 public class MCVersionServiceImpl implements MCVersionService {
     private final String DIR = SysConfig.getCorePath("/");
-    private final MCVersionDao mcVersionDao = new MCVersionDaoImpl();
+    private final MCServerDao mcServerDao=new MCServerDaoImpl();
 
     @Override
     public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
-        mcVersionDao.selectMCServerList().onSuccess(ar -> {
+        mcServerDao.selectMCServerList().onSuccess(ar -> {
             if (ar != null) {
                 JsonArray jsonArray = new JsonArray();
                 ar.forEach(r -> jsonArray.add(r.toJson()));
@@ -60,7 +62,7 @@ public class MCVersionServiceImpl implements MCVersionService {
         if (serverStatus) {
             resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "服务器运行中！无法切换版本")));
         } else {
-            mcVersionDao.updateMCServerEnable(server).onSuccess(ar -> {
+            mcServerDao.updateMCServerEnable(server).onSuccess(ar -> {
                 System.out.println(ar.rowCount());
                 if (ar.rowCount() >= 1) {
                     resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "切换成功")));

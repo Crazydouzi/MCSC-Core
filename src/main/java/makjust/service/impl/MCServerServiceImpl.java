@@ -25,6 +25,7 @@ import java.util.Map;
 
 public class MCServerServiceImpl implements MCServerService {
     private final String DIR = SysConfig.getCorePath("/");
+    // 默认CMD为Windows 若需要为Linux还需修改
     private final String CMD = "CMD";
     private ProcessServer Server;
     private final MCServerDao mcServerDao = new MCServerDaoImpl();
@@ -37,14 +38,13 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public void setServerSetting(Map<String, Object> optionMap, Handler<AsyncResult<JsonObject>> resultHandler) {
-        int id= (int) optionMap.get("serverId");
         System.out.println(optionMap.get("settings"));
-        List<MCSetting> list=new ArrayList<>();
-        for (Object o:((List<?>) optionMap.get("settings")).toArray()){
+        List<MCSetting> list = new ArrayList<>();
+        for (Object o : ((List<?>) optionMap.get("settings")).toArray()) {
             System.out.print(o.getClass());
-            list.add(Json.decodeValue(JsonObject.mapFrom(o).toString(),MCSetting.class));
+            list.add(Json.decodeValue(JsonObject.mapFrom(o).toString(), MCSetting.class));
         }
-        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",list)));
+        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", list)));
     }
 
     @Override
@@ -64,10 +64,13 @@ public class MCServerServiceImpl implements MCServerService {
     public void serverStart(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler) {
         boolean serverStatus = EnvOptions.getServerStatus();
         // 如果已创建Process(启动服务器)则直接跳过
-        if (serverStatus) return;
-        getEnableServer(ar->{
+        if (serverStatus) {
+            resultHandler.handle(Future.succeededFuture());
+            return;
+        }
+        getEnableServer(ar -> {
             MCServer mcServer;
-            mcServer=Json.decodeValue(ar.result().toString(),MCServer.class);
+            mcServer = Json.decodeValue(ar.result().toString(), MCServer.class);
             if (mcServer != null) {
                 File location = new File(DIR + mcServer.getLocation());
                 if (!location.exists()) {
@@ -105,13 +108,13 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public void getEnableServer(Handler<AsyncResult<JsonObject>> resultHandler) {
-        mcServerDao.selectServerByEnable(true).onSuccess(ar -> {
-            JsonObject object=new JsonObject();
+        mcServerDao.getServerByEnable(true).onSuccess(ar -> {
+            JsonObject object = new JsonObject();
             for (Row row : ar) {
-                object=row.toJson();
+                object = row.toJson();
             }
-            if (object.isEmpty()){
-                object.put("data",null);
+            if (object.isEmpty()) {
+                object.put("data", null);
             }
             System.out.println(object);
             resultHandler.handle(Future.succeededFuture(object));

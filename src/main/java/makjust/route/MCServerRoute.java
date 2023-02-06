@@ -8,7 +8,6 @@ import makjust.annotation.*;
 import makjust.entity.MCServer;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
-import makjust.utils.EnvOptions;
 
 import java.util.Map;
 
@@ -80,7 +79,8 @@ public class MCServerRoute extends AbstractRoute {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {
-                if (EnvOptions.getServerStatus()) {
+
+                if (vertx.getOrCreateContext().config().getBoolean("serverStatus")) {
                     sockJSSocket.write((String) r.body());
                 } else {
                     sockJSSocket.write("服务器已关闭。。。");
@@ -90,8 +90,8 @@ public class MCServerRoute extends AbstractRoute {
             //接收Client发送的消息
             sockJSSocket.handler(ws -> {
                 try {
-                    System.out.println("ws:" + ws.toString() + "processStatus:" + EnvOptions.getServerStatus());
-                    if (EnvOptions.getServerStatus()) {
+                    System.out.println("ws:" + ws.toString() + "processStatus:" + vertx.getOrCreateContext().config().getBoolean("serverStatus"));
+                    if (vertx.getOrCreateContext().config().getBoolean("serverStatus")) {
                         // 推送接收到的到的数据
                         vertx.eventBus().publish("processServer.cmdReq", ws.toString());
                     } else {
