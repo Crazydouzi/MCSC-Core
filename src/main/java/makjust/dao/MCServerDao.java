@@ -6,8 +6,6 @@ import io.vertx.sqlclient.RowSet;
 import makjust.entity.MCServer;
 
 public interface MCServerDao {
-    Future<RowSet<Row>> getSettingById(Integer id);
-
     Future<RowSet<Row>> getServerByEnable(boolean flag);
     Future<RowSet<Row>> selectMCServerList();
     Future<RowSet<Row>> updateMCServerEnable(MCServer mcServer);

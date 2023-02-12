@@ -5,11 +5,12 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import makjust.dao.MCServerDao;
+import makjust.dao.MCSettingDao;
 import makjust.dao.impl.MCServerDaoImpl;
+import makjust.dao.impl.MCSettingDaoImpl;
 import makjust.entity.MCServer;
 import makjust.entity.MCSetting;
 import makjust.serverCore.ProcessServer;
@@ -19,9 +20,6 @@ import makjust.utils.SysConfig;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class MCServerServiceImpl implements MCServerService {
     private final String DIR = SysConfig.getCorePath("/");
@@ -29,6 +27,7 @@ public class MCServerServiceImpl implements MCServerService {
     private final String CMD = "CMD";
     private ProcessServer Server;
     private final MCServerDao mcServerDao = new MCServerDaoImpl();
+    private final MCSettingDao mcSettingDao = new MCSettingDaoImpl();
 
 
     @Override
@@ -37,26 +36,18 @@ public class MCServerServiceImpl implements MCServerService {
     }
 
     @Override
-    public void setServerSetting(Map<String, Object> optionMap, Handler<AsyncResult<JsonObject>> resultHandler) {
-        System.out.println(optionMap.get("settings"));
-        List<MCSetting> list = new ArrayList<>();
-        for (Object o : ((List<?>) optionMap.get("settings")).toArray()) {
-            System.out.print(o.getClass());
-            list.add(Json.decodeValue(JsonObject.mapFrom(o).toString(), MCSetting.class));
-        }
-        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", list)));
+    public void setServerSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler) {
+//        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", list)));
     }
 
     @Override
     public void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
-        mcServerDao.getSettingById(mcServer.getId()).onSuccess(ar -> {
-            JsonArray jsonArray = new JsonArray();
-            jsonArray.add(mcServer);
+        mcSettingDao.getSettingById(mcServer.getId()).onSuccess(ar -> {
+            JsonObject object = new JsonObject();
             for (Row row : ar) {
-                jsonArray.add(row.toJson());
+                object = row.toJson();
             }
-            System.out.println(jsonArray);
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", jsonArray)));
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", object)));
         });
     }
 

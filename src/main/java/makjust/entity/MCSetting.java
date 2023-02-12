@@ -13,8 +13,10 @@ import lombok.Data;
 public class MCSetting {
     private Integer id;
     private Integer serverId;
-    private String option;
-    private String value;
-    private Boolean enable;
+
+    private String javaVersion;
+    private String memMin;
+    private String memMax;
+    private String vmOptions;
 
 }

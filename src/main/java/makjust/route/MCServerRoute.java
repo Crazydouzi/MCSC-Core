@@ -6,10 +6,9 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
 import makjust.entity.MCServer;
+import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
-
-import java.util.Map;
 
 @RoutePath("/server")
 public class MCServerRoute extends AbstractRoute {
@@ -17,13 +16,8 @@ public class MCServerRoute extends AbstractRoute {
 
     // 修改服务器选项
     @Request(value = "/modifyServerOption", method = HttpMethod.POST)
-    public RoutingContext editServerOption(@RequestBody Map<String, Object> optionMap) {
-        if (!(optionMap.containsKey("serverId") && optionMap.containsKey("settings"))) {
-            ctx.response().setStatusCode(400);
-            ctx.json(returnJson(400, "错误的请求参数"));
-            return ctx;
-        }
-        serverService.setServerSetting(optionMap, ar -> ctx.json(returnJson(200, ar.result())));
+    public RoutingContext editServerOption(@RequestBody MCSetting setting) {
+        serverService.setServerSetting(setting, ar -> ctx.json(returnJson(200, ar.result())));
 
         return ctx;
     }
