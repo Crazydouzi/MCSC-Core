@@ -7,10 +7,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.SqlResult;
 import io.vertx.sqlclient.Tuple;
+import io.vertx.sqlclient.templates.SqlTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,6 +69,9 @@ public class DBPool {
         if (checkEmpty(sql)) {
             return Future.failedFuture("Query is null or empty");
         }
+        if (!sql.endsWith(";")) {
+            sql = sql + ";";
+        }
         Pattern pattern = Pattern.compile("#\\{\\w*}");
         Matcher matcher = pattern.matcher(sql);
         List<String> keyList = new ArrayList<>();
@@ -73,6 +80,7 @@ public class DBPool {
             keyList.add(matcher.group().replaceAll("[#{}]", ""));
         }
         sql = sql.replaceAll("#\\{\\w*}", "?");
+        // 布尔值对sqlite 0/1转换
         keyList.forEach(v -> {
             if (param.getString(v).equals("false") || param.getString(v).equals("False")) {
                 tupleList.add(0);
@@ -83,8 +91,6 @@ public class DBPool {
 
             }
         });
-
-
         return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
 
@@ -92,24 +98,34 @@ public class DBPool {
         return executeSQL(sql, JsonObject.mapFrom(param));
     }
 
-    //简单更新
-    public static Future<RowSet<Row>> update(String table, JsonObject param) {
-        if (checkEmpty(table)) {
+    //用于更新前检查数据，去空添加
+    public static Future<RowSet<Row>> update(String sql, JsonObject param) {
+        if (checkEmpty(sql)) {
             return Future.failedFuture("Query is null or empty");
         }
-        String sql = "update " + table + " set ";
-        Pattern pattern = Pattern.compile("#\\{\\w*}");
-        Matcher matcher = pattern.matcher(sql);
-        List<Object> keyList = new ArrayList<>();
+        Set<String> keySet = param.getMap().keySet();
+        StringBuilder stringBuilder = new StringBuilder(sql.substring(0, sql.indexOf(" set")) + " set ");
+        Pattern pattern = Pattern.compile("[A-Za-z0-9.]+=#\\{[A-Za-z0-9.]+}");
+        Matcher matcher = pattern.matcher(sql.substring(sql.indexOf("set"), sql.indexOf("where")));
         while (matcher.find()) {
-            keyList.add(matcher.group().replaceAll("[#{}]", ""));
+            String key = matcher.group().replaceAll("=#\\{[A-Za-z0-9.]+}", "");
+
+            if (keySet.contains(key)) {
+                stringBuilder.append(sql, sql.indexOf(matcher.group()), sql.indexOf(matcher.group()) + matcher.group().length());
+                stringBuilder.append(",");
+            }
         }
-        sql = sql.replaceAll("#\\{\\w*}", "?");
-        return pool.preparedQuery(sql).execute(Tuple.tuple(keyList));
+        stringBuilder.replace(stringBuilder.lastIndexOf(","), stringBuilder.length(), " ");
+        stringBuilder.append(sql, sql.indexOf("where"), sql.length());
+        return DBPool.executeSQL(stringBuilder.toString(), param);
     }
 
-    public static Future<RowSet<Row>> update(String table, Object param) {
-        return update(table, JsonObject.mapFrom(param));
+    public static Future<RowSet<Row>> update(String sql, Object param) {
+        return update(sql, JsonObject.mapFrom(param));
+    }
+
+    public static SqlTemplate<Map<String, Object>, SqlResult<Void>> updateTemplate(String sql) {
+        return SqlTemplate.forUpdate(DBPool.getPool(), sql);
     }
 
     //简单插入

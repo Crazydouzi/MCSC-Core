@@ -35,8 +35,7 @@ public class UserRoute extends AbstractRoute{
     // 修改用户信息
     @Request(value = "/userUpdate",method = HttpMethod.POST)
     public RoutingContext userUpdate(@RequestBody User user) {
-        userService.modifyUser(vertx,user,ar-> ctx.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200).end(ar.result().encode()));
-
+        userService.modifyUser(vertx,user,ar-> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
     // 登出

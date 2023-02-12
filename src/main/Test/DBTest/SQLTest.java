@@ -37,20 +37,51 @@ public class SQLTest {
 
     @Test
     void update_toSQLTest() {
-        String table = "table";
         User u = new User();
         u.setId(1);
         u.setPwd("2222");
-        StringBuilder sql = new StringBuilder("update " + table + " set ");
         JsonObject object = JsonObject.mapFrom(u);
         Set<String> keySet = object.getMap().keySet();
-        List<Object> p = new ArrayList<>(object.getMap().values());
-        for (String key : keySet) {
-            sql.append(key).append("=?").append(",");
+        String baseSql= "update table set username=#{Id},pwd=#{pwd} where id=#{id};";
+        StringBuilder sql = new StringBuilder(baseSql.substring(0,baseSql.indexOf(" set")) + " set ");
+//        List<Object> p = new ArrayList<>(object.getMap().values());
+//        for (String key : keySet) {
+//                if (baseSql.substring(baseSql.lastIndexOf("set"),baseSql.lastIndexOf("where")).contains(key)){
+//                    sql.append(key).append("=?").append(",");
+//                }
+//        }
+
+        Pattern pattern = Pattern.compile("[A-Za-z0-9.]+=#\\{[A-Za-z0-9.]+}");
+        Matcher matcher = pattern.matcher(baseSql.substring(baseSql.indexOf(" set "),baseSql.indexOf("where")));
+        while (matcher.find()) {
+            System.out.println(matcher.group());
+            System.out.println(baseSql.indexOf(matcher.group())+"   "+(baseSql.indexOf(matcher.group())+matcher.group().length()-1));
+            String key=matcher.group().replaceAll("=#\\{[A-Za-z0-9.]+}","");
+            if (keySet.contains(key)){
+//                    sql.append(key).append("=?").append(",");
+                sql.append(baseSql, baseSql.indexOf(matcher.group()), baseSql.indexOf(matcher.group())+matcher.group().length());
+            }
+
         }
-        sql.replace(sql.lastIndexOf(","), sql.lastIndexOf(",") + 1, ";");
-        System.out.println(p);
+        sql.append(" ");
+//        sql.replace(sql.lastIndexOf(","), sql.length()-1, " ");
+        sql.append(baseSql, baseSql.indexOf("where"), baseSql.length());
         System.out.println(sql);
+
+
+    }
+    @Test
+    void update_test(){
+        String sql = "update " + "QAQ" + " set ";
+        Pattern pattern = Pattern.compile("#\\{\\w*}");
+        Matcher matcher = pattern.matcher(sql);
+        List<Object> keyList = new ArrayList<>();
+        while (matcher.find()) {
+            keyList.add(matcher.group().replaceAll("[#{}]", ""));
+        }
+        sql = sql.replaceAll("#\\{\\w*}", "?");
+        System.out.print("sql");
+        System.out.println(keyList);
 
     }
 

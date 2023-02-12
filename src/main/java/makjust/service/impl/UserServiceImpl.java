@@ -21,7 +21,12 @@ public class UserServiceImpl implements UserService {
             for (Row row:ar){
                 result = row.toJson();
             }
-            if (result.getString("pwd").equals(user.getPwd())) {
+            System.out.println(result);
+            System.out.println(result.size());
+            if (result.size()<=0){
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","用户或密码错误")));
+            }
+            else if (result.getString("pwd").equals(user.getPwd())) {
                 resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "登录成功")));
             }else{
                 resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","用户或密码错误")));
@@ -44,14 +49,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void modifyUser(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.updateUser((vertx),user).onSuccess(ar->{
-            JsonArray jsonArray=new JsonArray();
-            for (Row row:ar){
-                jsonArray.add(row.toJson());
-            }
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)
+        userDao.updateUser(vertx,user).onSuccess(ar->{
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data","更新完成")
             ));
-
+        }).onFailure(e->{
+            e.printStackTrace();
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data","更新失败")));
         });
     }
 }

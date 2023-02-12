@@ -21,8 +21,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Future<RowSet<Row>> updateUser(Vertx vertx,User user) {
-        JsonObject object=JsonObject.mapFrom(user);
-        return DBPool.update("user",object);
+        return DBPool.update("update user set pwd=#{pwd},username=#{username} where id=#{id};",user);
     }
 
     @Override
