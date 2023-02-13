@@ -1,17 +1,12 @@
 package DBTest.SQLExcute;
 
 import io.vertx.core.Vertx;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.templates.SqlTemplate;
-import makjust.entity.MCServer;
-import makjust.entity.MCSetting;
 import makjust.utils.DBPool;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class selectTest {
     static {
@@ -20,15 +15,16 @@ class selectTest {
     }
 
     @Test
-    void syncSQLTest() throws InterruptedException {
-        MCSetting mcSetting=new MCSetting();
-        mcSetting.setId(1);
-        SqlTemplate.forQuery(DBPool.getPool(),"select * from mc_setting where id=#{id}").mapFrom(MCSetting.class).mapTo(Row::toJson).execute(mcSetting).onSuccess(ar->{
-
-            System.out.print(mcSetting);
-        });
+    void strTest() {
+        String key = "set java_version=#{javaVersion},mem_min=#{memMin},mem_max=#{memMax},vm_option=#{vmOption} where";
+        Matcher matcher = Pattern.compile("[A-z0-9.]_([A-z0-9.])").matcher(key);
+        StringBuilder sb = new StringBuilder(key);
+        while (matcher.find()) {
+            int index=sb.indexOf("_");
+            sb.replace(index, index + 2, String.valueOf(sb.charAt(index + 1)).toUpperCase());
+        }
+        System.out.println(sb);
     }
-
 
     @AfterAll
     static void sleep() throws InterruptedException {

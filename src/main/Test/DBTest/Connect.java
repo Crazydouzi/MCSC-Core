@@ -37,26 +37,26 @@ class Connect {
     void queryTest() {
         Vertx vertx = Vertx.vertx();
         DBPool.conn(vertx);
-//        DBPool.executeRowSQL("select * from mc_server;").onSuccess(ar -> {
-//            JsonObject mapping = new JsonObject();
-//            mapping.put("id", "id");
-//            mapping.put("server_name", "serverName");
-//            mapping.put("version", "version");
-//            mapping.put("location", "location");
-//            mapping.put("enable", "enable");
-//
-//            JsonObject v = DBPool.mapping(mapping, ar);
-//            System.out.println(v);
-//            List<MCServer> mcServerList=new ArrayList<>();
-//            v.getJsonArray("pojo").forEach(al->mcServerList.add(Json.decodeValue(al.toString(),MCServer.class)));
-//            System.out.println(mcServerList);
-//            System.out.println("完成");
-////                    MCServer mcServer = new MCServer();
-////                    for (Row row : ar) {
-////                        mcServer = Json.decodeValue(row.toJson().toString(), MCServer.class);
-////                    }
-////                    System.out.println(mcServer);
-//        }).onFailure(Throwable::printStackTrace);
+        DBPool.executeRowSQL("select * from mc_server;").onSuccess(ar -> {
+            JsonObject mapping = new JsonObject();
+            mapping.put("id", "id");
+            mapping.put("server_name", "serverName");
+            mapping.put("version", "version");
+            mapping.put("location", "location");
+            mapping.put("enable", "enable");
+
+            JsonObject v = DBPool.mapping(mapping, ar);
+            System.out.println(v);
+            List<MCServer> mcServerList=new ArrayList<>();
+            v.getJsonArray("data").forEach(al->mcServerList.add(Json.decodeValue(al.toString(),MCServer.class)));
+            System.out.println(mcServerList);
+            System.out.println("完成");
+//                    MCServer mcServer = new MCServer();
+//                    for (Row row : ar) {
+//                        mcServer = Json.decodeValue(row.toJson().toString(), MCServer.class);
+//                    }
+//                    System.out.println(mcServer);
+        }).onFailure(Throwable::printStackTrace);
 
     }
 

@@ -37,13 +37,13 @@
         <!--            <classifier>processor</classifier>-->
         <!--        </dependency>-->
 
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-codegen</artifactId>
-            <version>${vertx.version}</version>
-            <classifier>processor</classifier>
-            <scope>provided</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.vertx</groupId>-->
+<!--            <artifactId>vertx-codegen</artifactId>-->
+<!--            <version>${vertx.version}</version>-->
+<!--            <classifier>processor</classifier>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
 
 
         <!--JDBC        -->
