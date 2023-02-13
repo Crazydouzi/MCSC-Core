@@ -13,6 +13,7 @@ import makjust.dao.impl.MCServerDaoImpl;
 import makjust.dao.impl.MCSettingDaoImpl;
 import makjust.entity.MCServer;
 import makjust.service.MCVersionService;
+import makjust.utils.DBPool;
 import makjust.utils.EnvOptions;
 import makjust.utils.SysConfig;
 
@@ -26,9 +27,7 @@ public class MCVersionServiceImpl implements MCVersionService {
     public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao.selectMCServerList().onSuccess(ar -> {
             if (ar != null) {
-                JsonArray jsonArray = new JsonArray();
-                ar.forEach(r -> jsonArray.add(r.toJson()));
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", jsonArray)));
+                resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar)));
             }
         });
     }
