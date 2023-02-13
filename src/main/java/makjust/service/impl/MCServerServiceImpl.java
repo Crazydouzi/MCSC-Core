@@ -15,6 +15,7 @@ import makjust.entity.MCServer;
 import makjust.entity.MCSetting;
 import makjust.serverCore.ProcessServer;
 import makjust.service.MCServerService;
+import makjust.utils.DBPool;
 import makjust.utils.EnvOptions;
 import makjust.utils.SysConfig;
 
@@ -37,17 +38,21 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public void setServerSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler) {
+        System.out.println(setting);
+        mcSettingDao.updateSetting(setting)
+                .onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成"))))
+                .onFailure(e -> {
+                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "更新失败").put("data", e.toString())));
+                    e.printStackTrace();
+
+                });
 //        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", list)));
     }
 
     @Override
     public void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
         mcSettingDao.getSettingById(mcServer.getId()).onSuccess(ar -> {
-            JsonObject object = new JsonObject();
-            for (Row row : ar) {
-                object = row.toJson();
-            }
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", object)));
+            resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar)));
         });
     }
 
