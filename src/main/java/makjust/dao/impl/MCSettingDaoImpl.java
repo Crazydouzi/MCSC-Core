@@ -17,7 +17,7 @@ public class MCSettingDaoImpl implements MCSettingDao {
 
     @Override
     public Future<RowSet<Row>> updateSetting(MCSetting mcSetting) {
-        return null;
+        return DBPool.update("update mc_setting set java_version=#{javaVersion},mem_min=#{memMin},mem_max=#{memMax},vm_option=#{vmOption} where server_id=#{serverId}",mcSetting);
     }
 
     @Override
