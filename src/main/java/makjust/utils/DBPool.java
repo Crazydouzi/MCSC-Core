@@ -7,13 +7,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
-import io.vertx.sqlclient.SqlResult;
 import io.vertx.sqlclient.Tuple;
-import io.vertx.sqlclient.templates.SqlTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -122,10 +119,6 @@ public class DBPool {
 
     public static Future<RowSet<Row>> update(String sql, Object param) {
         return update(sql, JsonObject.mapFrom(param));
-    }
-
-    public static SqlTemplate<Map<String, Object>, SqlResult<Void>> updateTemplate(String sql) {
-        return SqlTemplate.forUpdate(DBPool.getPool(), sql);
     }
 
     //简单插入

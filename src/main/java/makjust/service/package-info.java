@@ -1,4 +1,4 @@
-//@ModuleGen(groupPackage = "makjust.service", name = "service", useFutures = true)
+@ModuleGen(groupPackage = "makjust.service", name = "makjust-service", useFutures = true)
 package makjust.service;
 //
-//import io.vertx.codegen.annotations.ModuleGen;
+import io.vertx.codegen.annotations.ModuleGen;
