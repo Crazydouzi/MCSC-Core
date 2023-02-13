@@ -88,6 +88,7 @@ public class DBPool {
 
             }
         });
+        System.out.println("sql:" + sql + "param:" + param);
         return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
 
@@ -101,20 +102,19 @@ public class DBPool {
             return Future.failedFuture("Query is null or empty");
         }
         Set<String> keySet = param.getMap().keySet();
-        StringBuilder stringBuilder = new StringBuilder(sql.substring(0, sql.indexOf(" set")) + " set ");
-        Pattern pattern = Pattern.compile("[A-Za-z0-9.]+=#\\{[A-Za-z0-9.]+}");
+        StringBuilder sqlBuilder = new StringBuilder(sql.substring(0, sql.indexOf(" set")) + " set ");
+        Pattern pattern = Pattern.compile("([A-Za-z0-9._]+=#\\{[A-Za-z0-9.]+})");
         Matcher matcher = pattern.matcher(sql.substring(sql.indexOf("set"), sql.indexOf("where")));
         while (matcher.find()) {
-            String key = matcher.group().replaceAll("=#\\{[A-Za-z0-9.]+}", "");
-
+            String key = DBPool.toCamelCase(matcher.group().replaceAll("=#\\{[A-Za-z0-9.]+}", ""));
             if (keySet.contains(key)) {
-                stringBuilder.append(sql, sql.indexOf(matcher.group()), sql.indexOf(matcher.group()) + matcher.group().length());
-                stringBuilder.append(",");
+                sqlBuilder.append(sql, sql.indexOf(matcher.group()), sql.indexOf(matcher.group()) + matcher.group().length());
+                sqlBuilder.append(",");
             }
         }
-        stringBuilder.replace(stringBuilder.lastIndexOf(","), stringBuilder.length(), " ");
-        stringBuilder.append(sql, sql.indexOf("where"), sql.length());
-        return DBPool.executeSQL(stringBuilder.toString(), param);
+        sqlBuilder.replace(sqlBuilder.lastIndexOf(","), sqlBuilder.length(), " ");
+        sqlBuilder.append(sql, sql.indexOf("where"), sql.length());
+        return DBPool.executeSQL(sqlBuilder.toString(), param);
     }
 
     public static Future<RowSet<Row>> update(String sql, Object param) {
@@ -167,7 +167,7 @@ public class DBPool {
                 if (pojoValue.contains(".")) {
                     //0为pojo名 1为属性名 A-var1
                     String[] nameList = pojoValue.split("\\.");
-                    nameList[1] = toCase(nameList[1]);
+                    nameList[1] = toSnakeCase(nameList[1]);
                     if (!pojo.containsKey(nameList[0])) {
                         //如果不止一条将返回JsonArray
                         if (rowSet.size() != 1) {
@@ -189,24 +189,23 @@ public class DBPool {
                     }
 
                     //param
-                } else {
-                    if (!pojo.containsKey("pojo")) {
-                        if (rowSet.size() == 1) {
-                            pojo.put("pojo", new JsonObject());
+                }
 
-                        } else {
-                            pojo.put("pojo", new JsonArray());
+                else {// 当无.时说明为普通映射
+                    if (!pojo.containsKey("data")) {
+                        if (!(rowSet.size() == 1)) {
+                            pojo.put("data", new JsonArray());
                         }
                     }
                     if (rowSet.size() == 1) {
-                        pojo.getJsonObject("pojo").put(toCase(pojoValue), row.getValue(key));
+                        pojo.put(mapping.getString(key), row.getValue(key));
                         continue;
                     }
                     if (flag) {
                         //当位于当前结果集第一条时候
-                        pojo.getJsonArray("pojo").add(new JsonObject().put(key, row.getValue(key)));
+                        pojo.getJsonArray("data").add(new JsonObject().put(mapping.getString(key), row.getValue(key)));
                     } else {
-                        pojo.getJsonArray("pojo").getJsonObject(rowIndex).put(key, row.getValue(key));
+                        pojo.getJsonArray("data").getJsonObject(rowIndex).put(mapping.getString(key), row.getValue(key));
                     }
                 }
                 flag = false;
@@ -216,11 +215,24 @@ public class DBPool {
         }
         return pojo;
     }
+    /**
+     * mapping自动驼峰映射
+     */
+    public static JsonObject camelMapping(RowSet<Row> rowSet){
+        if (rowSet==null)return new JsonObject("data");
+        JsonObject object=new JsonObject();
+        rowSet.forEach(row->{
+            row.toJson().getMap().keySet().forEach(key-> object.put(key,toCamelCase(key)));
+            return ;
+        });
+        System.out.println(object);
+        return mapping(object,rowSet);
+    }
 
     /**
-     * 用于大写转驼峰
+     * 将驼峰转为下划线
      */
-    private static String toCase(String key) {
+    private static String toSnakeCase(String key) {
         Matcher matcher = Pattern.compile("[A-Z]").matcher(key);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
@@ -228,5 +240,29 @@ public class DBPool {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+    /**
+     * @param key 单个字符串
+     * 将下划线转为驼峰
+     */
+    private static String toCamelCase(String key) {
+        if (!key.contains("_")) return key;
+        StringBuilder sb = new StringBuilder(key);
+        int index = sb.indexOf("_");
+        sb.replace(index, index + 2, String.valueOf(sb.charAt(index + 1)).toUpperCase());
+        return sb.toString();
+    }
+    /**
+     * @param str 整句转换
+     * 将下划线转为驼峰
+     */
+    private static String strToCameCase(String str){
+        Matcher matcher = Pattern.compile("[A-z0-9.]_([A-z0-9.])").matcher(str);
+        StringBuilder sb = new StringBuilder(str);
+        while (matcher.find()) {
+            int index=sb.indexOf("_");
+            sb.replace(index, index + 2, String.valueOf(sb.charAt(index + 1)).toUpperCase());
+        }
+        return str;
     }
 }
