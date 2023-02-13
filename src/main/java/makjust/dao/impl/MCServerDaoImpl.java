@@ -21,6 +21,6 @@ public class MCServerDaoImpl implements MCServerDao {
 
     @Override
     public Future<RowSet<Row>> updateMCServerEnable(MCServer server) {
-        return DBPool.executeSQL("update mc_server set enable=#{enable} where id=#{id};", server);
+        return DBPool.update("update mc_server set enable=#{enable} where id=#{id};", server);
     }
 }
