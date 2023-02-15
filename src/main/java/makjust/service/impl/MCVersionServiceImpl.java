@@ -41,11 +41,12 @@ public class MCVersionServiceImpl implements MCVersionService {
         JsonArray jsonArray = new JsonArray();
         fileSystem.readDir(DIR, "[^.]*").onSuccess(dirList -> {
             for (String loc : dirList) {
-                JsonObject jsonObject = new JsonObject();
                 List<String> jarList = fileSystem.readDirBlocking(loc, "\\w*.jar");
-                jarList.replaceAll(f -> f.substring(f.lastIndexOf("\\") + 1));
-                jsonObject.put("jarList", jarList);
-                jsonArray.add(new JsonObject().put(loc.substring(loc.lastIndexOf("\\") + 1), jsonObject));
+                // 空文件夹不返回
+                if (!jarList.isEmpty()) {
+                    jarList.replaceAll(f -> f.substring(f.lastIndexOf("\\") + 1));
+                    jsonArray.add(new JsonObject().put(loc.substring(loc.lastIndexOf("\\") + 1), jarList));
+                }
             }
             resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", jsonArray)));
 
