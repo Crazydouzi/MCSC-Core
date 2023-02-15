@@ -33,12 +33,17 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public void setCoreSetting(MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
-
+        mcServerDao
+                .updateMCServerInfo(mcServer)
+                .onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成").put("code", 200))))
+                .onFailure(e -> {
+                    e.printStackTrace();
+                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新失败").put("code", 500)));
+                });
     }
 
     @Override
     public void setServerSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler) {
-        System.out.println(setting);
         mcSettingDao.updateSetting(setting)
                 .onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成"))))
                 .onFailure(e -> {
@@ -46,14 +51,11 @@ public class MCServerServiceImpl implements MCServerService {
                     e.printStackTrace();
 
                 });
-//        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", list)));
     }
 
     @Override
     public void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
-        mcSettingDao.getSettingById(mcServer.getId()).onSuccess(ar -> {
-            resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar)));
-        });
+        mcSettingDao.getSettingById(mcServer.getId()).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar))));
     }
 
     @Override

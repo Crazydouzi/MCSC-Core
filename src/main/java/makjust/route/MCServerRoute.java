@@ -24,8 +24,7 @@ public class MCServerRoute extends AbstractRoute {
     // 修改MC服务器信息
     @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
     public RoutingContext editCoreSetting(@RequestBody MCServer mcServer) {
-        System.out.println(mcServer);
-        ctx.json(returnJson(200, new JsonObject().put("data", mcServer)));
+        serverService.setCoreSetting(mcServer,ar-> ctx.json(returnJson(ar.result())));
         return ctx;
     }
 
