@@ -28,9 +28,11 @@ public abstract class AbstractRoute {
         return jsonObject;
 
     }
-    JsonObject returnJson(int statusCode,Object data){
-      return   returnJson(statusCode,new JsonObject().put("data",data));
+
+    JsonObject returnJson(int statusCode, Object data) {
+        return returnJson(statusCode, new JsonObject().put("data", data));
     }
+
     JsonObject returnJson(int statusCode, JsonObject data) {
         if (data.containsKey("msg")) return returnJson(statusCode, data.getString("msg"), data);
         return returnJson(statusCode, "OK", data);
@@ -38,6 +40,14 @@ public abstract class AbstractRoute {
 
     JsonObject returnJson(int statusCode, String msg) {
         return returnJson(statusCode, msg, new JsonObject());
+    }
+
+    JsonObject returnJson(JsonObject object) {
+        if (object.containsKey("code")) {
+            return returnJson(object.getInteger("code"), object.getValue("data"));
+        } else {
+            return returnJson(200, object.getValue("data"));
+        }
     }
 
     public MessageConsumer<Object> getMsgFromBus(String name) {
