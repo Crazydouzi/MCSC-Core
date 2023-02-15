@@ -94,7 +94,7 @@ public class DBPool {
             }
 
         });
-        System.out.println("sql:" + sql + "param:" + param);
+        System.out.println("sql:" + sql + "param:" + tupleList);
         return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
 
