@@ -1,1 +1,1 @@
-用于Minecraft服务器的Web控制台 占坑
+用于Minecraft服务器的Web控制台，核心端占坑
