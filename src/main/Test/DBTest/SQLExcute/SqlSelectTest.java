@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class selectTest {
+class SqlSelectTest {
     static {
         Vertx vertx = Vertx.vertx();
         DBPool.conn(vertx);

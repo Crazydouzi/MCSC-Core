@@ -79,22 +79,28 @@ public class DBPool {
         sql = sql.replaceAll("#\\{\\w*}", "?");
         // 布尔值对sqlite 0/1转换
         keyList.forEach(v -> {
-            if (param.getString(v).equals("false") || param.getString(v).equals("False")) {
-                tupleList.add(0);
-            } else if (param.getString(v).equals("True") || param.getString(v).equals("true")) {
-                tupleList.add(1);
-            } else {
-                tupleList.add(param.getString(v));
+            if (param.containsKey(v)) {
+                if (param.getValue(v)==null){
+                    tupleList.add(param.getValue(v));
+                }
+                else if (param.getString(v).equals("false") || param.getString(v).equals("False")) {
+                    tupleList.add(0);
+                } else if (param.getString(v).equals("True") || param.getString(v).equals("true")) {
+                    tupleList.add(1);
+                } else {
+                    tupleList.add(param.getValue(v));
 
+                }
             }
+
         });
         System.out.println("sql:" + sql + "param:" + param);
         return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
 
-    public static Future<RowSet<Row>> executeSQL(String sql, Object param) {
-        return executeSQL(sql, JsonObject.mapFrom(param));
-    }
+//    public static Future<RowSet<Row>> executeSQL(String sql, Object param) {
+//        return executeSQL(sql, JsonObject.mapFrom(param));
+//    }
 
     //用于更新前检查数据，去空添加
     public static Future<RowSet<Row>> update(String sql, JsonObject param) {
@@ -189,9 +195,7 @@ public class DBPool {
                     }
 
                     //param
-                }
-
-                else {// 当无.时说明为普通映射
+                } else {// 当无.时说明为普通映射
                     if (!pojo.containsKey("data")) {
                         if (!(rowSet.size() == 1)) {
                             pojo.put("data", new JsonArray());
@@ -206,6 +210,7 @@ public class DBPool {
                         pojo.getJsonArray("data").add(new JsonObject().put(mapping.getString(key), row.getValue(key)));
                     } else {
                         pojo.getJsonArray("data").getJsonObject(rowIndex).put(mapping.getString(key), row.getValue(key));
+
                     }
                 }
                 flag = false;
@@ -215,18 +220,16 @@ public class DBPool {
         }
         return pojo;
     }
+
     /**
      * mapping自动驼峰映射
      */
-    public static JsonObject camelMapping(RowSet<Row> rowSet){
-        if (rowSet==null)return new JsonObject("data");
-        JsonObject object=new JsonObject();
-        rowSet.forEach(row->{
-            row.toJson().getMap().keySet().forEach(key-> object.put(key,toCamelCase(key)));
-            return ;
-        });
+    public static JsonObject camelMapping(RowSet<Row> rowSet) {
+        if (rowSet == null) return new JsonObject("data");
+        JsonObject object = new JsonObject();
+        rowSet.forEach(row -> row.toJson().getMap().keySet().forEach(key -> object.put(key, toCamelCase(key))));
         System.out.println(object);
-        return mapping(object,rowSet);
+        return mapping(object, rowSet);
     }
 
     /**
@@ -241,9 +244,10 @@ public class DBPool {
         matcher.appendTail(sb);
         return sb.toString();
     }
+
     /**
      * @param key 单个字符串
-     * 将下划线转为驼峰
+     *            将下划线转为驼峰
      */
     private static String toCamelCase(String key) {
         if (!key.contains("_")) return key;
@@ -252,15 +256,16 @@ public class DBPool {
         sb.replace(index, index + 2, String.valueOf(sb.charAt(index + 1)).toUpperCase());
         return sb.toString();
     }
+
     /**
      * @param str 整句转换
-     * 将下划线转为驼峰
+     *            将下划线转为驼峰
      */
-    private static String strToCameCase(String str){
+    private static String strToCameCase(String str) {
         Matcher matcher = Pattern.compile("[A-z0-9.]_([A-z0-9.])").matcher(str);
         StringBuilder sb = new StringBuilder(str);
         while (matcher.find()) {
-            int index=sb.indexOf("_");
+            int index = sb.indexOf("_");
             sb.replace(index, index + 2, String.valueOf(sb.charAt(index + 1)).toUpperCase());
         }
         return str;

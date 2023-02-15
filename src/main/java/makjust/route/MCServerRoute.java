@@ -18,7 +18,6 @@ public class MCServerRoute extends AbstractRoute {
     @Request(value = "/modifyServerOption", method = HttpMethod.POST)
     public RoutingContext editServerOption(@RequestBody MCSetting setting) {
         serverService.setServerSetting(setting, ar -> ctx.json(returnJson(200, ar.result())));
-
         return ctx;
     }
 
