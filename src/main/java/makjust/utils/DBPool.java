@@ -98,10 +98,6 @@ public class DBPool {
         return pool.preparedQuery(sql).execute(Tuple.tuple(tupleList));
     }
 
-//    public static Future<RowSet<Row>> executeSQL(String sql, Object param) {
-//        return executeSQL(sql, JsonObject.mapFrom(param));
-//    }
-
     //用于更新前检查数据，去空添加
     public static Future<RowSet<Row>> update(String sql, JsonObject param) {
         if (checkEmpty(sql)) {
