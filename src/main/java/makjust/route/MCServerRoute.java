@@ -1,5 +1,6 @@
 package makjust.route;
 
+import io.vertx.core.http.WebSocket;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -9,6 +10,7 @@ import makjust.entity.MCServer;
 import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
+import makjust.utils.EnvOptions;
 
 @RoutePath("/server")
 public class MCServerRoute extends AbstractRoute {
@@ -68,11 +70,12 @@ public class MCServerRoute extends AbstractRoute {
 
     @Socket("/process")
     public Router processSocket(SockJSHandler sockJSHandler) {
+
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {
 
-                if (vertx.getOrCreateContext().config().getBoolean("serverStatus")) {
+                if (EnvOptions.getServerStatus()) {
                     sockJSSocket.write((String) r.body());
                 } else {
                     sockJSSocket.write("服务器已关闭。。。");
@@ -82,8 +85,7 @@ public class MCServerRoute extends AbstractRoute {
             //接收Client发送的消息
             sockJSSocket.handler(ws -> {
                 try {
-                    System.out.println("ws:" + ws.toString() + "processStatus:" + vertx.getOrCreateContext().config().getBoolean("serverStatus"));
-                    if (vertx.getOrCreateContext().config().getBoolean("serverStatus")) {
+                    if (EnvOptions.getServerStatus()) {
                         // 推送接收到的到的数据
                         vertx.eventBus().publish("processServer.cmdReq", ws.toString());
                     } else {
@@ -93,6 +95,10 @@ public class MCServerRoute extends AbstractRoute {
                     e.printStackTrace();
                 }
             });
+        });
+    }
+    public WebSocket processWebSocket(WebSocket webSocket){
+        return webSocket.handler(socket->{
         });
     }
 }

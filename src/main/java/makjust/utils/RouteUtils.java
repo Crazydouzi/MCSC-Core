@@ -15,6 +15,7 @@ import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 import io.vertx.ext.web.sstore.SessionStore;
 import javassist.*;
 import javassist.bytecode.CodeAttribute;
@@ -40,6 +41,7 @@ public class RouteUtils {
     private final Router apiRouter;
     private final Router wsRouter;
     private final Router router;
+    private final SockJSHandlerOptions options = new SockJSHandlerOptions();
 
     public RouteUtils(Vertx vertx) {
         this.vertx = vertx;
@@ -49,6 +51,10 @@ public class RouteUtils {
         this.apiRouter = Router.router(vertx);
         // ws子路由(SockJs)
         this.wsRouter = Router.router(vertx);
+//        router.get("/*").handler(h->{
+//            System.out.println(h.request());
+//        });
+
 
     }
 
@@ -65,7 +71,13 @@ public class RouteUtils {
     }
 
     public void setStaticRoute(String webRoot) {
-        router.route().handler(StaticHandler.create(webRoot).setDefaultContentEncoding("utf-8"));
+        System.out.println(webRoot);
+        router.route("/*").method(HttpMethod.GET)
+                .handler(
+                        StaticHandler
+                                .create(webRoot)
+                                .setCachingEnabled(false)
+                                .setDefaultContentEncoding("utf-8"));
     }
 
     // null Function
@@ -84,7 +96,8 @@ public class RouteUtils {
         mountWSRoute(wsPathPrefix);
         mountAPIRoute(apiPathPrefix);
     }
-    public void enableCORS(){
+
+    public void enableCORS() {
         Set<String> allowedHeaders = new HashSet<>();
         allowedHeaders.add("x-requested-with");
         allowedHeaders.add("Access-Control-Allow-Origin");
@@ -104,7 +117,11 @@ public class RouteUtils {
         allowedMethods.add(HttpMethod.DELETE);
         allowedMethods.add(HttpMethod.PATCH);
         allowedMethods.add(HttpMethod.PUT);
-        router.route().handler(CorsHandler.create().allowedHeaders(allowedHeaders).allowedMethods(allowedMethods));
+        router.route().handler(CorsHandler.create().addOrigin("*").allowedHeaders(allowedHeaders).allowedMethods(allowedMethods));
+    }
+
+    public void setSockOrigin(String uri) {
+        options.setOrigin(uri);
     }
 
     public void mountAPIRoute(String URLPrefix) {
@@ -120,13 +137,16 @@ public class RouteUtils {
         SessionHandler sessionHandler = SessionHandler.create(store);
         router.route().handler(sessionHandler);
     }
-    public void startHttpServer(int port){
+
+    public void startHttpServer(int port) {
         vertx.createHttpServer().requestHandler(getRouter()).listen(port);
     }
+
     // this is a default port ,it will use port 8080;
-    public void startHttpServer(){
+    public void startHttpServer() {
         startHttpServer(8080);
     }
+
     //装载到子路由
     private void routerMapping(Object annotatedBean, Router apiRouter, Router wsRouter) throws NotFoundException {
         Class<?> clazz = annotatedBean.getClass();
@@ -162,8 +182,8 @@ public class RouteUtils {
                 String path = RoutePath + wsMethodAnno.value();
                 String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
                 System.out.println("webSocket路由地址" + "/ws" + wsPath);
-                SockJSHandlerOptions options = new SockJSHandlerOptions();
                 options.setHeartbeatInterval(2000);
+                options.setOrigin("http://127.0.0.1:3000/");
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
                 Object[] argValues = new Object[ctMethod.getParameterTypes().length];
                 for (int i = 0; i < argValues.length; i++) {
@@ -200,9 +220,9 @@ public class RouteUtils {
                             List<? extends Class<? extends Annotation>> parameterAnnotation = Arrays.stream(parameterAnnotations[i]).map(Annotation::annotationType).collect(Collectors.toList());
                             if (parameterAnnotation.contains(RequestBody.class)) {
                                 String bodyAsString = ctx.body().asString();
-                                if (bodyAsString==null){
-                                    argValues[i]=null;
-                                }else {
+                                if (bodyAsString == null) {
+                                    argValues[i] = null;
+                                } else {
                                     argValues[i] = Json.decodeValue(bodyAsString, paramType);
                                 }
                             }
