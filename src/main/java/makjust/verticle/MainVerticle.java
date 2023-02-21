@@ -16,6 +16,7 @@ public class MainVerticle extends AbstractVerticle {
         routeUtils.scanRoute("makjust.route");
         routeUtils.createLocalSession();
         if ((Boolean) SysConfig.getConf("enWeb")) routeUtils.setStaticRoute(SysConfig.getStaticPath());
+        routeUtils.enableCORS();
         routeUtils.mountAllRoute("/api/*","/ws/*");
         routeUtils.startHttpServer(8080);
 //        vertx.createHttpServer().requestHandler(routeUtils.getRouter()).listen(8080);

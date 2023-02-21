@@ -115,7 +115,7 @@ public class MCServerServiceImpl implements MCServerService {
                 object.put("data", null);
             }
             System.out.println(object);
-            resultHandler.handle(Future.succeededFuture(object));
+            resultHandler.handle(Future.succeededFuture(JsonObject.mapFrom(Json.decodeValue(object.toString(), MCServer.class))));
         }).onFailure(Throwable::printStackTrace);
     }
 }

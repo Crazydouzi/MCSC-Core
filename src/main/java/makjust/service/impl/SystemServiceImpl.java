@@ -7,6 +7,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
+import oshi.software.os.OperatingSystem;
 import oshi.util.Util;
 
 import java.net.InetAddress;
@@ -17,6 +18,7 @@ import java.util.Properties;
 public class SystemServiceImpl implements SystemService {
     private final SystemInfo si = new SystemInfo();
     private final HardwareAbstractionLayer hal = si.getHardware();
+    private final OperatingSystem os=si.getOperatingSystem();
     private final CentralProcessor processor = hal.getProcessor();
     private final Sensors sensors = hal.getSensors();
     private final GlobalMemory memory = hal.getMemory();
@@ -31,6 +33,8 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("HostAddress", addr.getHostAddress());
         jsonObject.put("cpuName", processor.getProcessorIdentifier().getName());
         jsonObject.put("cpuCoreCount", processor.getPhysicalProcessorCount() + "核心/" + processor.getLogicalProcessorCount() + "线程");
+        jsonObject.put("systemName",os.getFamily()+os.getVersionInfo());
+        jsonObject.put("systemType",os.getFamily());
         jsonObject.put("totalMemory", String.format("%.1f", memory.getTotal() / 1073741824.0) + " GiB");
         jsonObject.put("javaVersion", props.getProperty("java.version"));
         return jsonObject;

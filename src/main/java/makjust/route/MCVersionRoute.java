@@ -7,17 +7,27 @@ import makjust.annotation.Request;
 import makjust.annotation.RequestBody;
 import makjust.annotation.RoutePath;
 import makjust.entity.MCServer;
+import makjust.service.MCServerService;
 import makjust.service.MCVersionService;
+import makjust.service.impl.MCServerServiceImpl;
 import makjust.service.impl.MCVersionServiceImpl;
 
 @RoutePath("/version")
 public class MCVersionRoute extends AbstractRoute {
     MCVersionService versionService = new MCVersionServiceImpl();
+    MCServerService mcServerService=new MCServerServiceImpl();
 
     // 获取已上传版本列表（可部署版本）
     @Request(value = "/list", method = HttpMethod.POST)
     public RoutingContext getVersionList() {
         versionService.getVersionList(ar -> ctx.json(returnJson(200, ar.result())));
+        return ctx;
+    }
+    @Request(value = "/enableServerInfo",method = HttpMethod.POST)
+    public RoutingContext getEnableServer(){
+        mcServerService.getEnableServer(ar->{
+            ctx.json(returnJson(200,ar.result()));
+        });
         return ctx;
     }
     @Request(value = "/changeVersion", method = HttpMethod.POST)
