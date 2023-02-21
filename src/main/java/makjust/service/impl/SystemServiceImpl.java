@@ -31,10 +31,7 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("HostAddress", addr.getHostAddress());
         jsonObject.put("cpuName", processor.getProcessorIdentifier().getName());
         jsonObject.put("cpuCoreCount", processor.getPhysicalProcessorCount() + "核心/" + processor.getLogicalProcessorCount() + "线程");
-        jsonObject.put("CpuTemperature", sensors.getCpuTemperature() > 0 ? sensors.getCpuTemperature() : "Sensors Error");
-        jsonObject.put("memoryInfo", memory.toString().replace("Available:", ""));
         jsonObject.put("totalMemory", String.format("%.1f", memory.getTotal() / 1073741824.0) + " GiB");
-        jsonObject.put("freeMemory", String.format("%.1f", memory.getAvailable() / 1073741824.0) + " GiB");
         jsonObject.put("javaVersion", props.getProperty("java.version"));
         return jsonObject;
     }
@@ -55,16 +52,15 @@ public class SystemServiceImpl implements SystemService {
         long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
         long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
         System.out.println("----------------cpu信息----------------");
-        System.out.println("cpu核数:" + processor.getLogicalProcessorCount());
         System.out.println("cpu系统使用率:" + new DecimalFormat("#.##%").format(cSys * 1.0 / totalCpu));
         System.out.println("cpu用户使用率:" + new DecimalFormat("#.##%").format(user * 1.0 / totalCpu));
         System.out.println("cpu当前等待率:" + new DecimalFormat("#.##%").format(iowait * 1.0 / totalCpu));
         System.out.println("cpu当前使用率:" + new DecimalFormat("#.##%").format(1.0 - (idle * 1.0 / totalCpu)));
-        jsonObject.put("cpuCoreCount", processor.getLogicalProcessorCount());
         jsonObject.put("cpuSysUsage", new DecimalFormat("#.##%").format(cSys * 1.0 / totalCpu));
         jsonObject.put("cpuUserUsage", new DecimalFormat("#.##%").format(user * 1.0 / totalCpu));
         jsonObject.put("cpuWaitPer", new DecimalFormat("#.##%").format(iowait * 1.0 / totalCpu));
-        jsonObject.put("cpuUsage", new DecimalFormat("#.##%").format(1.0 - (idle * 1.0 / totalCpu)));
+        jsonObject.put("cpuUsage", (int)Math.ceil((1.0 - (idle * 1.0 / totalCpu))*100));
+        jsonObject.put("CpuTemperature", sensors.getCpuTemperature() > 0 ? sensors.getCpuTemperature() : "Sensors Error");
         return jsonObject;
     }
 
@@ -95,7 +91,7 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("jvmMemTotal", max);
         jsonObject.put("jvmMemUse", total);
         jsonObject.put("jvmMemFree", free);
-        jsonObject.put("memUsage", new DecimalFormat("#.##%").format((totalByte - acaliableByte) * 1.0 / totalByte));
+        jsonObject.put("memUsage", new DecimalFormat("#").format(((totalByte - acaliableByte) * 1.0 / totalByte)*100));
         return jsonObject;
     }
 
