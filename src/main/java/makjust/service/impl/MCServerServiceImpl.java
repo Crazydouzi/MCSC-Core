@@ -105,6 +105,11 @@ public class MCServerServiceImpl implements MCServerService {
     }
 
     @Override
+    public boolean serverStatus() {
+        return EnvOptions.getServerStatus();
+    }
+
+    @Override
     public void getEnableServer(Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao.getServerByEnable(true).onSuccess(ar -> {
             JsonObject object = new JsonObject();

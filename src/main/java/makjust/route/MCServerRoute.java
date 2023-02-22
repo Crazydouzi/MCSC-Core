@@ -67,7 +67,11 @@ public class MCServerRoute extends AbstractRoute {
             return jsonObject.put("msg", "服务器关闭成功");
         } else return jsonObject.put("msg", "关闭失败");
     }
-
+    @Request(value = "/status", method = HttpMethod.POST)
+    public RoutingContext getServerStatus(){
+        ctx.json(returnJson(200,new JsonObject().put("data",serverService.serverStatus())));
+        return ctx;
+    }
     @Socket("/process")
     public Router processSocket(SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {

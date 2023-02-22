@@ -22,6 +22,7 @@ public interface MCServerService {
 
     //关闭服务器
     boolean serverStop(Vertx vertx);
+    boolean serverStatus();
 
     //获取可用服务器
     void getEnableServer(Handler<AsyncResult<JsonObject>> resultHandler);
