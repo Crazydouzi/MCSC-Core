@@ -70,7 +70,6 @@ public class MCServerRoute extends AbstractRoute {
 
     @Socket("/process")
     public Router processSocket(SockJSHandler sockJSHandler) {
-
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {
