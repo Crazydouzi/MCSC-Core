@@ -67,12 +67,12 @@ public class ProcessServer {
                             process.waitFor();
                             process.destroy();
                             process.destroyForcibly();
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } catch (Exception ignored) {
                         }
                         vertx.eventBus().unregisterCodec("processServer.cmdRes");
                         vertx.eventBus().unregisterCodec("processServer.cmdReq");
                         msgThead.interrupt();
+                        process=null;
                         System.gc();
                         EnvOptions.setServerStatus(false);
                     }

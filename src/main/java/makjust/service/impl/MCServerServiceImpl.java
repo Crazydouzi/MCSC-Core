@@ -69,29 +69,29 @@ public class MCServerServiceImpl implements MCServerService {
                 MCServer mcServer;
                 mcServer = Json.decodeValue(ar.result().toString(), MCServer.class);
 
-                if (mcServer != null) {
+                if (mcServer.getId() != null) {
                     mcSettingDao.getSettingById(mcServer.getId()).onSuccess(rows -> {
-                        MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(),MCSetting.class);
                         File location = new File(DIR + mcServer.getLocation());
-                        if (location.exists()&&setting != null) {
-                            System.out.println(serverStatus);
-                            System.out.println(setting);
+                        System.out.println(location.exists());
+                        if (location.exists() && rows.iterator().hasNext()) {
+                            MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
                             Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
                             try {
                                 Server.start();
-                                resultHandler.handle(Future.succeededFuture());
+                                resultHandler.handle(Future.succeededFuture(new JsonObject().put("code", 200).put("msg", "启动成功")));
                                 EnvOptions.setServerStatus(true);
                             } catch (IOException e) {
-                                resultHandler.handle(Future.failedFuture("启动失败"));
+                                resultHandler.handle(Future.succeededFuture(new JsonObject().put("code", 500).put("msg", "启动失败成功").put("data", e.getStackTrace())));
                                 e.printStackTrace();
                             }
                         } else {
-                            resultHandler.handle(Future.failedFuture("启动失败，服务器不存在！请扫描服务器"));
+                            resultHandler.handle(Future.succeededFuture(new JsonObject().put("code", 400).put("msg", "启动失败，请扫描服务器")));
                         }
-                    }).onFailure(e -> {
+                    }).onFailure(e->{
                         e.printStackTrace();
-                        resultHandler.handle(Future.failedFuture("启动失败"));
+                        resultHandler.handle(Future.succeededFuture(new JsonObject().put("code", 500).put("msg", "启动失败成功").put("data", e.getStackTrace())));
                     });
+
 
                 }
             });
@@ -101,9 +101,9 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public boolean serverStop(Vertx vertx) {
-        if (Server!=null){
+        if (Server != null) {
             Server.stop();
-            Server=null;
+            Server = null;
             System.gc();
             return true;
         }

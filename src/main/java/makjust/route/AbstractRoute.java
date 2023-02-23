@@ -1,7 +1,6 @@
 package makjust.route;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -20,37 +19,42 @@ public abstract class AbstractRoute {
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("code", statusCode);
         jsonObject.put("msg", msg);
-        if (data.getValue("data") != null) {
+        if (data.containsKey("data")) {
             jsonObject.put("data", data.getValue("data"));
-        } else {
+        } else if (data.size() != 0) {
             jsonObject.put("data", data);
+        } else {
+            jsonObject.put("data", "");
         }
         return jsonObject;
 
     }
 
+    //对于传入状态和混合值 msg?data?
     JsonObject returnJson(int statusCode, Object data) {
         return returnJson(statusCode, new JsonObject().put("data", data));
     }
 
+    //对于传入状态码和data
     JsonObject returnJson(int statusCode, JsonObject data) {
-        if (data.containsKey("msg")) return returnJson(statusCode, data.getString("msg"), data);
-        return returnJson(statusCode, "OK", data);
+        if (data.containsKey("msg") && data.containsKey("data")) {
+            return returnJson(statusCode, data.getString("msg"), data);
+        } else if (data.containsKey("msg")) {
+            return returnJson(statusCode, data.getString("msg"), new JsonObject());
+        } else return returnJson(statusCode, "OK", data);
     }
 
+    //对于传入状态码和消息，没有data
     JsonObject returnJson(int statusCode, String msg) {
         return returnJson(statusCode, msg, new JsonObject());
     }
 
+    //对于混合模式status?msg?data?
     JsonObject returnJson(JsonObject object) {
         if (object.containsKey("code")) {
-            return returnJson(object.getInteger("code"), object.getValue("data"));
+            return returnJson(object.getInteger("code"), object);
         } else {
             return returnJson(200, object.getValue("data"));
         }
-    }
-
-    public MessageConsumer<Object> getMsgFromBus(String name) {
-        return vertx.eventBus().consumer(name);
     }
 }

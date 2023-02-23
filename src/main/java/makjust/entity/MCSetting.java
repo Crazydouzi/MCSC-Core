@@ -25,6 +25,6 @@ public class MCSetting {
             return javaVersion + " Xmx"+memMax + " Xms"+memMin + " " + vmOptions + " -jar " + jarName;
         }
 
-
     }
+
 }

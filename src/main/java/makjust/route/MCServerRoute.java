@@ -47,10 +47,10 @@ public class MCServerRoute extends AbstractRoute {
         serverService.serverStart(vertx, ar -> {
             if (ar.succeeded()) {
                 ctx.response().setStatusCode(200);
-                ctx.json(returnJson(20, "启动成功！"));
+                ctx.json(returnJson(ar.result()));
             } else {
                 ctx.response().setStatusCode(200);
-                ctx.json(returnJson(200, "启动失败！请重新扫描服务器"));
+                ctx.json(returnJson(ar.result()));
 
             }
         });
