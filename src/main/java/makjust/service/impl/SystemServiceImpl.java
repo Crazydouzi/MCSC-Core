@@ -90,7 +90,7 @@ public class SystemServiceImpl implements SystemService {
         System.out.println("使用率：" + new DecimalFormat("#.##%").format((totalByte - acaliableByte) * 1.0 / totalByte));
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("memTotal", formatByte(totalByte));
-        jsonObject.put("memUse", formatByte(acaliableByte));
+        jsonObject.put("memUse", formatByte(totalByte - acaliableByte));
         jsonObject.put("memFree", formatByte(acaliableByte));
         jsonObject.put("jvmMemTotal", max);
         jsonObject.put("jvmMemUse", total);
