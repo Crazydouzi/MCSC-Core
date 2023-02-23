@@ -15,7 +15,7 @@ public interface MCServerService {
     void setServerSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler);
 
     //获取设置
-    void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler);
+    void getSetting(Vertx vertx, MCSetting mcSetting, Handler<AsyncResult<JsonObject>> resultHandler);
 
     //开启服务器
     void serverStart(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler);

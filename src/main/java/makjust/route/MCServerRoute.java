@@ -32,8 +32,8 @@ public class MCServerRoute extends AbstractRoute {
 
     // 根据服务器id查询全部设置
     @Request(value = "/getSettingList", method = HttpMethod.POST)
-    public RoutingContext getSetting(@RequestBody MCServer server) {
-        serverService.getSetting(vertx, server, ar -> {
+    public RoutingContext getSetting(@RequestBody MCSetting setting) {
+        serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
         });
@@ -63,7 +63,6 @@ public class MCServerRoute extends AbstractRoute {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
         if (flag) {
-            vertx.eventBus().publish("processServer.cmdRes", "");
             return jsonObject.put("msg", "服务器关闭成功");
         } else return jsonObject.put("msg", "关闭失败");
     }
@@ -77,12 +76,8 @@ public class MCServerRoute extends AbstractRoute {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {
-
                 if (EnvOptions.getServerStatus()) {
                     sockJSSocket.write((String) r.body());
-                } else {
-                    sockJSSocket.write("服务器已关闭。。。");
-
                 }
             });
             //接收Client发送的消息
@@ -91,6 +86,7 @@ public class MCServerRoute extends AbstractRoute {
                     if (EnvOptions.getServerStatus()) {
                         // 推送接收到的到的数据
                         vertx.eventBus().publish("processServer.cmdReq", ws.toString());
+                        System.out.println("客户端CMD:"+ ws);
                     } else {
                         sockJSSocket.write("服务器已关闭。。。");
                     }

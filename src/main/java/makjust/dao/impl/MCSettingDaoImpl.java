@@ -12,12 +12,12 @@ public class MCSettingDaoImpl implements MCSettingDao {
 
     @Override
     public Future<RowSet<Row>> getSettingById(Integer id) {
-        return DBPool.executeSQL("select server_id,java_version,mem_min,mem_max,vm_options from mc_setting where server_id=#{id}",new JsonObject().put("id",id));
+        return DBPool.executeSQL("select server_id,java_version,mem_min,mem_max,vm_options,jar_name from mc_setting where server_id=#{id}",new JsonObject().put("id",id));
     }
 
     @Override
     public Future<RowSet<Row>> updateSetting(MCSetting mcSetting) {
-        return DBPool.update("update mc_setting set java_version=#{javaVersion},mem_min=#{memMin},mem_max=#{memMax},vm_option=#{vmOption} where server_id=#{serverId}",mcSetting);
+        return DBPool.update("update mc_setting set java_version=#{javaVersion},mem_min=#{memMin},mem_max=#{memMax},vm_option=#{vmOption},jar_name=#{jarName} where server_id=#{serverId}",mcSetting);
     }
 
     @Override

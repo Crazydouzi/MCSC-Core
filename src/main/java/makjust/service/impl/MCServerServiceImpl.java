@@ -25,7 +25,7 @@ import java.io.IOException;
 public class MCServerServiceImpl implements MCServerService {
     private final String DIR = SysConfig.getCorePath("/");
     // 默认CMD为Windows 若需要为Linux还需修改
-    private final String CMD = "CMD";
+    private final String CMD = "cmd";
     private ProcessServer Server;
     private final MCServerDao mcServerDao = new MCServerDaoImpl();
     private final MCSettingDao mcSettingDao = new MCSettingDaoImpl();
@@ -54,8 +54,8 @@ public class MCServerServiceImpl implements MCServerService {
     }
 
     @Override
-    public void getSetting(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
-        mcSettingDao.getSettingById(mcServer.getId()).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar))));
+    public void getSetting(Vertx vertx, MCSetting mcSetting, Handler<AsyncResult<JsonObject>> resultHandler) {
+        mcSettingDao.getSettingById(mcSetting.getServerId()).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar))));
     }
 
     @Override
@@ -64,42 +64,48 @@ public class MCServerServiceImpl implements MCServerService {
         // 如果已创建Process(启动服务器)则直接跳过
         if (serverStatus) {
             resultHandler.handle(Future.succeededFuture());
-            return;
-        }
-        getEnableServer(ar -> {
-            MCServer mcServer;
-            mcServer = Json.decodeValue(ar.result().toString(), MCServer.class);
-            if (mcServer != null) {
-                File location = new File(DIR + mcServer.getLocation());
-                if (!location.exists()) {
-                    resultHandler.handle(Future.failedFuture("启动失败，服务器不存在！请扫描服务器"));
-                } else {
-                    Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
-                    try {
-                        Server.start();
-                        resultHandler.handle(Future.succeededFuture());
-                        EnvOptions.setServerStatus(true);
-                    } catch (IOException e) {
-                        resultHandler.handle(Future.failedFuture("启动失败"));
+        } else {
+            getEnableServer(ar -> {
+                MCServer mcServer;
+                mcServer = Json.decodeValue(ar.result().toString(), MCServer.class);
+
+                if (mcServer != null) {
+                    mcSettingDao.getSettingById(mcServer.getId()).onSuccess(rows -> {
+                        MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(),MCSetting.class);
+                        File location = new File(DIR + mcServer.getLocation());
+                        if (location.exists()&&setting != null) {
+                            System.out.println(serverStatus);
+                            System.out.println(setting);
+                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
+                            try {
+                                Server.start();
+                                resultHandler.handle(Future.succeededFuture());
+                                EnvOptions.setServerStatus(true);
+                            } catch (IOException e) {
+                                resultHandler.handle(Future.failedFuture("启动失败"));
+                                e.printStackTrace();
+                            }
+                        } else {
+                            resultHandler.handle(Future.failedFuture("启动失败，服务器不存在！请扫描服务器"));
+                        }
+                    }).onFailure(e -> {
                         e.printStackTrace();
-                    }
+                        resultHandler.handle(Future.failedFuture("启动失败"));
+                    });
+
                 }
-            }
-        });
+            });
+
+        }
     }
 
     @Override
     public boolean serverStop(Vertx vertx) {
-        boolean serverStatus = EnvOptions.getServerStatus();
-        if (serverStatus && Server != null) {
-            try {
-                Server.stop();
-                EnvOptions.setServerStatus(false);
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+        if (Server!=null){
+            Server.stop();
+            Server=null;
+            System.gc();
+            return true;
         }
         return false;
     }

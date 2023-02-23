@@ -1,26 +1,31 @@
 package makjust.serverCore;
 
 import io.vertx.core.Vertx;
+import makjust.utils.EnvOptions;
 import makjust.utils.SysConfig;
 
 import java.io.*;
 
 public class ProcessServer {
-    private ProcessBuilder builder;
+    private final ProcessBuilder builder;
     private Process process;
-    private Vertx vertx;
-    public ProcessServer(){}
-    public ProcessServer(File path, String command,Vertx vertx){
-        this.vertx=vertx;
-        builder=new ProcessBuilder("cmd","/c",command);
+    private final Vertx vertx;
+    private BufferedReader reader;
+    private Thread msgThead;
+
+    public ProcessServer(File path, String command, Vertx vertx) {
+        this.vertx = vertx;
+        builder = new ProcessBuilder("cmd.exe", "/c", command);
         builder.directory(path);
         builder.redirectErrorStream(true);
     }
+
     public void start() throws IOException {
-        process=builder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream(),
+        process = builder.start();
+        reader = new BufferedReader(new InputStreamReader(getInputStream(),
                 (String) SysConfig.getConf("cmd_charset")));
-        OutputStream os = getOutputStream();
+        OutputStream os = process.getOutputStream();
+        System.out.println(process);
         //获取接收到的指令
         vertx.eventBus().consumer("processServer.cmdReq", data -> {
             try {
@@ -31,27 +36,59 @@ public class ProcessServer {
             }
         });
 //      新开一条线程避免阻塞，用于推送消息
-        new Thread(() -> {
+        msgThead = new Thread(() -> {
             String line;
             try {
                 while ((line = reader.readLine()) != null) {
 //              推送消息
                     vertx.eventBus().publish("processServer.cmdRes", line);
-                    System.out.println("控制台输出："+line);
+                    System.out.println("控制台输出：" + line);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+        msgThead.start();
     }
-    public void stop() throws IOException {
-        System.out.println("process关闭");
-        process.destroy();
+
+
+    public void stop() {
+        try {
+            getOutputStream().write("stop \n".getBytes());
+            getOutputStream().flush();
+            getOutputStream().write("exit \n".getBytes());
+            getOutputStream().flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        vertx.eventBus().consumer("processServer.cmdRes", data -> {
+                    if (data.body().toString().contains("Saving chunks for level")) {
+                        try {
+                            process.waitFor();
+                            process.destroy();
+                            process.destroyForcibly();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        vertx.eventBus().unregisterCodec("processServer.cmdRes");
+                        vertx.eventBus().unregisterCodec("processServer.cmdReq");
+                        msgThead.interrupt();
+                        System.gc();
+                        EnvOptions.setServerStatus(false);
+                    }
+                }
+        );
     }
-    public OutputStream getOutputStream(){
+    public void compulsionStop(){
+
+    }
+
+
+    public OutputStream getOutputStream() {
         return process.getOutputStream();
     }
-    public InputStream getInputStream(){
+
+    public InputStream getInputStream() {
         return process.getInputStream();
     }
 }

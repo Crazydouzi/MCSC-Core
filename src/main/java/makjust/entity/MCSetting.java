@@ -16,5 +16,15 @@ public class MCSetting {
     private String memMin;
     private String memMax;
     private String vmOptions;
+    private String jarName;
 
+    public String getCMD() {
+        if (vmOptions == null) {
+            return javaVersion + " -Xmx" +memMax + " -Xms" + memMin + " -jar " + jarName;
+        } else {
+            return javaVersion + " Xmx"+memMax + " Xms"+memMin + " " + vmOptions + " -jar " + jarName;
+        }
+
+
+    }
 }
