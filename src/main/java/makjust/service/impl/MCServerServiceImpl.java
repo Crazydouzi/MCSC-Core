@@ -75,8 +75,12 @@ public class MCServerServiceImpl implements MCServerService {
                         System.out.println(location.exists());
                         if (location.exists() && rows.iterator().hasNext()) {
                             MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
-                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
                             try {
+                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
+                            /*
+                            * 用于测试CMD使用
+                            * */
+//                                Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
                                 Server.start();
                                 resultHandler.handle(Future.succeededFuture(new JsonObject().put("code", 200).put("msg", "启动成功")));
                                 EnvOptions.setServerStatus(true);
@@ -101,6 +105,7 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public boolean serverStop(Vertx vertx) {
+        System.out.println(Server);
         if (Server != null) {
             Server.stop();
             Server = null;
