@@ -51,6 +51,9 @@ public abstract class AbstractRoute {
 
     //对于混合模式status?msg?data?
     JsonObject returnJson(JsonObject object) {
+        if (object==null){
+            return returnJson(200,"OK");
+        }
         if (object.containsKey("code")) {
             return returnJson(object.getInteger("code"), object);
         } else {
