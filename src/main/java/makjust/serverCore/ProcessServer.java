@@ -1,6 +1,7 @@
 package makjust.serverCore;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import makjust.utils.EnvOptions;
 import makjust.utils.SysConfig;
 
@@ -12,6 +13,7 @@ public class ProcessServer {
     private final Vertx vertx;
     private BufferedReader reader;
     private Thread msgThead;
+    private MessageConsumer<String> msgConsumer;
 
     public ProcessServer(File path, String command, Vertx vertx) {
         this.vertx = vertx;
@@ -25,10 +27,10 @@ public class ProcessServer {
         reader = new BufferedReader(new InputStreamReader(getInputStream(),
                 (String) SysConfig.getConf("cmd_charset")));
         OutputStream os = process.getOutputStream();
-        System.out.println(process);
-        //获取接收到的指令
-        vertx.eventBus().consumer("processServer.cmdReq", data -> {
+        //获取Socket接收到的指令
+        msgConsumer = vertx.eventBus().consumer("processServer.cmdReq", data -> {
             try {
+                System.out.println(process);
                 os.write((data.body() + "\n").getBytes());
                 os.flush();
             } catch (IOException e) {
@@ -40,8 +42,8 @@ public class ProcessServer {
             String line;
             try {
                 while ((line = reader.readLine()) != null) {
-//              推送消息
-                    vertx.eventBus().publish("processServer.cmdRes", line);
+//              向Socket推送消息
+                    vertx.eventBus().send("processServer.cmdRes", line);
                     System.out.println("控制台输出：" + line);
                 }
             } catch (IOException e) {
@@ -69,18 +71,17 @@ public class ProcessServer {
                             process.destroyForcibly();
                         } catch (Exception ignored) {
                         }
-                        vertx.eventBus().unregisterCodec("processServer.cmdRes");
-                        vertx.eventBus().unregisterCodec("processServer.cmdReq");
+                        if (msgConsumer != null) {
+                            msgConsumer.unregister();
+                            vertx.eventBus().unregisterCodec("processServer.cmdRes");
+                        }
                         msgThead.interrupt();
-                        process=null;
+                        process = null;
                         System.gc();
                         EnvOptions.setServerStatus(false);
                     }
                 }
         );
-    }
-    public void compulsionStop(){
-
     }
 
 
