@@ -45,14 +45,8 @@ public class MCServerRoute extends AbstractRoute {
     @Request(value = "/start", method = HttpMethod.POST)
     public RoutingContext serverStart() {
         serverService.serverStart(vertx, ar -> {
-            if (ar.succeeded()) {
-                ctx.response().setStatusCode(200);
-                ctx.json(returnJson(ar.result()));
-            } else {
-                ctx.response().setStatusCode(200);
-                ctx.json(returnJson(ar.result()));
-
-            }
+            ctx.response().setStatusCode(200);
+            ctx.json(returnJson(ar.result()));
         });
         return ctx;
     }
@@ -63,8 +57,8 @@ public class MCServerRoute extends AbstractRoute {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
         if (flag) {
-            return jsonObject.put("msg", "服务器关闭成功");
-        } else return jsonObject.put("msg", "关闭失败");
+            return jsonObject.put("msg", "服务器关闭成功").put("data",true);
+        } else return jsonObject.put("msg", "关闭失败").put("data",false);
     }
     @Request(value = "/status", method = HttpMethod.POST)
     public RoutingContext getServerStatus(){
@@ -74,7 +68,7 @@ public class MCServerRoute extends AbstractRoute {
     @Socket("/process")
     public Router processSocket(SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {
-            // 向客户端发送数据
+            // 向客户端(Web)发送数据
             vertx.eventBus().consumer("processServer.cmdRes", r -> {
                 if (EnvOptions.getServerStatus()) {
                     sockJSSocket.write((String) r.body());
@@ -85,7 +79,7 @@ public class MCServerRoute extends AbstractRoute {
                 try {
                     if (EnvOptions.getServerStatus()) {
                         // 推送接收到的到的数据
-                        vertx.eventBus().publish("processServer.cmdReq", ws.toString());
+                        vertx.eventBus().send("processServer.cmdReq", ws.toString());
                         System.out.println("客户端CMD:"+ ws);
                     } else {
                         sockJSSocket.write("服务器已关闭。。。");
