@@ -94,6 +94,7 @@ public class RouteUtils {
         Set<String> allowedHeaders = new HashSet<>();
         allowedHeaders.add("x-requested-with");
         allowedHeaders.add("Access-Control-Allow-Origin");
+        allowedHeaders.add("Access-Control-Request-Headers");
         allowedHeaders.add("origin");
         allowedHeaders.add("Content-Type");
         allowedHeaders.add("accept");
@@ -111,7 +112,19 @@ public class RouteUtils {
         allowedMethods.add(HttpMethod.PATCH);
         allowedMethods.add(HttpMethod.PUT);
         allowedMethods.add(HttpMethod.HEAD);
-        router.route().handler(CorsHandler.create().allowedHeaders(allowedHeaders).allowedMethods(allowedMethods).allowedHeader("Content-Type"));
+        Set<String> exposedHeaders=new HashSet<>();
+        exposedHeaders.add("Access-Control-Allow-Headers");
+        exposedHeaders.add("Access-Control-Allow-Method");
+        exposedHeaders.add("Access-Control-Max-Age");
+        exposedHeaders.add("Access-Control-Request-Headers");
+        exposedHeaders.add("X-Frame-Options");
+
+        router.route().handler(CorsHandler.create()
+                .allowedHeaders(allowedHeaders)
+                .allowedMethods(allowedMethods)
+                .allowedHeader("Content-Type")
+                .exposedHeaders(exposedHeaders)
+                .allowCredentials(true));
     }
 
     public void mountAPIRoute(String URLPrefix) {
@@ -151,7 +164,7 @@ public class RouteUtils {
         CtClass cc = classPool.get(clazz.getName());
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (!((method.isAnnotationPresent(Request.class) || method.isAnnotationPresent(WebSocket.class)))) {
+            if (!((method.isAnnotationPresent(Request.class) ||method.isAnnotationPresent(SockJSSocket.class)|| method.isAnnotationPresent(WebSocket.class)))) {
                 continue;
             }
             CtMethod ctMethod = cc.getDeclaredMethod(method.getName());
@@ -192,10 +205,10 @@ public class RouteUtils {
                     e.printStackTrace();
                 }
             }
-            if (method.isAnnotationPresent(SockJSSocket.class)) {
+            else if (method.isAnnotationPresent(SockJSSocket.class)) {
                 SockJSSocket wsMethodAnno = method.getAnnotation(SockJSSocket.class);
                 String path = RoutePath + wsMethodAnno.value();
-                String wsPath = (path.startsWith("/") ? path : "/" + path)+"/";
+                String wsPath = (path.startsWith("/") ? path : "/" + path)+"/*";
                 System.out.println("webSocket[SockJS]路由地址" + "/ws" + wsPath);
                 options.setHeartbeatInterval(2000);
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
@@ -213,13 +226,12 @@ public class RouteUtils {
                 try {
                     Router ws = (Router) MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
                     wsRouter.route(wsPath).subRouter(ws);
-                    continue;
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
             }
             // RestFul控制器
-            if (method.isAnnotationPresent(Request.class)) {
+            else if (method.isAnnotationPresent(Request.class)) {
                 Handler<RoutingContext> requestHandler = ctx -> {
                     try {
                         AbstractRoute.ctx = ctx;
@@ -289,7 +301,9 @@ public class RouteUtils {
                     }
                 }
             }
-
+            else {
+                System.out.println("路由挂载失败");
+            }
         }
     }
 
