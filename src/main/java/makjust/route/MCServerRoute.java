@@ -71,7 +71,7 @@ public class MCServerRoute extends AbstractRoute {
         return ctx;
     }
 
-//    @SockJSSocket("/CMD")
+    @SockJSSocket("/cmd")
     public Router processSocket(SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端(Web)发送数据
@@ -101,41 +101,5 @@ public class MCServerRoute extends AbstractRoute {
         });
     }
 
-    @WebSocket("/process")
-    public void processWebSocket(HttpServer server, String path) {
-        server.webSocketHandler(webSocket -> {
-            // 向客户端(Web)发送数据
-            if (!webSocket.path().equals(path)) {
-                System.out.println(path);
-                System.out.println(webSocket.path());
-                webSocket.reject();
-                webSocket.close();
-            } else {
-                vertx.eventBus().consumer("processServer.cmdRes", r -> {
-                    if (EnvOptions.getServerStatus()) {
-                        webSocket.writeTextMessage((String) r.body());
-                    }
-                });
-                webSocket.handler(buffer -> {
-                    try {
-                        if (EnvOptions.getServerStatus()) {
-                            // 推送接收到的到的数据
-                            if (buffer.toString().equalsIgnoreCase("STOP")) {
-                                this.serverStop();
-                            } else {
-                                vertx.eventBus().send("processServer.cmdReq", buffer.toString());
-                                System.out.println("客户端CMD:" + buffer);
-                            }
 
-                        } else {
-                            webSocket.writeTextMessage("服务已关闭。。。。");
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-
-        });
-    }
 }
