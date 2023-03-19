@@ -73,11 +73,6 @@ public class RouteUtils {
                                 .setDefaultContentEncoding("utf-8"));
     }
 
-    // null Function
-    public void setStaticRoute() {
-        setStaticRoute(null);
-    }
-
     /**
      * 挂载子路由到主路由
      * 例如："/ws/*"”
@@ -112,19 +107,22 @@ public class RouteUtils {
         allowedMethods.add(HttpMethod.PATCH);
         allowedMethods.add(HttpMethod.PUT);
         allowedMethods.add(HttpMethod.HEAD);
-        Set<String> exposedHeaders=new HashSet<>();
+
+
+        router.route().handler(CorsHandler.create()
+                .allowedHeaders(allowedHeaders)
+                .allowedMethods(allowedMethods)
+        );
+    }
+
+    public void enableSockJSCORS() {
+        Set<String> exposedHeaders = new HashSet<>();
         exposedHeaders.add("Access-Control-Allow-Headers");
         exposedHeaders.add("Access-Control-Allow-Method");
         exposedHeaders.add("Access-Control-Max-Age");
         exposedHeaders.add("Access-Control-Request-Headers");
         exposedHeaders.add("X-Frame-Options");
-
-        router.route().handler(CorsHandler.create()
-                .allowedHeaders(allowedHeaders)
-                .allowedMethods(allowedMethods)
-                .allowedHeader("Content-Type")
-                .exposedHeaders(exposedHeaders)
-                .allowCredentials(true));
+        wsRouter.route().handler(CorsHandler.create().allowedHeader("Content-Type").exposedHeaders(exposedHeaders).allowCredentials(true));
     }
 
     public void mountAPIRoute(String URLPrefix) {
@@ -164,7 +162,7 @@ public class RouteUtils {
         CtClass cc = classPool.get(clazz.getName());
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (!((method.isAnnotationPresent(Request.class) ||method.isAnnotationPresent(SockJSSocket.class)|| method.isAnnotationPresent(WebSocket.class)))) {
+            if (!((method.isAnnotationPresent(Request.class) || method.isAnnotationPresent(SockJSSocket.class) || method.isAnnotationPresent(WebSocket.class)))) {
                 continue;
             }
             CtMethod ctMethod = cc.getDeclaredMethod(method.getName());
@@ -180,35 +178,11 @@ public class RouteUtils {
                     paramNames[i] = attribute.variableName(i + pos);
                 }
             }
-            // 判断是否为Socket控制器
-            if (method.isAnnotationPresent(WebSocket.class)) {
-                WebSocket wsMethodAnno = method.getAnnotation(WebSocket.class);
-                String path = RoutePath + wsMethodAnno.value();
-                String wsPath = "/websocket"+(path.startsWith("/") ? path : "/" + path)+"/";
-                System.out.println("webSocket路由地址" + "/ws" + wsPath);
-                Object[] argValues = new Object[ctMethod.getParameterTypes().length];
-                for (int i = 0; i < argValues.length; i++) {
-                    Class<?> paramType = paramTypes[i];
-                    if (paramType == Vertx.class) {
-                        argValues[i] = vertx;
-                    } else if (paramType == HttpServer.class) {
-                        argValues[i] = server;
-                    } else if (paramType == Router.class) {
-                        argValues[i] = wsRouter;
-                    }else if (paramType==String.class){
-                        argValues[i] =wsPath;
-                    }
-                }
-                try {
-                    MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
-                }catch (Throwable e){
-                    e.printStackTrace();
-                }
-            }
-            else if (method.isAnnotationPresent(SockJSSocket.class)) {
+            // 判断是否为SockJS路由
+            if (method.isAnnotationPresent(SockJSSocket.class)) {
                 SockJSSocket wsMethodAnno = method.getAnnotation(SockJSSocket.class);
                 String path = RoutePath + wsMethodAnno.value();
-                String wsPath = (path.startsWith("/") ? path : "/" + path)+"/*";
+                String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
                 System.out.println("webSocket[SockJS]路由地址" + "/ws" + wsPath);
                 options.setHeartbeatInterval(2000);
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
@@ -300,8 +274,7 @@ public class RouteUtils {
                         apiRouter.route(HttpMethod.valueOf(String.valueOf(m)), formatPath).handler(BodyHandler.create()).handler(requestHandler);
                     }
                 }
-            }
-            else {
+            } else {
                 System.out.println("路由挂载失败");
             }
         }
