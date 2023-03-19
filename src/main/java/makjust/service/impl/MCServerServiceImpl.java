@@ -105,7 +105,6 @@ public class MCServerServiceImpl implements MCServerService {
 
     @Override
     public boolean serverStop(Vertx vertx) {
-        System.out.println(Server);
         if (Server != null) {
             Server.stop();
             Server = null;
