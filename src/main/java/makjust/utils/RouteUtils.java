@@ -5,6 +5,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
@@ -20,10 +21,7 @@ import javassist.*;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
-import makjust.annotation.Request;
-import makjust.annotation.RequestBody;
-import makjust.annotation.RoutePath;
-import makjust.annotation.Socket;
+import makjust.annotation.*;
 import makjust.route.AbstractRoute;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +39,7 @@ public class RouteUtils {
     private final Router wsRouter;
     private final Router router;
     private final SockJSHandlerOptions options = new SockJSHandlerOptions();
+    private final HttpServer server;
 
     public RouteUtils(Vertx vertx) {
         this.vertx = vertx;
@@ -50,6 +49,7 @@ public class RouteUtils {
         this.apiRouter = Router.router(vertx);
         // ws子路由(SockJs)
         this.wsRouter = Router.router(vertx);
+        this.server = vertx.createHttpServer();
     }
 
     public void scanRoute(String scanPath) {
@@ -110,11 +110,8 @@ public class RouteUtils {
         allowedMethods.add(HttpMethod.DELETE);
         allowedMethods.add(HttpMethod.PATCH);
         allowedMethods.add(HttpMethod.PUT);
-        router.route().handler(CorsHandler.create().allowedHeaders(allowedHeaders).allowedMethods(allowedMethods));
-    }
-
-    public void setSockOrigin(String uri) {
-        options.setOrigin(uri);
+        allowedMethods.add(HttpMethod.HEAD);
+        router.route().handler(CorsHandler.create().allowedHeaders(allowedHeaders).allowedMethods(allowedMethods).allowedHeader("Content-Type"));
     }
 
     public void mountAPIRoute(String URLPrefix) {
@@ -132,7 +129,8 @@ public class RouteUtils {
     }
 
     public void startHttpServer(int port) {
-        vertx.createHttpServer().requestHandler(getRouter()).listen(port);
+        server.requestHandler(getRouter()).listen(port);
+
     }
 
     // this is a default port ,it will use port 8080;
@@ -153,7 +151,7 @@ public class RouteUtils {
         CtClass cc = classPool.get(clazz.getName());
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (!((method.isAnnotationPresent(Request.class) || method.isAnnotationPresent(Socket.class)))) {
+            if (!((method.isAnnotationPresent(Request.class) || method.isAnnotationPresent(WebSocket.class)))) {
                 continue;
             }
             CtMethod ctMethod = cc.getDeclaredMethod(method.getName());
@@ -170,11 +168,35 @@ public class RouteUtils {
                 }
             }
             // 判断是否为Socket控制器
-            if (method.isAnnotationPresent(Socket.class)) {
-                Socket wsMethodAnno = method.getAnnotation(Socket.class);
+            if (method.isAnnotationPresent(WebSocket.class)) {
+                WebSocket wsMethodAnno = method.getAnnotation(WebSocket.class);
                 String path = RoutePath + wsMethodAnno.value();
-                String wsPath = (path.startsWith("/") ? path : "/" + path) + "/*";
+                String wsPath = "/websocket"+(path.startsWith("/") ? path : "/" + path)+"/";
                 System.out.println("webSocket路由地址" + "/ws" + wsPath);
+                Object[] argValues = new Object[ctMethod.getParameterTypes().length];
+                for (int i = 0; i < argValues.length; i++) {
+                    Class<?> paramType = paramTypes[i];
+                    if (paramType == Vertx.class) {
+                        argValues[i] = vertx;
+                    } else if (paramType == HttpServer.class) {
+                        argValues[i] = server;
+                    } else if (paramType == Router.class) {
+                        argValues[i] = wsRouter;
+                    }else if (paramType==String.class){
+                        argValues[i] =wsPath;
+                    }
+                }
+                try {
+                    MethodHandles.lookup().unreflect(method).bindTo(annotatedBean).invokeWithArguments(argValues);
+                }catch (Throwable e){
+                    e.printStackTrace();
+                }
+            }
+            if (method.isAnnotationPresent(SockJSSocket.class)) {
+                SockJSSocket wsMethodAnno = method.getAnnotation(SockJSSocket.class);
+                String path = RoutePath + wsMethodAnno.value();
+                String wsPath = (path.startsWith("/") ? path : "/" + path)+"/";
+                System.out.println("webSocket[SockJS]路由地址" + "/ws" + wsPath);
                 options.setHeartbeatInterval(2000);
                 SockJSHandler sockJSHandler = SockJSHandler.create(vertx, options);
                 Object[] argValues = new Object[ctMethod.getParameterTypes().length];
@@ -279,7 +301,8 @@ public class RouteUtils {
      * @param paramName             参数名称
      * @param genericParameterTypes 泛型化参数类型
      */
-    private Object parseSimpleTypeOrArrayOrCollection(MultiMap allParams, Class<?> paramType, String paramName, Type genericParameterTypes) throws Throwable {
+    private Object parseSimpleTypeOrArrayOrCollection(MultiMap allParams, Class<?> paramType, String
+            paramName, Type genericParameterTypes) throws Throwable {
         // Array type
         if (paramType.isArray()) {
             // 数组元素类型
@@ -337,7 +360,8 @@ public class RouteUtils {
      * @param values               请求参数值
      * @param genericParameterType from Method::getGenericParameterTypes
      */
-    private Collection<Object> parseCollectionType(List<String> values, Type genericParameterType) throws Throwable {
+    private Collection<Object> parseCollectionType(List<String> values, Type genericParameterType) throws
+            Throwable {
         Class<?> actualTypeArgument = String.class; // 无泛型参数默认用String类型
         Class<?> rawType;
         // 参数带泛型
