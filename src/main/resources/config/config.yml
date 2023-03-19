@@ -1,5 +1,4 @@
 port: 8080
-local: localhost
-colony: False
+cluster: False
 cmd_charset: GBK
 enWeb: True # True 启用Web界面 index.html于/resources/webroot，False为REST API
