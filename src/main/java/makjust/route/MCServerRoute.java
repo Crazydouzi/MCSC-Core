@@ -1,6 +1,7 @@
 package makjust.route;
 
-import io.vertx.core.http.WebSocket;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -11,6 +12,9 @@ import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
 import makjust.utils.EnvOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RoutePath("/server")
 public class MCServerRoute extends AbstractRoute {
@@ -26,7 +30,7 @@ public class MCServerRoute extends AbstractRoute {
     // 修改MC服务器信息
     @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
     public RoutingContext editCoreSetting(@RequestBody MCServer mcServer) {
-        serverService.setCoreSetting(mcServer,ar-> ctx.json(returnJson(ar.result())));
+        serverService.setCoreSetting(mcServer, ar -> ctx.json(returnJson(ar.result())));
         return ctx;
     }
 
@@ -57,15 +61,17 @@ public class MCServerRoute extends AbstractRoute {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
         if (flag) {
-            return jsonObject.put("msg", "服务器关闭成功").put("data",true);
-        } else return jsonObject.put("msg", "关闭失败").put("data",false);
+            return jsonObject.put("msg", "服务器关闭成功").put("data", true);
+        } else return jsonObject.put("msg", "关闭失败").put("data", false);
     }
+
     @Request(value = "/status", method = HttpMethod.POST)
-    public RoutingContext getServerStatus(){
-        ctx.json(returnJson(200,new JsonObject().put("data",serverService.serverStatus())));
+    public RoutingContext getServerStatus() {
+        ctx.json(returnJson(200, new JsonObject().put("data", serverService.serverStatus())));
         return ctx;
     }
-    @Socket("/process")
+
+//    @SockJSSocket("/CMD")
     public Router processSocket(SockJSHandler sockJSHandler) {
         return sockJSHandler.socketHandler(sockJSSocket -> {
             // 向客户端(Web)发送数据
@@ -78,9 +84,13 @@ public class MCServerRoute extends AbstractRoute {
             sockJSSocket.handler(ws -> {
                 try {
                     if (EnvOptions.getServerStatus()) {
-                        // 推送接收到的到的数据
-                        vertx.eventBus().send("processServer.cmdReq", ws.toString());
-                        System.out.println("客户端CMD:"+ ws);
+                        if (ws.toString().equalsIgnoreCase("STOP")) {
+                            this.serverStop();
+                        } else {
+                            // 推送接收到的到的数据
+                            vertx.eventBus().send("processServer.cmdReq", ws.toString());
+                            System.out.println("客户端CMD:" + ws);
+                        }
                     } else {
                         sockJSSocket.write("服务器已关闭。。。");
                     }
@@ -90,8 +100,42 @@ public class MCServerRoute extends AbstractRoute {
             });
         });
     }
-    public WebSocket processWebSocket(WebSocket webSocket){
-        return webSocket.handler(socket->{
+
+    @WebSocket("/process")
+    public void processWebSocket(HttpServer server, String path) {
+        server.webSocketHandler(webSocket -> {
+            // 向客户端(Web)发送数据
+            if (!webSocket.path().equals(path)) {
+                System.out.println(path);
+                System.out.println(webSocket.path());
+                webSocket.reject();
+                webSocket.close();
+            } else {
+                vertx.eventBus().consumer("processServer.cmdRes", r -> {
+                    if (EnvOptions.getServerStatus()) {
+                        webSocket.writeTextMessage((String) r.body());
+                    }
+                });
+                webSocket.handler(buffer -> {
+                    try {
+                        if (EnvOptions.getServerStatus()) {
+                            // 推送接收到的到的数据
+                            if (buffer.toString().equalsIgnoreCase("STOP")) {
+                                this.serverStop();
+                            } else {
+                                vertx.eventBus().send("processServer.cmdReq", buffer.toString());
+                                System.out.println("客户端CMD:" + buffer);
+                            }
+
+                        } else {
+                            webSocket.writeTextMessage("服务已关闭。。。。");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
         });
     }
 }
