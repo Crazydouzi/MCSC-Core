@@ -107,8 +107,6 @@ public class RouteUtils {
         allowedMethods.add(HttpMethod.PATCH);
         allowedMethods.add(HttpMethod.PUT);
         allowedMethods.add(HttpMethod.HEAD);
-
-
         router.route().handler(CorsHandler.create()
                 .allowedHeaders(allowedHeaders)
                 .allowedMethods(allowedMethods)

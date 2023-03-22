@@ -61,7 +61,6 @@ public class MCVersionServiceImpl implements MCVersionService {
             resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "服务器运行中！无法切换版本")));
         } else {
             mcServerDao.updateMCServerEnable(server).onSuccess(ar -> {
-                System.out.println(ar.rowCount());
                 if (ar.rowCount() >= 1) {
                     resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "切换成功")));
                 } else {

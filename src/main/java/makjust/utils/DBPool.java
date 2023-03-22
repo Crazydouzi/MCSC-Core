@@ -224,7 +224,6 @@ public class DBPool {
         if (rowSet == null) return new JsonObject("data");
         JsonObject object = new JsonObject();
         rowSet.forEach(row -> row.toJson().getMap().keySet().forEach(key -> object.put(key, toCamelCase(key))));
-        System.out.println(object);
         return mapping(object, rowSet);
     }
 

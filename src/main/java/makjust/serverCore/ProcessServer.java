@@ -30,7 +30,6 @@ public class ProcessServer {
         //获取Socket接收到的指令
         msgConsumer = vertx.eventBus().consumer("processServer.cmdReq", data -> {
             try {
-                System.out.println(process);
                 os.write((data.body() + "\n").getBytes());
                 os.flush();
             } catch (IOException e) {
@@ -43,7 +42,7 @@ public class ProcessServer {
             try {
                 while ((line = reader.readLine()) != null) {
 //              向Socket推送消息
-                    vertx.eventBus().send("processServer.cmdRes", line);
+                    vertx.eventBus().publish("processServer.cmdRes", line);
                     System.out.println("控制台输出：" + line);
                 }
             } catch (IOException e) {
@@ -63,25 +62,40 @@ public class ProcessServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        vertx.eventBus().consumer("processServer.cmdRes", data -> {
-                    if (data.body().toString().contains("Saving chunks for level")) {
-                        try {
-                            process.waitFor();
-                            process.destroy();
-                            process.destroyForcibly();
-                        } catch (Exception ignored) {
-                        }
-                        if (msgConsumer != null) {
-                            msgConsumer.unregister();
-                            vertx.eventBus().unregisterCodec("processServer.cmdRes");
-                        }
-                        msgThead.interrupt();
-                        process = null;
-                        System.gc();
-                        EnvOptions.setServerStatus(false);
-                    }
-                }
-        );
+//        vertx.eventBus().consumer("processServer.cmdRes", data -> {
+//                    if (data.body().toString().contains("Saving chunks for level")) {
+//                        try {
+//                            process.waitFor();
+//                            process.destroy();
+//                            process.destroyForcibly();
+//                        } catch (Exception ignored) {
+//                        }
+//                        if (msgConsumer != null) {
+//                            msgConsumer.unregister();
+//                            vertx.eventBus().unregisterCodec("processServer.cmdRes");
+//                        }
+//                        msgThead.interrupt();
+//                        process = null;
+//                        System.gc();
+//                        EnvOptions.setServerStatus(false);
+//                    }
+//                }
+//
+//        );
+        try {
+            process.waitFor();
+            process.destroy();
+            process.destroyForcibly();
+        } catch (Exception ignored) {
+        }
+        if (msgConsumer != null) {
+            msgConsumer.unregister();
+            vertx.eventBus().unregisterCodec("processServer.cmdRes");
+        }
+        msgThead.interrupt();
+        process = null;
+        System.gc();
+        EnvOptions.setServerStatus(false);
     }
 
 

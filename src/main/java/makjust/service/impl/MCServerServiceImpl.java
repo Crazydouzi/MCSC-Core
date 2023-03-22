@@ -76,11 +76,11 @@ public class MCServerServiceImpl implements MCServerService {
                         if (location.exists() && rows.iterator().hasNext()) {
                             MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
                             try {
-                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
+//                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
                             /*
                             * 用于测试CMD使用
                             * */
-//                                Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
+                                Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
                                 Server.start();
                                 resultHandler.handle(Future.succeededFuture(new JsonObject().put("code", 200).put("msg", "启动成功")));
                                 EnvOptions.setServerStatus(true);
@@ -129,7 +129,6 @@ public class MCServerServiceImpl implements MCServerService {
             if (object.isEmpty()) {
                 object.put("data", null);
             }
-            System.out.println(object);
             resultHandler.handle(Future.succeededFuture(JsonObject.mapFrom(Json.decodeValue(object.toString(), MCServer.class))));
         }).onFailure(Throwable::printStackTrace);
     }
