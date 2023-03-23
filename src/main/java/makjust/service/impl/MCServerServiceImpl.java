@@ -32,7 +32,7 @@ public class MCServerServiceImpl implements MCServerService {
 
 
     @Override
-    public void setCoreSetting(MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void setServerSetting(MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao
                 .updateMCServerInfo(mcServer)
                 .onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成").put("code", 200))))
@@ -43,7 +43,7 @@ public class MCServerServiceImpl implements MCServerService {
     }
 
     @Override
-    public void setServerSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void setCoreSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler) {
         mcSettingDao.updateSetting(setting)
                 .onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成"))))
                 .onFailure(e -> {

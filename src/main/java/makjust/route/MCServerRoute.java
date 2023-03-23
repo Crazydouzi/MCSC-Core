@@ -23,15 +23,16 @@ public class MCServerRoute extends AbstractRoute {
     // 修改服务器选项
     @Request(value = "/modifyServerOption", method = HttpMethod.POST)
     public RoutingContext editServerOption(@RequestBody MCSetting setting) {
-        serverService.setServerSetting(setting, ar -> ctx.json(returnJson(200, ar.result())));
+        serverService.setCoreSetting(setting, ar -> ctx.json(returnJson(ar.result())));
         return ctx;
     }
 
     // 修改MC服务器信息
     @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
     public RoutingContext editCoreSetting(@RequestBody MCServer mcServer) {
-        serverService.setCoreSetting(mcServer, ar -> ctx.json(returnJson(ar.result())));
+        serverService.setServerSetting(mcServer, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
+
     }
 
     // 根据服务器id查询全部设置

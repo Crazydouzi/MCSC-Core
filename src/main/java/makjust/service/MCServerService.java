@@ -9,10 +9,10 @@ import makjust.entity.MCSetting;
 
 public interface MCServerService {
     //核心基本配置设定
-    void setCoreSetting(MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler);
+    void setCoreSetting( MCSetting setting,Handler<AsyncResult<JsonObject>> resultHandler);
 
     //服务器配置设定
-    void setServerSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler);
+    void setServerSetting( MCServer mcServer,Handler<AsyncResult<JsonObject>> resultHandler);
 
     //获取设置
     void getSetting(Vertx vertx, MCSetting mcSetting, Handler<AsyncResult<JsonObject>> resultHandler);

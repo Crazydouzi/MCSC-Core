@@ -55,11 +55,11 @@ public class SystemServiceImpl implements SystemService {
         long iowait = ticks[CentralProcessor.TickType.IOWAIT.getIndex()] - prevTicks[CentralProcessor.TickType.IOWAIT.getIndex()];
         long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
         long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
-        System.out.println("----------------cpu信息----------------");
-        System.out.println("cpu系统使用率:" + new DecimalFormat("#.##%").format(cSys * 1.0 / totalCpu));
-        System.out.println("cpu用户使用率:" + new DecimalFormat("#.##%").format(user * 1.0 / totalCpu));
-        System.out.println("cpu当前等待率:" + new DecimalFormat("#.##%").format(iowait * 1.0 / totalCpu));
-        System.out.println("cpu当前使用率:" + new DecimalFormat("#.##%").format(1.0 - (idle * 1.0 / totalCpu)));
+//        System.out.println("----------------cpu信息----------------");
+//        System.out.println("cpu系统使用率:" + new DecimalFormat("#.##%").format(cSys * 1.0 / totalCpu));
+//        System.out.println("cpu用户使用率:" + new DecimalFormat("#.##%").format(user * 1.0 / totalCpu));
+//        System.out.println("cpu当前等待率:" + new DecimalFormat("#.##%").format(iowait * 1.0 / totalCpu));
+//        System.out.println("cpu当前使用率:" + new DecimalFormat("#.##%").format(1.0 - (idle * 1.0 / totalCpu)));
         jsonObject.put("cpuSysUsage", new DecimalFormat("#.##%").format(cSys * 1.0 / totalCpu));
         jsonObject.put("cpuUserUsage", new DecimalFormat("#.##%").format(user * 1.0 / totalCpu));
         jsonObject.put("cpuWaitPer", new DecimalFormat("#.##%").format(iowait * 1.0 / totalCpu));
@@ -84,10 +84,10 @@ public class SystemServiceImpl implements SystemService {
         long totalByte = memory.getTotal();
         //剩余
         long acaliableByte = memory.getAvailable();
-        System.out.println("总内存 = " + formatByte(totalByte));
-        System.out.println("使用" + formatByte(totalByte - acaliableByte));
-        System.out.println("剩余内存 = " + formatByte(acaliableByte));
-        System.out.println("使用率：" + new DecimalFormat("#.##%").format((totalByte - acaliableByte) * 1.0 / totalByte));
+//        System.out.println("总内存 = " + formatByte(totalByte));
+//        System.out.println("使用" + formatByte(totalByte - acaliableByte));
+//        System.out.println("剩余内存 = " + formatByte(acaliableByte));
+//        System.out.println("使用率：" + new DecimalFormat("#.##%").format((totalByte - acaliableByte) * 1.0 / totalByte));
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("memTotal", formatByte(totalByte));
         jsonObject.put("memUse", formatByte(totalByte - acaliableByte));
