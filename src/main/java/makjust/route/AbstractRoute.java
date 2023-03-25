@@ -2,11 +2,9 @@ package makjust.route;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
 
 public abstract class AbstractRoute {
     public static Vertx vertx;
-    public RoutingContext ctx;
 
     public void sendToBus(String path, String code, JsonObject object) {
         JsonObject jsonObject = new JsonObject();
@@ -51,8 +49,8 @@ public abstract class AbstractRoute {
 
     //对于混合模式status?msg?data?
     JsonObject returnJson(JsonObject object) {
-        if (object==null){
-            return returnJson(200,"OK");
+        if (object == null) {
+            return returnJson(200, "OK");
         }
         if (object.containsKey("code")) {
             return returnJson(object.getInteger("code"), object);

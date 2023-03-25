@@ -1,7 +1,5 @@
 package makjust.route;
 
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -14,21 +12,20 @@ import makjust.service.impl.MCServerServiceImpl;
 import makjust.utils.EnvOptions;
 
 
-
 @RoutePath("/server")
 public class MCServerRoute extends AbstractRoute {
     private final MCServerService serverService = new MCServerServiceImpl();
-    private RoutingContext ctx;
+
     // 修改服务器选项
     @Request(value = "/modifyServerOption", method = HttpMethod.POST)
-    public RoutingContext editServerOption(RoutingContext ctx,@RequestBody MCSetting setting) {
+    public RoutingContext editServerOption(RoutingContext ctx, @RequestBody MCSetting setting) {
         serverService.setCoreSetting(setting, ar -> ctx.json(returnJson(ar.result())));
         return ctx;
     }
 
     // 修改MC服务器信息
     @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
-    public RoutingContext editCoreSetting(RoutingContext ctx,@RequestBody MCServer mcServer) {
+    public RoutingContext editCoreSetting(RoutingContext ctx, @RequestBody MCServer mcServer) {
         serverService.setServerSetting(mcServer, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
 
@@ -36,7 +33,7 @@ public class MCServerRoute extends AbstractRoute {
 
     // 根据服务器id查询全部设置
     @Request(value = "/getSettingList", method = HttpMethod.POST)
-    public RoutingContext getSetting(RoutingContext ctx,@RequestBody MCSetting setting) {
+    public RoutingContext getSetting(RoutingContext ctx, @RequestBody MCSetting setting) {
         serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
