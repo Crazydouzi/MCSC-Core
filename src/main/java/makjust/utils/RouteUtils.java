@@ -10,10 +10,7 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.ext.web.handler.SessionHandler;
-import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.*;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.sstore.SessionStore;
@@ -22,7 +19,6 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import makjust.annotation.*;
-import makjust.route.AbstractRoute;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -83,6 +79,8 @@ public class RouteUtils {
     public void mountAllRoute(String apiPathPrefix, String wsPathPrefix) {
         mountWSRoute(wsPathPrefix);
         mountAPIRoute(apiPathPrefix);
+        router.route().handler(TimeoutHandler.create(500));
+
     }
 
     public void enableCORS() {
@@ -204,14 +202,14 @@ public class RouteUtils {
             }
             // RestFul控制器
             else if (method.isAnnotationPresent(Request.class)) {
+                Object[] argValues = new Object[ctMethod.getParameterTypes().length];
                 Handler<RoutingContext> requestHandler = ctx -> {
                     try {
-                        AbstractRoute.ctx = ctx;
-                        Object[] argValues = new Object[ctMethod.getParameterTypes().length];
                         MultiMap params = ctx.request().params();
                         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
                         List<FileUpload> uploads = ctx.fileUploads();
                         Map<String, FileUpload> uploadMap = uploads.stream().collect(Collectors.toMap(FileUpload::name, x -> x));
+
                         for (int i = 0; i < argValues.length; i++) {
                             Class<?> paramType = paramTypes[i];
                             // @RequestBody数据解析
@@ -259,6 +257,7 @@ public class RouteUtils {
                         ctx.response().setStatusCode(500).end(Json.encode(result));
                     }
                 };
+
                 Request methodAnno = method.getAnnotation(Request.class);
                 String requestPath = RoutePath + methodAnno.value();
                 String formatPath = requestPath.startsWith("/") ? requestPath : "/" + requestPath;

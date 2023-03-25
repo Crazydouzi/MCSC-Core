@@ -1,9 +1,6 @@
 package makjust.service.impl;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -23,11 +20,12 @@ public class MCVersionServiceImpl implements MCVersionService {
 
     @Override
     public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
-        mcServerDao.selectMCServerList().onSuccess(ar -> {
+        mcServerDao.selectMCServerList().onComplete(ar -> {
             if (ar != null) {
-                resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar)));
+                resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar.result())));
             }
         });
+
     }
 
     @Override

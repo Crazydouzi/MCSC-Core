@@ -19,7 +19,7 @@ public class SystemInfoRoute extends AbstractRoute {
 
     // 使用率报告
     @Request(value = "/getInfo", method = HttpMethod.POST)
-    public RoutingContext usageInfo() throws UnknownHostException {
+    public RoutingContext usageInfo(RoutingContext ctx) throws UnknownHostException {
         ctx.response().setStatusCode(200);
         ctx.json(returnJson(200, systemService.getSystemInfo()));
         return ctx;
@@ -28,7 +28,7 @@ public class SystemInfoRoute extends AbstractRoute {
 
     //获取CPU实时占用率
     @Request(value = "/getCpuUsage", method = HttpMethod.POST)
-    public RoutingContext cpuUsage() {
+    public RoutingContext cpuUsage(RoutingContext ctx) {
         ctx.response().setStatusCode(200);
         ctx.json(returnJson(200, systemService.getCpuUsage()));
         return ctx;
@@ -36,7 +36,7 @@ public class SystemInfoRoute extends AbstractRoute {
 
     //获取内存使用率
     @Request(value = "/getMemUsage", method = HttpMethod.POST)
-    public RoutingContext memoryUsage() {
+    public RoutingContext memoryUsage(RoutingContext ctx) {
         ctx.response().setStatusCode(200);
         ctx.json(returnJson(200, systemService.getMemoryUsage()));
         return ctx;

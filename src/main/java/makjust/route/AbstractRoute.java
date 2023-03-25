@@ -6,7 +6,7 @@ import io.vertx.ext.web.RoutingContext;
 
 public abstract class AbstractRoute {
     public static Vertx vertx;
-    public static RoutingContext ctx;
+    public RoutingContext ctx;
 
     public void sendToBus(String path, String code, JsonObject object) {
         JsonObject jsonObject = new JsonObject();

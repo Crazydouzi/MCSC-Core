@@ -19,19 +19,20 @@ public class MCVersionRoute extends AbstractRoute {
 
     // 获取已上传版本列表（可部署版本）
     @Request(value = "/list", method = HttpMethod.POST)
-    public RoutingContext getVersionList() {
+    public RoutingContext getVersionList(RoutingContext ctx) {
         versionService.getVersionList(ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
     @Request(value = "/enableServerInfo",method = HttpMethod.POST)
-    public RoutingContext getEnableServer(){
+    public RoutingContext getEnableServer(RoutingContext ctx){
+
         mcServerService.getEnableServer(ar->{
             ctx.json(returnJson(200,ar.result()));
         });
         return ctx;
     }
     @Request(value = "/changeVersion", method = HttpMethod.POST)
-    public RoutingContext changeVersion(@RequestBody MCServer server){
+    public RoutingContext changeVersion(RoutingContext ctx,@RequestBody MCServer server){
         versionService.changeEnableVersion(server,ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
@@ -54,7 +55,7 @@ public class MCVersionRoute extends AbstractRoute {
 
     @Request(value = "/scanVersion", method = HttpMethod.POST)
     //扫描版本
-    public RoutingContext scanVersion() {
+    public RoutingContext scanVersion(RoutingContext ctx) {
         versionService.serverScanner(vertx, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }

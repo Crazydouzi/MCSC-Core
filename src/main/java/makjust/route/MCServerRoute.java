@@ -13,23 +13,22 @@ import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
 import makjust.utils.EnvOptions;
 
-import java.util.HashMap;
-import java.util.Map;
+
 
 @RoutePath("/server")
 public class MCServerRoute extends AbstractRoute {
     private final MCServerService serverService = new MCServerServiceImpl();
-
+    private RoutingContext ctx;
     // 修改服务器选项
     @Request(value = "/modifyServerOption", method = HttpMethod.POST)
-    public RoutingContext editServerOption(@RequestBody MCSetting setting) {
+    public RoutingContext editServerOption(RoutingContext ctx,@RequestBody MCSetting setting) {
         serverService.setCoreSetting(setting, ar -> ctx.json(returnJson(ar.result())));
         return ctx;
     }
 
     // 修改MC服务器信息
     @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
-    public RoutingContext editCoreSetting(@RequestBody MCServer mcServer) {
+    public RoutingContext editCoreSetting(RoutingContext ctx,@RequestBody MCServer mcServer) {
         serverService.setServerSetting(mcServer, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
 
@@ -37,7 +36,7 @@ public class MCServerRoute extends AbstractRoute {
 
     // 根据服务器id查询全部设置
     @Request(value = "/getSettingList", method = HttpMethod.POST)
-    public RoutingContext getSetting(@RequestBody MCSetting setting) {
+    public RoutingContext getSetting(RoutingContext ctx,@RequestBody MCSetting setting) {
         serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
@@ -48,7 +47,7 @@ public class MCServerRoute extends AbstractRoute {
 
     // 开启MC服务器
     @Request(value = "/start", method = HttpMethod.POST)
-    public RoutingContext serverStart() {
+    public RoutingContext serverStart(RoutingContext ctx) {
         serverService.serverStart(vertx, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(ar.result()));
@@ -67,7 +66,7 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     @Request(value = "/status", method = HttpMethod.POST)
-    public RoutingContext getServerStatus() {
+    public RoutingContext getServerStatus(RoutingContext ctx) {
         ctx.json(returnJson(200, new JsonObject().put("data", serverService.serverStatus())));
         return ctx;
     }
