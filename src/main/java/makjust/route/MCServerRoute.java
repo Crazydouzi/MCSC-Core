@@ -40,6 +40,12 @@ public class MCServerRoute extends AbstractRoute {
         });
         return ctx;
     }
+    @Request(value = "/getServerInfo",method = HttpMethod.POST)
+    public RoutingContext getServerInfo(RoutingContext ctx){
+
+        ctx.json(new JsonObject().put("id",ctx.request().getParam("id")));
+        return ctx;
+    }
 
 
     // 开启MC服务器

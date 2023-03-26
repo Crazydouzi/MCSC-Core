@@ -122,7 +122,7 @@ public class RouteUtils {
     }
 
     public void mountAPIRoute(String URLPrefix) {
-        router.route(URLPrefix).consumes("*/json").handler(BodyHandler.create()).subRouter(apiRouter);
+        router.route(URLPrefix).consumes("*/json").consumes("multipart/form-data").consumes("application/x-www-form-urlencoded").handler(BodyHandler.create()).subRouter(apiRouter);
     }
 
     public void mountWSRoute(String URLPrefix) {
