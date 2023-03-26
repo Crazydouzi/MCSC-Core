@@ -122,14 +122,8 @@ public class MCServerServiceImpl implements MCServerService {
     @Override
     public void getEnableServer(Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao.getServerByEnable(true).onSuccess(ar -> {
-            JsonObject object = new JsonObject();
-            for (Row row : ar) {
-                object = row.toJson();
-            }
-            if (object.isEmpty()) {
-                object.put("data", null);
-            }
-            resultHandler.handle(Future.succeededFuture(JsonObject.mapFrom(Json.decodeValue(object.toString(), MCServer.class))));
+            JsonObject object = DBPool.camelMapping(ar);
+            resultHandler.handle(Future.succeededFuture(object));
         }).onFailure(Throwable::printStackTrace);
     }
 }
