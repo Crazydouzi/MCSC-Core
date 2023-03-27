@@ -32,15 +32,15 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 根据服务器id查询全部设置
-    @Request(value = "/getSettingList", method = HttpMethod.POST)
-    public RoutingContext getSetting(RoutingContext ctx, @RequestBody MCSetting setting) {
+    @Request(value = "/getSettingList", method = HttpMethod.GET)
+    public RoutingContext getSetting(RoutingContext ctx,  MCSetting setting) {
         serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
         });
         return ctx;
     }
-    @Request(value = "/getServerInfo",method = HttpMethod.POST)
+    @Request(value = "/getServerInfo/:id",method = HttpMethod.GET)
     public RoutingContext getServerInfo(RoutingContext ctx){
 
         ctx.json(new JsonObject().put("id",ctx.request().getParam("id")));
@@ -68,7 +68,7 @@ public class MCServerRoute extends AbstractRoute {
         } else return jsonObject.put("msg", "关闭失败").put("data", false);
     }
 
-    @Request(value = "/status", method = HttpMethod.POST)
+    @Request(value = "/status", method = HttpMethod.GET)
     public RoutingContext getServerStatus(RoutingContext ctx) {
         ctx.json(returnJson(200, new JsonObject().put("data", serverService.serverStatus())));
         return ctx;

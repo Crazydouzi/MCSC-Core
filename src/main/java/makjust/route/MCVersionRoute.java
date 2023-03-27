@@ -18,12 +18,12 @@ public class MCVersionRoute extends AbstractRoute {
     MCServerService mcServerService=new MCServerServiceImpl();
 
     // 获取已上传版本列表（可部署版本）
-    @Request(value = "/list", method = HttpMethod.POST)
+    @Request(value = "/list", method = HttpMethod.GET)
     public RoutingContext getVersionList(RoutingContext ctx) {
         versionService.getVersionList(ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
-    @Request(value = "/enableServerInfo",method = HttpMethod.POST)
+    @Request(value = "/enableServerInfo",method = HttpMethod.GET)
     public RoutingContext getEnableServer(RoutingContext ctx){
 
         mcServerService.getEnableServer(ar->{

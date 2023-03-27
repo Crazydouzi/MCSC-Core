@@ -7,10 +7,14 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.*;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.handler.SessionHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.sstore.SessionStore;
@@ -46,6 +50,7 @@ public class RouteUtils {
         // ws子路由(SockJs)
         this.wsRouter = Router.router(vertx);
         this.server = vertx.createHttpServer();
+
     }
 
     public void scanRoute(String scanPath) {
@@ -60,13 +65,38 @@ public class RouteUtils {
         }
     }
 
-    public void setStaticRoute(String webRoot) {
+    /**
+     * 默认方法 指定文件夹
+     */
+    public void setStaticRoute(String webRootLoc) {
         router.route().method(HttpMethod.GET)
                 .handler(
                         StaticHandler
-                                .create(webRoot)
+                                .create(webRootLoc)
                                 .setCachingEnabled(false)
                                 .setDefaultContentEncoding("utf-8"));
+    }
+
+    public void setStaticRoute(String webRootLOC, String excludePathRegex) {
+        router.errorHandler(404, ctx -> {
+            if (ctx.request().method() == HttpMethod.GET && ctx.request().uri().matches(excludePathRegex)) {
+                ctx.reroute("/index.html");
+            } else {
+                ctx.json(new JsonObject().put("code", 404).put("msg", "页面走丢了哟~"));
+            }
+        });
+        router.route().pathRegex(excludePathRegex).method(HttpMethod.GET)
+                .handler(StaticHandler.create(webRootLOC).setCachingEnabled(false).setDefaultContentEncoding("utf-8"));
+    }
+
+    public void setVueRouteEnable(String apiRouteRegex) {
+        router.errorHandler(404, ctx -> {
+            if (ctx.request().method() == HttpMethod.GET && ctx.request().uri().matches(apiRouteRegex)) {
+                ctx.reroute("/index.html");
+            } else {
+                ctx.json(new JsonObject().put("code", 404).put("msg", "页面走丢了哟~"));
+            }
+        });
     }
 
     /**
@@ -79,8 +109,6 @@ public class RouteUtils {
     public void mountAllRoute(String apiPathPrefix, String wsPathPrefix) {
         mountWSRoute(wsPathPrefix);
         mountAPIRoute(apiPathPrefix);
-        router.route().handler(TimeoutHandler.create(500));
-
     }
 
     public void enableCORS() {
