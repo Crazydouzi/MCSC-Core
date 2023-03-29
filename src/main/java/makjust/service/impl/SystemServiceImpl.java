@@ -18,7 +18,7 @@ import java.util.Properties;
 public class SystemServiceImpl implements SystemService {
     private final SystemInfo si = new SystemInfo();
     private final HardwareAbstractionLayer hal = si.getHardware();
-    private final OperatingSystem os=si.getOperatingSystem();
+    private final OperatingSystem os = si.getOperatingSystem();
     private final CentralProcessor processor = hal.getProcessor();
     private final Sensors sensors = hal.getSensors();
     private final GlobalMemory memory = hal.getMemory();
@@ -33,8 +33,8 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("HostAddress", addr.getHostAddress());
         jsonObject.put("cpuName", processor.getProcessorIdentifier().getName());
         jsonObject.put("cpuCoreCount", processor.getPhysicalProcessorCount() + "核心/" + processor.getLogicalProcessorCount() + "线程");
-        jsonObject.put("systemName",os.getFamily()+os.getVersionInfo());
-        jsonObject.put("systemType",os.getFamily());
+        jsonObject.put("systemName", os.getFamily() + os.getVersionInfo());
+        jsonObject.put("systemType", os.getFamily());
         jsonObject.put("totalMemory", String.format("%.1f", memory.getTotal() / 1073741824.0) + " GiB");
         jsonObject.put("javaVersion", props.getProperty("java.version"));
         return jsonObject;
@@ -63,7 +63,7 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("cpuSysUsage", new DecimalFormat("#.##%").format(cSys * 1.0 / totalCpu));
         jsonObject.put("cpuUserUsage", new DecimalFormat("#.##%").format(user * 1.0 / totalCpu));
         jsonObject.put("cpuWaitPer", new DecimalFormat("#.##%").format(iowait * 1.0 / totalCpu));
-        jsonObject.put("cpuUsage", (int)Math.ceil((1.0 - (idle * 1.0 / totalCpu))*100));
+        jsonObject.put("cpuUsage", (int) Math.ceil((1.0 - (idle * 1.0 / totalCpu)) * 100));
         jsonObject.put("CpuTemperature", sensors.getCpuTemperature() > 0 ? sensors.getCpuTemperature() : "Sensors Error");
         return jsonObject;
     }
@@ -76,8 +76,6 @@ public class SystemServiceImpl implements SystemService {
         double max = (Runtime.getRuntime().maxMemory()) / (1024.0 * 1024);
         //JVM空闲内存(M)
         double free = (Runtime.getRuntime().freeMemory()) / (1024.0 * 1024);
-
-        System.out.println("----------------主机内存信息----------------");
         SystemInfo systemInfo = new SystemInfo();
         GlobalMemory memory = systemInfo.getHardware().getMemory();
         //总内存
@@ -95,7 +93,7 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("jvmMemTotal", max);
         jsonObject.put("jvmMemUse", total);
         jsonObject.put("jvmMemFree", free);
-        jsonObject.put("memUsage", new DecimalFormat("#").format(((totalByte - acaliableByte) * 1.0 / totalByte)*100));
+        jsonObject.put("memUsage", new DecimalFormat("#").format(((totalByte - acaliableByte) * 1.0 / totalByte) * 100));
         return jsonObject;
     }
 

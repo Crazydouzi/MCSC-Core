@@ -6,7 +6,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-import io.vertx.sqlclient.Row;
 import makjust.dao.MCServerDao;
 import makjust.dao.MCSettingDao;
 import makjust.dao.impl.MCServerDaoImpl;
