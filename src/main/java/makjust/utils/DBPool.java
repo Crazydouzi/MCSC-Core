@@ -1,5 +1,6 @@
 package makjust.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -62,6 +63,10 @@ public class DBPool {
     }
 
     //执行自定义SQL
+    public static Future<RowSet<Row>> executeSQL(String sql, Object bean) {
+        return executeSQL(sql, JsonObject.mapFrom(bean));
+    }
+
     public static Future<RowSet<Row>> executeSQL(String sql, JsonObject param) {
         if (checkEmpty(sql)) {
             return Future.failedFuture("Query is null or empty");
@@ -80,10 +85,9 @@ public class DBPool {
         // 布尔值对sqlite 0/1转换
         keyList.forEach(v -> {
             if (param.containsKey(v)) {
-                if (param.getValue(v)==null){
+                if (param.getValue(v) == null) {
                     tupleList.add(param.getValue(v));
-                }
-                else if (param.getString(v).equals("false") || param.getString(v).equals("False")) {
+                } else if (param.getString(v).equals("false") || param.getString(v).equals("False")) {
                     tupleList.add(0);
                 } else if (param.getString(v).equals("True") || param.getString(v).equals("true")) {
                     tupleList.add(1);
@@ -215,6 +219,25 @@ public class DBPool {
             flag = true;
         }
         return pojo;
+    }
+
+    public static <T> T objectMapping(Class<T> bean, RowSet<Row> rowSet) {
+        try {
+            return camelMapping(rowSet).mapTo(bean);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static <T> List<T> ListObjectMapping(Class<T> bean, RowSet<Row> rowSet) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(camelMapping(rowSet).getJsonArray("data").encode(), mapper.getTypeFactory().constructParametricType(List.class, bean));
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
