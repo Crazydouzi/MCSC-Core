@@ -5,6 +5,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import makjust.entity.MCServer;
+import makjust.entity.MCServerConfigFile;
 import makjust.entity.MCSetting;
 
 public interface MCServerService {
@@ -16,7 +17,8 @@ public interface MCServerService {
 
     //获取设置
     void getSetting(Vertx vertx, MCSetting mcSetting, Handler<AsyncResult<JsonObject>> resultHandler);
-
+    void getConfigFileList(Vertx vertx,MCServer mcServer,Handler<AsyncResult<JsonObject>> resultHandler);
+    void readConfigFile(Vertx vertx,MCServer mcServer, MCServerConfigFile configFile, Handler<AsyncResult<JsonObject>> resultHandler);
     //开启服务器
     void serverStart(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler);
 

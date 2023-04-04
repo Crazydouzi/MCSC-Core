@@ -6,6 +6,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
 import makjust.entity.MCServer;
+import makjust.entity.MCServerConfigFile;
 import makjust.entity.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
@@ -37,6 +38,30 @@ public class MCServerRoute extends AbstractRoute {
         serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
+        });
+        return ctx;
+    }
+    @Request(value = "/getConfigList",method = HttpMethod.GET)
+    public RoutingContext getConfigList(RoutingContext ctx,MCServer mcServer){
+        System.out.println(mcServer);
+        serverService.getConfigFileList(vertx,mcServer,ar->{
+            if (ar.succeeded()){
+                ctx.json(returnJson(200,ar.result()));
+            }else {
+                ctx.json(returnJson(500,"服务器错误"));
+            }
+        });
+        return ctx;
+    }
+    @Request(value = "/readConfig",method = HttpMethod.GET)
+    public RoutingContext readConfig(RoutingContext ctx, MCServer mcServer, MCServerConfigFile mcServerConfigFile){
+
+        serverService.readConfigFile(vertx,mcServer,mcServerConfigFile,ar->{
+            if (ar.succeeded()){
+                ctx.json(returnJson(200,ar.result()));
+            }else {
+                ctx.json(returnJson(500,"服务器错误"));
+            }
         });
         return ctx;
     }
