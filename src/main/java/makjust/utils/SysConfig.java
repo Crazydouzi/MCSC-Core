@@ -38,13 +38,13 @@ public class SysConfig {
         object = JsonObject.mapFrom(ret);
     }
     //定位到MC服务器包下
-    public static String getCorePath(String version) {
+    public static String getCorePath(String location) {
         try {
             String path = pathURL.toURI().getPath();
             if (getENV()) {
                 path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
             }
-            return path + "/resources/package/" + version;
+            return path + "/resources/package/" + location+"/";
         } catch (URISyntaxException e) {
             return "";
         }
@@ -72,6 +72,18 @@ public class SysConfig {
             return object.getJsonObject(arg[0]).getString(arg[1]);
         } else {
             return object.getValue(key);
+        }
+
+    }
+    public static String getTranslateFile(String fileName) {
+        try {
+            String path = pathURL.toURI().getPath();
+            if (getENV()) {
+                path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
+            }
+            return path + "/resources/config/translate/" + fileName+".json";
+        } catch (URISyntaxException e) {
+            return "";
         }
 
     }
