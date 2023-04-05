@@ -76,7 +76,7 @@ public class MCServerServiceImpl implements MCServerService {
             if (server != null && server.getLocation() != null) {
                 List<Object> configFiles = new ArrayList<>();
                 Future<RowSet<Row>> getFileName = mcConfigFileDao.getAllConfigFile();
-                Future<List<String>> scanFile = vertx.fileSystem().readDir(SysConfig.getCorePath(server.getLocation()), "\\w*.(yml|properties)");
+                Future<List<String>> scanFile = vertx.fileSystem().readDir(SysConfig.getCorePath(server.getLocation()), "\\w*.(yml|properties|txt|xml)");
                 CompositeFuture.all(getFileName, scanFile).onComplete(ar -> {
                     List<MCServerConfigFile> mcServerConfigFiles = DBPool.ListObjectMapping(MCServerConfigFile.class, ar.result().resultAt(0));
                     List<String> fileList = ar.result().resultAt(1);
@@ -111,7 +111,7 @@ public class MCServerServiceImpl implements MCServerService {
                     CompositeFuture.all(fileFuture,translateFuture).onSuccess(handler->{
                         Buffer fileBuffer=handler.resultAt(0);
                         Buffer translateBuffer=handler.resultAt(1);
-                        if (configFile.getFileName().contains("properties")) {
+                        if (configFile.getFileName().contains("properties")||configFile.getFileName().contains("eula.txt")) {
                             try {
                                 Properties properties = new Properties();
                                 properties.load(new StringReader(fileBuffer.toString()));
