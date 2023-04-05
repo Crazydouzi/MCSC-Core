@@ -1,0 +1,168 @@
+{
+    "config-version": "配置文件版本",
+        "settings": {
+            "debug": "调试模式",
+            "save-user-cache-on-stop-only": "是否经常将新的usercache数据保存, 或者只在服务器停止时保存",
+            "sample-count": "玩家鼠标指针放在服务器列表信号时中的玩家数量时显示随机选择的玩家数量",
+            "log-villager-deaths": "记录村民死亡",
+            "moved-too-quickly-multiplier": "服务器允许玩家移动的最大速度。",
+            "moved-wrongly-threshold": "增加这个数字可能会减少玩家速度太快后回弹次数，但也可能被外挂玩家滥用",
+            "bungeecord": "bungeecord的特性",
+            "player-shuffle": "玩家的信息包是根据他们何时加入而按顺序处理",
+            "user-cache-size": "控制usercache.json的大小上限",
+            "netty-threads": "Netty将用于执行网络的线程数",
+            "timeout-time": "服务器在控制台中的线程转储之前停止响应多长时间(以秒为单位)",
+            "restart-on-crash": "当发生崩溃时服务器是否尝试重新启动服务器",
+            "restart-script": "服务器启动脚本的位置。",
+            "attribute": {
+                "maxHealth": {
+                    "max": "最大血量"
+                },
+                "movementSpeed": {
+                    "max": "最大移动速度"
+                },
+                "attackDamage": {
+                    "max": "最大攻击伤害"
+                }
+            }
+        },
+        "messages": {
+            "whitelist": "不在白名单时的提示信息",
+            "unknown-command": "当指令错误提示的信息",
+            "server-full": "当服务器满人提示的信息",
+            "outdated-client": "客户端版本过低时提示的信息",
+            "outdated-server": "客户端版本过高时提示的信息",
+            "restart": "使用/restart命令使服务器重启显示给所有玩家的信息"
+        },
+        "commands": {
+            "silent-commandblock-console": "是否允许将命令方块输出到控制台",
+            "replace-commands": "禁用命令实现列表",
+            "tab-complete": "输入了多少字母后才允许使用TAB补全",
+            "send-namespaced": "当你按tab键时是否显示带有<plugin>:<command>的命令",
+            "log": "是否允许玩家输入的命令保存在log中",
+            "spam-exclusions": "排除来自普通垃圾邮件检查命令"
+        },
+        "advancements": {
+            "disable-saving": "如果启用，服务器将不会保存1.12版中引入的玩家进度",
+            "disabled": "禁用进度列表"
+        },
+        "stats": {
+            "disable-saving": "如果启用，服务器将不会保存玩家统计数据或成就。",
+            "forced-stats": "统计信息及其应遵循的值的映射"
+        },
+        "world-settings": {
+            "worldeditregentempworld": {
+                "verbose": ""
+            },
+            "default": {
+                "seed-bastion": "",
+                "seed-fortress": "",
+                "seed-mansion": "",
+                "seed-fossil": "生成化石的种子码",
+                "seed-portal": "生成传送门的种子码",
+                "end-portal-sound-radius": "下界传送门声音范围",
+                "seed-endcity": "生成末地城的种子码",
+                "verbose": "是否在服务器启动时在控制台/日志中显示每个世界的详细报告和配置。",
+                "view-distance": "控制所有玩家最远视距，最低为 1，最高为 15，降低可以显著提升服务器性能",
+                "item-despawn-rate": "控制在地面上的项目实体删除之前所需的 Tick(s)",
+                "arrow-despawn-rate": "箭消失距离",
+                "trident-despawn-rate": "三叉戟消失距离",
+                "hopper-amount": "控制漏斗在漏斗 Tick 周期中接收/发出的最大物品数量",
+                "max-tnt-per-tick": "每 Tick 刷新时最大更新的 TNT 数量",
+                "enable-zombie-pigmen-portal-spawns": "是否启用僵尸猪人入口生成",
+                "wither-spawn-sound-radius": "生成凋灵的声音范围",
+                "hanging-tick-frequency": "每 Tick 的更新频率",
+                "zombie-aggressive-towards-villager": "是否准许生成僵尸村民",
+                "nerf-spawner-mobs": "启用后，由怪物生成的新怪物将不会有任何 AI(怪物降智)",
+                "dragon-death-sound-radius": "末地龙死亡声音范围",
+                "seed-village": "生成村庄的种子码",
+                "seed-desert": "生成沙漠的种子码",
+                "seed-igloo": "生成小屋的种子码",
+                "seed-jungle": "生成丛林的种子码",
+                "seed-swamp": "生成沼泽的种子码",
+                "seed-monument": "生成遗迹的种子码",
+                "seed-shipwreck": "生成船骸的种子码",
+                "seed-ocean": "生成海洋的种子码",
+                "seed-outpost": "生成守护者前哨的种子码",
+                "seed-slime": "生成黏液区块的种子码",
+                "mob-spawn-range": "怪物生成范围",
+                "max-entity-collisions": "",
+                "merge-radius": {
+                    "item": "物品距离多少时会互相合并吸引",
+                    "exp": "经验球距离多少时会互相合并吸引"
+                },
+                "growth": {
+                    "cactus-modifier": "仙人掌生长速度",
+                    "cane-modifier": "甘蔗生长速度",
+                    "melon-modifier": "西瓜生长速度",
+                    "mushroom-modifier": "蘑菇生长速度",
+                    "pumpkin-modifier": "南瓜生长速度",
+                    "sapling-modifier": "树苗生长速度",
+                    "beetroot-modifier": "甜菜根生长速度",
+                    "carrot-modifier": "胡萝卜生长速度",
+                    "potato-modifier": "马铃薯生长速度",
+                    "wheat-modifier": "小麦生长速度",
+                    "netherwart-modifier": "地狱疣生长速度",
+                    "vine-modifier": "藤曼生长速度",
+                    "cocoa-modifier": "可可豆生长速度",
+                    "bamboo-modifier": "柱子生长速度",
+                    "sweetberry-modifier": "甜莓生长速度",
+                    "kelp-modifier": "海藻生长速度"
+                },
+                "entity-activation-range": {
+                    "villagers": "",
+                    "flying-monsters": "",
+                    "villagers-work-immunity-after": "",
+                    "villagers-work-immunity-for": "",
+                    "villagers-active-for-panic": "",
+                    "animals": "动物最大激活范围",
+                    "monsters": "怪物最大激活范围",
+                    "raiders": "突袭最大激活范围",
+                    "misc": "物品最大激活范围",
+                    "water": "",
+                    "tick-inactive-villagers": "是否更新不活跃的村民",
+                    "wake-up-inactive": {
+                        "animals-max-per-tick": "",
+                        "animals-every": "",
+                        "animals-for": "",
+                        "monsters-max-per-tick": "",
+                        "monsters-every": "",
+                        "monsters-for": "",
+                        "villagers-max-per-tick": "",
+                        "villagers-every": "",
+                        "villagers-for": "",
+                        "flying-monsters-max-per-tick": "",
+                        "flying-monsters-every": "",
+                        "flying-monsters-for": ""
+                    }
+                },
+                "entity-tracking-range": {
+                    "players": "实体AI追踪玩家的最大范围",
+                    "animals": "实体AI追踪动物的最大范围",
+                    "monsters": "实体AI追踪怪物的最大范围",
+                    "misc": "实体AI追踪物品的最大范围",
+                    "other": "实体AI追踪其他的最大范围"
+                },
+                "ticks-per": {
+                    "hopper-transfer": "漏斗推/拉/接收物品与漏斗推/拉更多物品之间的时间",
+                    "hopper-check": "自上次尝试后，漏斗尝试推/拉物品。"
+                },
+                "hunger": {
+                    "jump-walk-exhaustion": "跳跃跑步动作时消耗的饥饿度",
+                    "jump-sprint-exhaustion": "跳跃冲刺动作时消耗的饥饿度",
+                    "combat-exhaustion": "战斗时消耗的饥饿度",
+                    "regen-exhaustion": "回复时消耗的饥饿度",
+                    "swim-multiplier": "游泳时消耗的饥饿度倍率",
+                    "sprint-multiplier": "仅冲刺时消耗的饥饿度倍率",
+                    "other-multiplier": "其他动作消耗的饥饿度倍率"
+                },
+                "squid-spawn-range": {
+                    "min": ""
+                },
+                "max-tick-time": {
+                    "tile": "分配给 Tile 的最大 Tick 时间",
+                    "entity":"分配给实体的最大 Tick 时间"
+                }
+            }
+        }
+    }
