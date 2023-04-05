@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 //用于反序列化时下划线转驼峰
 //@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 
