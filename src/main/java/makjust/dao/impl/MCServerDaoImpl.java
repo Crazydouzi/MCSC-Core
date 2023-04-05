@@ -15,6 +15,17 @@ public class MCServerDaoImpl implements MCServerDao {
     }
 
     @Override
+    public Future<RowSet<Row>> getServerById(MCServer mcServer) {
+        return DBPool.executeSQL("select * from mc_server where id=#{id} LIMIT 1", mcServer);
+    }
+
+    @Override
+    public Future<RowSet<Row>> getServerLocationById(MCServer mcServer) {
+        return DBPool.executeSQL("select location from mc_server where id=#{id} LIMIT 1", mcServer);
+
+    }
+
+    @Override
     public Future<RowSet<Row>> selectMCServerList() {
         return DBPool.executeRowSQL("select * from mc_server;");
     }

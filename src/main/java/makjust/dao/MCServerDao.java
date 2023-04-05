@@ -7,6 +7,9 @@ import makjust.entity.MCServer;
 
 public interface MCServerDao {
     Future<RowSet<Row>> getServerByEnable(boolean flag);
+    Future<RowSet<Row>> getServerById(MCServer mcServer);
+
+    Future<RowSet<Row>> getServerLocationById(MCServer mcServer);
     Future<RowSet<Row>> selectMCServerList();
     Future<RowSet<Row>> updateMCServerEnable(MCServer mcServer);
     Future<RowSet<Row>> updateMCServerInfo(MCServer mcServer);
