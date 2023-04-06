@@ -19,14 +19,14 @@ public class MCServerRoute extends AbstractRoute {
 
     // 修改服务器选项
     @Request(value = "/modifyServerOption", method = HttpMethod.POST)
-    public RoutingContext editServerOption(RoutingContext ctx, @RequestBody MCSetting setting) {
+    public RoutingContext editServerOption(RoutingContext ctx, @JsonData MCSetting setting) {
         serverService.setCoreSetting(setting, ar -> ctx.json(returnJson(ar.result())));
         return ctx;
     }
 
     // 修改MC服务器信息
     @Request(value = "/modifyServerInfo", method = HttpMethod.POST)
-    public RoutingContext editCoreSetting(RoutingContext ctx, @RequestBody MCServer mcServer) {
+    public RoutingContext editCoreSetting(RoutingContext ctx, @JsonData MCServer mcServer) {
         serverService.setServerSetting(mcServer, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
 
@@ -34,44 +34,84 @@ public class MCServerRoute extends AbstractRoute {
 
     // 根据服务器id查询全部设置
     @Request(value = "/getSettingList", method = HttpMethod.GET)
-    public RoutingContext getSetting(RoutingContext ctx,  MCSetting setting) {
+    public RoutingContext getSetting(RoutingContext ctx, MCSetting setting) {
         serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
         });
         return ctx;
     }
-    @Request(value = "/getConfigList",method = HttpMethod.GET)
-    public RoutingContext getConfigList(RoutingContext ctx,MCServer mcServer){
+
+    //获取全部配置文件
+    @Request(value = "/getConfigList", method = HttpMethod.GET)
+    public RoutingContext getConfigList(RoutingContext ctx, MCServer mcServer) {
         System.out.println(mcServer);
-        serverService.getConfigFileList(vertx,mcServer,ar->{
-            if (ar.succeeded()){
-                ctx.json(returnJson(200,ar.result()));
-            }else {
-                ctx.json(returnJson(500,"服务器错误"));
+        serverService.getConfigFileList(vertx, mcServer, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, "服务器错误"));
             }
         });
         return ctx;
     }
-    @Request(value = "/readConfig",method = HttpMethod.GET)
-    public RoutingContext readConfig(RoutingContext ctx, MCServer mcServer, MCServerConfigFile mcServerConfigFile){
 
-        serverService.readConfigFile(vertx,mcServer,mcServerConfigFile,ar->{
-            if (ar.succeeded()){
-                ctx.json(returnJson(200,ar.result()));
-            }else {
-                ctx.json(returnJson(500,"服务器错误"));
+    //读取配置文件
+    @Request(value = "/readConfig", method = HttpMethod.GET)
+    public RoutingContext readConfig(RoutingContext ctx, MCServer mcServer, MCServerConfigFile mcServerConfigFile) {
+        serverService.readConfigFile(vertx, mcServer, mcServerConfigFile, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, "服务器错误"));
             }
         });
         return ctx;
     }
-    @Request(value = "/getServerInfo/:id",method = HttpMethod.GET)
-    public RoutingContext getServerInfo(RoutingContext ctx){
 
-        ctx.json(new JsonObject().put("id",ctx.request().getParam("id")));
+    @Request(value = "/getServerInfo/:id", method = HttpMethod.GET)
+    public RoutingContext getServerInfo(RoutingContext ctx) {
+        ctx.json(new JsonObject().put("id", ctx.request().getParam("id")));
         return ctx;
     }
 
+    @Request(value = "/getPluginList", method = HttpMethod.GET)
+    public RoutingContext getPluginList(RoutingContext ctx, MCServer mcServer) {
+        serverService.getPluginList(vertx, mcServer, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, "服务器错误"));
+            }
+        });
+        return ctx;
+    }
+
+    @Request(value = "/enablePlugin", method = HttpMethod.POST)
+    public RoutingContext enablePlugin(RoutingContext ctx, @JsonData MCServer mcServer, @JsonData("plugin") String plugin) {
+        serverService.enablePlugins(vertx, mcServer, plugin, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, ar.cause().getMessage()));
+            }
+        });
+        return ctx;
+
+    }
+
+    @Request(value = "/disablePlugin", method = HttpMethod.POST)
+    public RoutingContext disablePlugin(RoutingContext ctx, @JsonData MCServer mcServer, @JsonData("plugin") String plugin) {
+        serverService.disablePlugins(vertx, mcServer, plugin, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, (ar.cause().getCause())));
+            }
+        });
+        return ctx;
+
+    }
 
     // 开启MC服务器
     @Request(value = "/start", method = HttpMethod.POST)

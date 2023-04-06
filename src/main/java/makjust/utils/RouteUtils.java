@@ -242,13 +242,21 @@ public class RouteUtils {
                             Class<?> paramType = paramTypes[i];
                             // @RequestBody数据解析
                             List<? extends Class<? extends Annotation>> parameterAnnotation = Arrays.stream(parameterAnnotations[i]).map(Annotation::annotationType).collect(Collectors.toList());
-                            if (parameterAnnotation.contains(RequestBody.class)) {
-                                String bodyAsString = ctx.body().asString();
-                                if (bodyAsString == null) {
-                                    argValues[i] = null;
-                                } else {
-                                    argValues[i] = Json.decodeValue(bodyAsString, paramType);
+                            if (parameterAnnotation.contains(JsonData.class)) {
+                                JsonObject jsonObject = ctx.body().asJsonObject();
+                                for (int j = 0; j < parameterAnnotations[i].length; j++) {
+                                    if (parameterAnnotations[i][j].annotationType() == JsonData.class) {
+                                        JsonData jsonData = (JsonData) parameterAnnotations[i][j];
+                                        Type[] genericParameterTypes = method.getGenericParameterTypes();
+                                        if (jsonData.value().isEmpty()) {
+                                            System.out.println(paramType.getSimpleName());
+                                            argValues[i] = parseSimpleTypeOrArrayOrCollection(jsonObject, paramType, paramType.getSimpleName(), genericParameterTypes[i]);
+                                        } else {
+                                            argValues[i] = parseSimpleTypeOrArrayOrCollection(jsonObject, paramType, jsonData.value(), genericParameterTypes[i]);
+                                        }
+                                    }
                                 }
+
                             }
                             // special type
                             else if (paramType == RoutingContext.class) {
@@ -337,6 +345,39 @@ public class RouteUtils {
         }
 
         return null;
+    }
+
+    /**
+     * 解析简单类型以及对应的集合或数组类型
+     *
+     * @param object                Json数据
+     * @param paramType             参数类型
+     * @param paramName             参数名称
+     * @param genericParameterTypes 泛型化参数类型
+     */
+    private Object parseSimpleTypeOrArrayOrCollection(JsonObject object, Class<?> paramType, String
+            paramName, Type genericParameterTypes) throws Throwable {
+        // Array type
+        if (paramType.isArray()) {
+            Class<?> componentType = paramType.getComponentType();
+            List<?> values = object.getJsonArray(paramName).getList();
+            Object array = Array.newInstance(componentType, values.size());
+            for (int j = 0; j < values.size(); j++) {
+                Array.set(array, j, parseSimpleType((String) values.get(j), componentType));
+            }
+            // 数组元素类型
+            return array;
+        }
+        // Collection type
+        else if (Collection.class.isAssignableFrom(paramType)) {
+            return parseCollectionType(cast(object.getJsonArray(paramName).getList()), genericParameterTypes);
+        }
+        // String and primitive type
+        else if (isStringOrPrimitiveType(paramType)) {
+            return parseSimpleType(object.getString(paramName), paramType);
+        } else {
+            return object.getJsonObject(paramName).mapTo(paramType);
+        }
     }
 
     /**
