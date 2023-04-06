@@ -106,31 +106,110 @@ public class MCServerServiceImpl implements MCServerService {
                 if (server != null && server.getLocation() != null) {
                     JsonObject translate = new JsonObject();
                     JsonObject jsonObject = new JsonObject();
-                    Future<Buffer> fileFuture=fileSystem.readFile(SysConfig.getCorePath(server.getLocation()) + configFile.getFileName());
-                    Future<Buffer> translateFuture=fileSystem.readFile(SysConfig.getTranslateFile(configFile.getFileName()));
-                    CompositeFuture.all(fileFuture,translateFuture).onSuccess(handler->{
-                        Buffer fileBuffer=handler.resultAt(0);
-                        Buffer translateBuffer=handler.resultAt(1);
-                        if (configFile.getFileName().contains("properties")||configFile.getFileName().contains("eula.txt")) {
-                            try {
-                                Properties properties = new Properties();
-                                properties.load(new StringReader(fileBuffer.toString()));
-                                Map<String, String> map = Maps.fromProperties(properties);
-                                jsonObject.mergeIn(JsonObject.mapFrom(map));
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        } else {
-                            Yaml yaml = new Yaml();
-                            jsonObject.mergeIn(JsonObject.mapFrom(yaml.load(fileBuffer.toString())));
-                        }
-                        translate.mergeIn(translateBuffer.toJsonObject());
-                    }).onFailure(Throwable::printStackTrace)
+                    Future<Buffer> fileFuture = fileSystem.readFile(SysConfig.getCorePath(server.getLocation()) + configFile.getFileName());
+                    Future<Buffer> translateFuture = fileSystem.readFile(SysConfig.getTranslateFile(configFile.getFileName()));
+                    CompositeFuture.all(fileFuture, translateFuture).onSuccess(handler -> {
+                                Buffer fileBuffer = handler.resultAt(0);
+                                Buffer translateBuffer = handler.resultAt(1);
+                                if (configFile.getFileName().contains("properties") || configFile.getFileName().contains("eula.txt")) {
+                                    try {
+                                        Properties properties = new Properties();
+                                        properties.load(new StringReader(fileBuffer.toString()));
+                                        Map<String, String> map = Maps.fromProperties(properties);
+                                        jsonObject.mergeIn(JsonObject.mapFrom(map));
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                } else {
+                                    Yaml yaml = new Yaml();
+                                    jsonObject.mergeIn(JsonObject.mapFrom(yaml.load(fileBuffer.toString())));
+                                }
+                                translate.mergeIn(translateBuffer.toJsonObject());
+                            }).onFailure(Throwable::printStackTrace)
                             .onComplete(compositeFutureAsyncResult -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", new JsonObject().put("config", jsonObject).put("translate", translate)))));
                 }
 
             });
         }
+    }
+
+    @Override
+    public void getPluginList(Vertx vertx, MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
+        mcServerDao.getServerLocationById(mcServer).onSuccess(rows -> {
+            MCServer server = DBPool.objectMapping(MCServer.class, rows);
+            if (server != null && server.getLocation() != null) {
+                vertx.fileSystem().readDir(SysConfig.getCorePath(server.getLocation()) + "/plugins", "\\w*.\\w*.(jar|disabled|disabled)").onSuccess(list -> {
+                    JsonObject object = new JsonObject();
+                    list.replaceAll(f -> f.substring(f.lastIndexOf("\\") + 1));
+                    object.put("data", list);
+                    resultHandler.handle(Future.succeededFuture(object));
+                });
+            }
+        }).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture(throwable));
+        });
+    }
+
+    @Override
+    public void disablePlugins(Vertx vertx, MCServer mcServer, String plugin, Handler<AsyncResult<JsonObject>> resultHandler) {
+        FileSystem fs = vertx.fileSystem();
+        mcServerDao.getServerLocationById(mcServer).onSuccess(rows -> {
+            MCServer server = DBPool.objectMapping(MCServer.class, rows);
+            if (server != null && server.getLocation() != null) {
+                String pluginPath = SysConfig.getCorePath(server.getLocation()) + "/plugins/" + plugin;
+                fs.exists(pluginPath).onSuccess(exist -> {
+                    if (exist) {
+                        fs.move(pluginPath, pluginPath + ".disabled").onSuccess(handler -> {
+                            resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin + "已禁用")));
+                        }).onFailure(e -> {
+                            e.printStackTrace();
+                            resultHandler.handle(Future.failedFuture("禁用失败"));
+                        });
+                    } else {
+                        resultHandler.handle(Future.failedFuture("禁用失败"));
+                    }
+                });
+            }
+        }).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture(throwable));
+        });
+    }
+
+    @Override
+    public void enablePlugins(Vertx vertx, MCServer mcServer, String plugin, Handler<AsyncResult<JsonObject>> resultHandler) {
+        FileSystem fs = vertx.fileSystem();
+        mcServerDao.getServerLocationById(mcServer).onSuccess(rows -> {
+            MCServer server = DBPool.objectMapping(MCServer.class, rows);
+            if (server != null && server.getLocation() != null) {
+                //被禁用的插件名
+                String pluginPath = SysConfig.getCorePath(server.getLocation()) + "/plugins/" + plugin;
+                //开启后的地址
+                String enablePluginPath = pluginPath.replace(".disabled", "");
+                fs.exists(pluginPath).onSuccess(exist -> {
+                    if (exist) {
+                        fs.move(pluginPath, enablePluginPath).onSuccess(handler -> {
+                            resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin.replace(".disabled", "") + "已启用")));
+                        }).onFailure(e -> {
+                            e.printStackTrace();
+                            resultHandler.handle(Future.failedFuture("启用失败"));
+                        });
+                    } else {
+                        fs.exists(enablePluginPath).onSuccess(pluginExist -> {
+                            if (pluginExist) {
+                                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", pluginPath.replace(".disabled", "") + "已启用")));
+                            } else {
+                                resultHandler.handle(Future.failedFuture("启用失败,可能是插件不存在"));
+                            }
+                        });
+                    }
+                });
+            }
+        }).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture("启用失败"));
+        });
     }
 
     @Override
