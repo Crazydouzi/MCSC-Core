@@ -4,7 +4,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import makjust.annotation.HttpMethod;
 import makjust.annotation.Request;
-import makjust.annotation.RequestBody;
+import makjust.annotation.JsonData;
 import makjust.annotation.RoutePath;
 import makjust.entity.User;
 import makjust.service.UserService;
@@ -15,7 +15,7 @@ public class UserRoute extends AbstractRoute{
     private final UserService userService=new UserServiceImpl();
     // 用户登录
     @Request(value = "/userLogin",method = HttpMethod.POST)
-    public RoutingContext userLogin(RoutingContext ctx,@RequestBody User user) {
+    public RoutingContext userLogin(RoutingContext ctx,@JsonData User user) {
         userService.userLogin(vertx, user, ar -> {
             if (ar.result().getString("msg").equals("登录成功")) {
                 ctx.response().setStatusCode(200);
@@ -34,7 +34,7 @@ public class UserRoute extends AbstractRoute{
     }
     // 修改用户信息
     @Request(value = "/userUpdate",method = HttpMethod.POST)
-    public RoutingContext userUpdate(RoutingContext ctx,@RequestBody User user) {
+    public RoutingContext userUpdate(RoutingContext ctx,@JsonData User user) {
         userService.modifyUser(vertx,user,ar-> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
@@ -52,12 +52,12 @@ public class UserRoute extends AbstractRoute{
 
     // session认证
     @Request(value = "/userAuth", method = HttpMethod.POST,async = false)
-    public JsonObject sessionAuth(RoutingContext ctx,@RequestBody User user) {
+    public JsonObject sessionAuth(RoutingContext ctx,@JsonData User user) {
         User u = ctx.session().get("User");
         return new JsonObject().put("data", u.equals(user));
     }
     // 远程认证
-    public JsonObject RemoteAuth(@RequestBody  User user){
+    public JsonObject RemoteAuth(@JsonData User user){
         return new JsonObject();
     }
 

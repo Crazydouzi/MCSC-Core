@@ -4,7 +4,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import makjust.annotation.HttpMethod;
 import makjust.annotation.Request;
-import makjust.annotation.RequestBody;
+import makjust.annotation.JsonData;
 import makjust.annotation.RoutePath;
 import makjust.entity.MCServer;
 import makjust.service.MCServerService;
@@ -26,13 +26,11 @@ public class MCVersionRoute extends AbstractRoute {
     @Request(value = "/enableServerInfo",method = HttpMethod.GET)
     public RoutingContext getEnableServer(RoutingContext ctx){
 
-        mcServerService.getEnableServer(ar->{
-            ctx.json(returnJson(200,ar.result()));
-        });
+        mcServerService.getEnableServer(ar-> ctx.json(returnJson(200,ar.result())));
         return ctx;
     }
     @Request(value = "/changeVersion", method = HttpMethod.POST)
-    public RoutingContext changeVersion(RoutingContext ctx,@RequestBody MCServer server){
+    public RoutingContext changeVersion(RoutingContext ctx,@JsonData MCServer server){
         versionService.changeEnableVersion(server,ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
