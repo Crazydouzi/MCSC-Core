@@ -2,10 +2,7 @@ package makjust.route;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import makjust.annotation.HttpMethod;
-import makjust.annotation.Request;
-import makjust.annotation.JsonData;
-import makjust.annotation.RoutePath;
+import makjust.annotation.*;
 import makjust.entity.User;
 import makjust.service.UserService;
 import makjust.service.impl.UserServiceImpl;
