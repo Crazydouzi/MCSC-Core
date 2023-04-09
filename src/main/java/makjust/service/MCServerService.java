@@ -27,6 +27,8 @@ public interface MCServerService {
     void disablePlugins(Vertx vertx,MCServer mcServer,String plugin,Handler<AsyncResult<JsonObject>> resultHandler);
     //启用插件(修改文件名后缀无)
     void enablePlugins(Vertx vertx,MCServer mcServer,String plugin,Handler<AsyncResult<JsonObject>> resultHandler);
+    //删除插件
+    void deletePlugins(Vertx vertx,MCServer mcServer,String plugin,Handler<AsyncResult<JsonObject>> resultHandler);
     //插件上传
     //开启服务器
     void serverStart(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler);

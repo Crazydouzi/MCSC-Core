@@ -138,7 +138,7 @@ public class MCServerServiceImpl implements MCServerService {
         mcServerDao.getServerLocationById(mcServer).onSuccess(rows -> {
             MCServer server = DBPool.objectMapping(MCServer.class, rows);
             if (server != null && server.getLocation() != null) {
-                vertx.fileSystem().readDir(SysConfig.getCorePath(server.getLocation()) + "/plugins", "\\w*.\\w*.(jar|disabled|disabled)").onSuccess(list -> {
+                vertx.fileSystem().readDir(SysConfig.getCorePath(server.getLocation()) + "/plugins", "\\w*.*.(jar|disabled|disabled)").onSuccess(list -> {
                     JsonObject object = new JsonObject();
                     list.replaceAll(f -> f.substring(f.lastIndexOf("\\") + 1));
                     object.put("data", list);
@@ -160,9 +160,7 @@ public class MCServerServiceImpl implements MCServerService {
                 String pluginPath = SysConfig.getCorePath(server.getLocation()) + "/plugins/" + plugin;
                 fs.exists(pluginPath).onSuccess(exist -> {
                     if (exist) {
-                        fs.move(pluginPath, pluginPath + ".disabled").onSuccess(handler -> {
-                            resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin + "已禁用")));
-                        }).onFailure(e -> {
+                        fs.move(pluginPath, pluginPath + ".disabled").onSuccess(handler -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin + "已禁用")))).onFailure(e -> {
                             e.printStackTrace();
                             resultHandler.handle(Future.failedFuture("禁用失败"));
                         });
@@ -189,9 +187,7 @@ public class MCServerServiceImpl implements MCServerService {
                 String enablePluginPath = pluginPath.replace(".disabled", "");
                 fs.exists(pluginPath).onSuccess(exist -> {
                     if (exist) {
-                        fs.move(pluginPath, enablePluginPath).onSuccess(handler -> {
-                            resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin.replace(".disabled", "") + "已启用")));
-                        }).onFailure(e -> {
+                        fs.move(pluginPath, enablePluginPath).onSuccess(handler -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin.replace(".disabled", "") + "已启用")))).onFailure(e -> {
                             e.printStackTrace();
                             resultHandler.handle(Future.failedFuture("启用失败"));
                         });
@@ -209,6 +205,39 @@ public class MCServerServiceImpl implements MCServerService {
         }).onFailure(throwable -> {
             throwable.printStackTrace();
             resultHandler.handle(Future.failedFuture("启用失败"));
+        });
+    }
+
+    @Override
+    public void deletePlugins(Vertx vertx, MCServer mcServer, String plugin, Handler<AsyncResult<JsonObject>> resultHandler) {
+        FileSystem fs = vertx.fileSystem();
+        mcServerDao.getServerLocationById(mcServer).onSuccess(rows -> {
+            MCServer server = DBPool.objectMapping(MCServer.class, rows);
+            if (server != null && server.getLocation() != null) {
+                //被禁用的插件名
+                String pluginPath = SysConfig.getCorePath(server.getLocation()) + "/plugins/" + plugin;
+                //开启后的地址
+                String enablePluginPath = pluginPath.replace(".disabled", "");
+                fs.exists(pluginPath).onSuccess(exist -> {
+                    if (exist) {
+                        fs.delete(pluginPath).onSuccess(handler -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin.replace(".disabled", "") + "已删除")))).onFailure(e -> {
+                            e.printStackTrace();
+                            resultHandler.handle(Future.failedFuture("删除失败,可能是插件不存在"));
+                        });
+                    } else {
+                        fs.exists(enablePluginPath).onSuccess(pluginExist -> {
+                            if (pluginExist) {
+                                fs.delete(enablePluginPath).onSuccess(handler -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", plugin.replace(".disabled", "") + "已删除"))));
+                            } else {
+                                resultHandler.handle(Future.failedFuture("删除失败,可能是插件不存在"));
+                            }
+                        });
+                    }
+                });
+            }
+        }).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture("删除失败"));
         });
     }
 

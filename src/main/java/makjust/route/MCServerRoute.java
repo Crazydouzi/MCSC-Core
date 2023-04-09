@@ -44,7 +44,7 @@ public class MCServerRoute extends AbstractRoute {
 
     //获取全部配置文件
     @Request(value = "/getConfigList", method = HttpMethod.GET)
-    public RoutingContext getConfigList(RoutingContext ctx, MCServer mcServer) {
+    public RoutingContext getConfigList(RoutingContext ctx, @RequestParam MCServer mcServer) {
         System.out.println(mcServer);
         serverService.getConfigFileList(vertx, mcServer, ar -> {
             if (ar.succeeded()) {
@@ -58,7 +58,7 @@ public class MCServerRoute extends AbstractRoute {
 
     //读取配置文件
     @Request(value = "/readConfig", method = HttpMethod.GET)
-    public RoutingContext readConfig(RoutingContext ctx, MCServer mcServer, MCServerConfigFile mcServerConfigFile) {
+    public RoutingContext readConfig(RoutingContext ctx, @RequestParam MCServer mcServer, @RequestParam MCServerConfigFile mcServerConfigFile) {
         serverService.readConfigFile(vertx, mcServer, mcServerConfigFile, ar -> {
             if (ar.succeeded()) {
                 ctx.json(returnJson(200, ar.result()));
@@ -88,20 +88,23 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     @Request(value = "/enablePlugin", method = HttpMethod.POST)
-    public RoutingContext enablePlugin(RoutingContext ctx, @JsonData MCServer mcServer, @JsonData("plugin") String plugin) {
-        serverService.enablePlugins(vertx, mcServer, plugin, ar -> {
-            if (ar.succeeded()) {
-                ctx.json(returnJson(200, ar.result()));
-            } else {
-                ctx.json(returnJson(500, ar.cause().getMessage()));
-            }
-        });
+    public RoutingContext enablePlugin(RoutingContext ctx, @JsonData("MCServer") MCServer mcServer, @JsonData("plugin") String plugin) {
+        System.out.println(mcServer);
+        System.out.println(plugin);
+//        serverService.enablePlugins(vertx, mcServer, plugin, ar -> {
+//            if (ar.succeeded()) {
+//                ctx.json(returnJson(200, ar.result()));
+//            } else {
+//                ctx.json(returnJson(500, ar.cause().getMessage()));
+//            }
+//        });
+        ctx.json(null);
         return ctx;
 
     }
 
     @Request(value = "/disablePlugin", method = HttpMethod.POST)
-    public RoutingContext disablePlugin(RoutingContext ctx, @JsonData MCServer mcServer, @JsonData("plugin") String plugin) {
+    public RoutingContext disablePlugin(RoutingContext ctx, @JsonData("MCServer") MCServer mcServer, @JsonData("plugin") String plugin) {
         serverService.disablePlugins(vertx, mcServer, plugin, ar -> {
             if (ar.succeeded()) {
                 ctx.json(returnJson(200, ar.result()));
@@ -110,7 +113,18 @@ public class MCServerRoute extends AbstractRoute {
             }
         });
         return ctx;
+    }
 
+    @Request(value = "/deletePlugin", method = HttpMethod.DELETE)
+    public RoutingContext deletePlugin(RoutingContext ctx, MCServer mcServer, String plugin) {
+        serverService.deletePlugins(vertx, mcServer, plugin, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, (ar.cause().getCause())));
+            }
+        });
+        return ctx;
     }
 
     // 开启MC服务器
