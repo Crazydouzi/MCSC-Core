@@ -4,6 +4,6 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-public @interface JsonData{
+public @interface RequestParam {
     String value() default "";
 }
