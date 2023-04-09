@@ -1,5 +1,7 @@
 package makjust.utils;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.Primitives;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -7,6 +9,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
@@ -40,6 +43,7 @@ public class RouteUtils {
     private final Router router;
     private final SockJSHandlerOptions options = new SockJSHandlerOptions();
     private final HttpServer server;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public RouteUtils(Vertx vertx) {
         this.vertx = vertx;
@@ -184,6 +188,7 @@ public class RouteUtils {
         ClassPool classPool = ClassPool.getDefault();
         classPool.insertClassPath(new ClassClassPath(clazz));
         CtClass cc = classPool.get(clazz.getName());
+        System.out.println(classPool);
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if (!((method.isAnnotationPresent(Request.class) || method.isAnnotationPresent(SockJSSocket.class) || method.isAnnotationPresent(WebSocket.class)))) {
@@ -237,43 +242,56 @@ public class RouteUtils {
                         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
                         List<FileUpload> uploads = ctx.fileUploads();
                         Map<String, FileUpload> uploadMap = uploads.stream().collect(Collectors.toMap(FileUpload::name, x -> x));
-
                         for (int i = 0; i < argValues.length; i++) {
                             Class<?> paramType = paramTypes[i];
-                            // @RequestBody数据解析
-                            List<? extends Class<? extends Annotation>> parameterAnnotation = Arrays.stream(parameterAnnotations[i]).map(Annotation::annotationType).collect(Collectors.toList());
-                            if (parameterAnnotation.contains(JsonData.class)) {
+                            JsonData jsonData = null;
+                            RequestParam requestParam = null;
+                            for (int j = 0; j < parameterAnnotations[i].length; j++) {
+                                if (parameterAnnotations[i][j].annotationType() == JsonData.class) {
+                                    jsonData = (JsonData) parameterAnnotations[i][j];
+                                } else if (parameterAnnotations[i][j].annotationType() == RequestParam.class) {
+                                    requestParam = (RequestParam) parameterAnnotations[i][j];
+                                }
+                            }
+                            if (jsonData != null) {
                                 JsonObject jsonObject = ctx.body().asJsonObject();
-                                for (int j = 0; j < parameterAnnotations[i].length; j++) {
-                                    if (parameterAnnotations[i][j].annotationType() == JsonData.class) {
-                                        JsonData jsonData = (JsonData) parameterAnnotations[i][j];
+                                Type[] genericParameterTypes = method.getGenericParameterTypes();
+                                if (jsonData.value().isEmpty()) {
+                                    argValues[i] = parseSimpleTypeOrArrayOrCollection(jsonObject, paramType, paramNames[i], genericParameterTypes[i]);
+                                } else {
+                                    argValues[i] = parseSimpleTypeOrArrayOrCollection(jsonObject, paramType, jsonData.value(), genericParameterTypes[i]);
+                                }
+                            } else if (requestParam != null) {
+                                if (requestParam.value().isEmpty()) {
+                                    //FileType
+                                    if (paramType == FileUpload.class) {
+                                        argValues[i] = uploadMap.get(requestParam.value());
+                                        //Normal Type
+                                    } else if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)) {
                                         Type[] genericParameterTypes = method.getGenericParameterTypes();
-                                        if (jsonData.value().isEmpty()) {
-                                            System.out.println(paramType.getSimpleName());
-                                            argValues[i] = parseSimpleTypeOrArrayOrCollection(jsonObject, paramType, paramType.getSimpleName(), genericParameterTypes[i]);
-                                        } else {
-                                            argValues[i] = parseSimpleTypeOrArrayOrCollection(jsonObject, paramType, jsonData.value(), genericParameterTypes[i]);
-                                        }
+                                        argValues[i] = parseSimpleTypeOrArrayOrCollection(params, paramType, requestParam.value(), genericParameterTypes[i]);
+                                    } else {
+                                        argValues[i] = parseBeanType(params, paramType);
+                                    }
+                                } else {
+                                    if (paramType == FileUpload.class) {
+                                        argValues[i] = uploadMap.get(paramNames[i]);
+                                        //Normal Type
+                                    } else if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)) {
+                                        Type[] genericParameterTypes = method.getGenericParameterTypes();
+                                        argValues[i] = parseSimpleTypeOrArrayOrCollection(params, paramType, paramNames[i], genericParameterTypes[i]);
+                                    } else {
+                                        argValues[i] = parseBeanType(params, paramType);
                                     }
                                 }
-
                             }
                             // special type
                             else if (paramType == RoutingContext.class) {
                                 argValues[i] = ctx;
                             } else if (paramType == Vertx.class) {
                                 argValues[i] = vertx;
-                            } else if (paramType == FileUpload.class) {
-                                argValues[i] = uploadMap.get(paramNames[i]);
-                            }
-                            // Normal Type
-                            else if (paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)) {
-                                Type[] genericParameterTypes = method.getGenericParameterTypes();
-                                argValues[i] = parseSimpleTypeOrArrayOrCollection(params, paramType, paramNames[i], genericParameterTypes[i]);
-                            }
-                            // POJO Bean
-                            else {
-                                argValues[i] = parseBeanType(params, paramType);
+                            } else {
+                                argValues[i] = null;
                             }
                         }
                         //异步处理
@@ -323,60 +341,57 @@ public class RouteUtils {
      */
     private Object parseSimpleTypeOrArrayOrCollection(MultiMap allParams, Class<?> paramType, String
             paramName, Type genericParameterTypes) throws Throwable {
-        // Array type
-        if (paramType.isArray()) {
-            // 数组元素类型
-            Class<?> componentType = paramType.getComponentType();
+        if (allParams.get(paramName) == null) {
+            return null;
+        } else if (paramType.isArray() || Collection.class.isAssignableFrom(paramType)) {
 
-            List<String> values = allParams.getAll(paramName);
-            Object array = Array.newInstance(componentType, values.size());
-            for (int j = 0; j < values.size(); j++) {
-                Array.set(array, j, parseSimpleType(values.get(j), componentType));
-            }
-            return array;
+            JavaType javaType = mapper.getTypeFactory().constructType(genericParameterTypes);
+            return mapper.readValue(allParams.get(paramName), javaType);
         }
-        // Collection type
-        else if (Collection.class.isAssignableFrom(paramType)) {
-            return parseCollectionType(allParams.getAll(paramName), genericParameterTypes);
+        // Json Type
+        else if (paramType == JsonObject.class || paramType == JsonArray.class) {
+            return Json.decodeValue(allParams.get(paramName));
         }
         // String and primitive type
         else if (isStringOrPrimitiveType(paramType)) {
             return parseSimpleType(allParams.get(paramName), paramType);
+        } else {
+            return null;
         }
-
-        return null;
     }
 
     /**
      * 解析简单类型以及对应的集合或数组类型
      *
-     * @param object                Json数据
-     * @param paramType             参数类型
-     * @param paramName             参数名称
-     * @param genericParameterTypes 泛型化参数类型
+     * @param object    Json数据
+     * @param paramType 参数类型
+     * @param paramName 参数名称
      */
     private Object parseSimpleTypeOrArrayOrCollection(JsonObject object, Class<?> paramType, String
-            paramName, Type genericParameterTypes) throws Throwable {
-        // Array type
-        if (paramType.isArray()) {
-            Class<?> componentType = paramType.getComponentType();
-            List<?> values = object.getJsonArray(paramName).getList();
-            Object array = Array.newInstance(componentType, values.size());
-            for (int j = 0; j < values.size(); j++) {
-                Array.set(array, j, parseSimpleType((String) values.get(j), componentType));
+            paramName, Type genericParameterTypes) {
+        try {
+            if (object.getValue(paramName) == null) {
+                return null;
             }
-            // 数组元素类型
-            return array;
-        }
-        // Collection type
-        else if (Collection.class.isAssignableFrom(paramType)) {
-            return parseCollectionType(cast(object.getJsonArray(paramName).getList()), genericParameterTypes);
-        }
-        // String and primitive type
-        else if (isStringOrPrimitiveType(paramType)) {
-            return parseSimpleType(object.getString(paramName), paramType);
-        } else {
-            return object.getJsonObject(paramName).mapTo(paramType);
+            // Array|Collection type
+            else if (paramType.isArray() || Collection.class.isAssignableFrom(paramType)) {
+                JavaType javaType = mapper.getTypeFactory().constructType(genericParameterTypes);
+                return mapper.readValue(object.getValue(paramName).toString(), javaType);
+            }
+            // String and primitive type
+            else if (isStringOrPrimitiveType(paramType)) {
+                return parseSimpleType(object.getString(paramName), paramType);
+            } else if (paramType == JsonArray.class) {
+                return object.getJsonArray(paramName);
+            }else if (paramType == JsonObject.class) {
+                return object.getJsonObject(paramName);
+            }
+            else {
+                return Json.decodeValue(object.getValue(paramName).toString(), paramType);
+            }
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            return null;
         }
     }
 
@@ -406,42 +421,6 @@ public class RouteUtils {
 
         return null;
     }
-
-    /**
-     * 解析集合类型
-     *
-     * @param values               请求参数值
-     * @param genericParameterType from Method::getGenericParameterTypes
-     */
-    private Collection<Object> parseCollectionType(List<String> values, Type genericParameterType) throws
-            Throwable {
-        Class<?> actualTypeArgument = String.class; // 无泛型参数默认用String类型
-        Class<?> rawType;
-        // 参数带泛型
-        if (genericParameterType instanceof ParameterizedType) {
-            ParameterizedType parameterType = (ParameterizedType) genericParameterType;
-            actualTypeArgument = (Class<?>) parameterType.getActualTypeArguments()[0];
-            rawType = (Class<?>) parameterType.getRawType();
-        } else {
-            rawType = (Class<?>) genericParameterType;
-        }
-
-        Collection<Object> coll;
-        if (rawType == List.class) {
-            coll = new ArrayList<>();
-        } else if (rawType == Set.class) {
-            coll = new HashSet<>();
-        } else {
-            coll = cast(rawType.getDeclaredConstructor().newInstance());
-//            coll = (Collection<Object>) rawType.getDeclaredConstructor().newInstance();
-        }
-
-        for (String value : values) {
-            coll.add(parseSimpleType(value, actualTypeArgument));
-        }
-        return coll;
-    }
-
     /**
      * 解析实体对象
      *
@@ -452,9 +431,9 @@ public class RouteUtils {
     private Object parseBeanType(MultiMap allParams, Class<?> paramType) throws Throwable {
         Object bean = paramType.getDeclaredConstructor().newInstance();
         Field[] fields = paramType.getDeclaredFields();
+        Object value;
         for (Field field : fields) {
-            Object value = parseSimpleTypeOrArrayOrCollection(allParams, field.getType(), field.getName(), field.getGenericType());
-
+            value = parseSimpleTypeOrArrayOrCollection(allParams, field.getType(), field.getName(), field.getGenericType());
             field.setAccessible(true);
             field.set(bean, value);
         }
