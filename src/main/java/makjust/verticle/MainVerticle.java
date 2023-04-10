@@ -1,7 +1,7 @@
 package makjust.verticle;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.handler.BodyHandler;
 import makjust.annotation.Deploy;
 import makjust.route.AbstractRoute;
 import makjust.utils.RouteUtils;
@@ -12,6 +12,7 @@ public class MainVerticle extends AbstractVerticle {
     @Override
     public void start(){
         AbstractRoute.vertx = vertx;
+        BodyHandler bodyHandler=BodyHandler.create().setUploadsDirectory(SysConfig.resourcesPath()+SysConfig.getConf("fileOptions.dir")).setDeleteUploadedFilesOnEnd((Boolean) SysConfig.getConf("fileOptions.deleteUploadedFilesOnEnd"));
         //扫描路由
         RouteUtils routeUtils = new RouteUtils(vertx);
         routeUtils.enableCORS();
@@ -20,8 +21,8 @@ public class MainVerticle extends AbstractVerticle {
         routeUtils.createLocalSession();
         if ((Boolean) SysConfig.getConf("enWeb")) routeUtils.setStaticRoute(SysConfig.getStaticPath(),"(?!/(api|ws))/.*");
         routeUtils.setVueRouteEnable("(?!/(api|ws))/.*");
-        routeUtils.mountAllRoute("/api/*","/ws/*");
-
+        routeUtils.mountAPIRoute("/api/*",bodyHandler);
+        routeUtils.mountWSRoute("/ws/*");
         routeUtils.startHttpServer(8080);
 
 

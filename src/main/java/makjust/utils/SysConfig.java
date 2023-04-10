@@ -34,7 +34,6 @@ public class SysConfig {
     public void ConfigInit(Vertx vertx) {
         Yaml yaml = new Yaml();
         Map<String, Object> ret = yaml.load(Vertx.vertx().fileSystem().readFileBlocking(getBasePath() + "resources/" + "config/config.yml").toString());
-        JsonObject.mapFrom(ret);
         object = JsonObject.mapFrom(ret);
     }
     //定位到MC服务器包下
@@ -67,13 +66,17 @@ public class SysConfig {
         }
     }
     public static Object getConf(String key) {
-        if (key.contains(".")){
-            String[] arg = key.split("\\.");
-            return object.getJsonObject(arg[0]).getString(arg[1]);
-        } else {
-            return object.getValue(key);
+        try {
+            if (key.contains(".")){
+                String[] arg = key.split("\\.");
+                return object.getJsonObject(arg[0]).getValue(arg[1]);
+            } else {
+                return object.getValue(key);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return "";
         }
-
     }
     public static String getTranslateFile(String fileName) {
         try {
