@@ -9,10 +9,7 @@ import makjust.pojo.User;
 import makjust.utils.DBPool;
 
 public class UserDaoImpl implements UserDao {
-    //    private Vertx vertx;
-//    public UserDaoImpl(Vertx vertx){
-//        this.vertx=vertx;
-//    }
+
     @Override
     public Future<RowSet<Row>> insertUser(Vertx vertx,User user) {
         return DBPool.insert("User", user);

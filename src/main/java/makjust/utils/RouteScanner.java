@@ -2,7 +2,6 @@ package makjust.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 import com.google.common.primitives.Primitives;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;

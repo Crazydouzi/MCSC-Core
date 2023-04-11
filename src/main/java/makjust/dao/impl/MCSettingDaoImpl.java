@@ -22,6 +22,6 @@ public class MCSettingDaoImpl implements MCSettingDao {
 
     @Override
     public Future<RowSet<Row>> insertSetting(MCSetting mcSetting) {
-        return null;
+        return DBPool.insert("mc_setting",mcSetting);
     }
 }

@@ -62,14 +62,17 @@ class Connect {
 
     @Test
     void insertTest() {
-        DBPool dbUtil = new DBPool();
         DBPool.conn(Vertx.vertx());
         JsonObject object = new JsonObject();
+        object.put("id",1);
         object.put("username", "test");
         object.put("pwd", "test");
         object.put("role", "r");
         DBPool.insert("user", object).onSuccess(ar -> {
-            System.out.println(DBPool.toJsonArray(ar));
+            for (Row row:ar){
+                System.out.println(row.toJson());
+            }
+            System.out.println(ar.rowCount());
         }).onComplete(ar -> {
             System.out.println(ar.result());
         }).onFailure(Throwable::printStackTrace);
