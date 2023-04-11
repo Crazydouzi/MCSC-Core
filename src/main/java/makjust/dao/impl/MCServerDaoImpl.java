@@ -39,4 +39,9 @@ public class MCServerDaoImpl implements MCServerDao {
     public Future<RowSet<Row>> updateMCServerInfo(MCServer mcServer) {
         return  DBPool.update("update mc_server set server_name=#{serverName},version=#{version},location=#{location} where id=#{id};", mcServer);
     }
+
+    @Override
+    public Future<RowSet<Row>> insertMCServer(MCServer mcServer) {
+        return DBPool.insert("mc_server",mcServer);
+    }
 }

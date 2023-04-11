@@ -50,16 +50,21 @@ public class MCVersionRoute extends AbstractRoute {
 
     //文件上传
     @Request(value = "/mcServerUpload", method = HttpMethod.POST)
-    public RoutingContext mcServerUpload(RoutingContext ctx, @RequestParam("MCServer")MCServer mcServer,@RequestParam("MCSetting") MCSetting mcSetting, @RequestParam("file") FileUpload file) {
+    public RoutingContext mcServerUpload(RoutingContext ctx, @RequestParam("MCServer") MCServer mcServer, @RequestParam("MCSetting") MCSetting mcSetting, @RequestParam("file") FileUpload file) {
 
-        ctx.json(new JsonObject().put("K", file.fileName()  ));
+        ctx.json(new JsonObject().put("K", file.fileName()));
         return ctx;
     }
+
     @Request(value = "/installRemoteMCServer", method = HttpMethod.POST)
-    public RoutingContext installRemoteMCServer(RoutingContext ctx, @JsonData("MCServer")MCServer mcServer, @JsonData("MCSetting") MCSetting mcSetting, @JsonData("versionInfo") RemoteVersionInfoDTO paperInfo) {
-        System.out.println(mcServer);
-        System.out.println(mcSetting);
-        System.out.println(paperInfo);
+    public RoutingContext installRemoteMCServer(RoutingContext ctx, @JsonData("MCServer") MCServer mcServer, @JsonData("MCSetting") MCSetting mcSetting, @JsonData("versionInfo") RemoteVersionInfoDTO versionInfo) {
+        versionService.installMCServerFromRemote(vertx, mcServer, mcSetting, versionInfo, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(ar.result()));
+            } else {
+                ctx.json(returnJson(500,ar.cause().getMessage()));
+            }
+        });
         return ctx;
     }
 

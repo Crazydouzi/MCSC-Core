@@ -13,4 +13,6 @@ public interface MCServerDao {
     Future<RowSet<Row>> selectMCServerList();
     Future<RowSet<Row>> updateMCServerEnable(MCServer mcServer);
     Future<RowSet<Row>> updateMCServerInfo(MCServer mcServer);
+    Future<RowSet<Row>> insertMCServer(MCServer mcServer);
+
 }
