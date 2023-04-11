@@ -4,7 +4,7 @@ import io.vertx.core.Future;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.MCServerDao;
-import makjust.entity.MCServer;
+import makjust.pojo.MCServer;
 import makjust.utils.DBPool;
 
 public class MCServerDaoImpl implements MCServerDao {

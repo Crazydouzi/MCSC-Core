@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import makjust.dao.MCServerDao;
 import makjust.dao.impl.MCServerDaoImpl;
-import makjust.entity.MCServer;
+import makjust.pojo.MCServer;
 import makjust.service.MCVersionService;
 import makjust.utils.DBPool;
 import makjust.utils.EnvOptions;

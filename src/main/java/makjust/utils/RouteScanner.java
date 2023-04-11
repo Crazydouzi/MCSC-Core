@@ -2,6 +2,7 @@ package makjust.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 import com.google.common.primitives.Primitives;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -239,7 +240,12 @@ public class RouteScanner {
             paramName, Type genericParameterTypes) {
         try {
             if (object.getValue(paramName) == null) {
-                return null;
+                System.out.println(11);
+                if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)){
+                    return null;
+                }else {
+                    return object.mapTo(paramType);
+                }
             }
             // Array|Collection type
             else if (paramType.isArray() || Collection.class.isAssignableFrom(paramType)) {

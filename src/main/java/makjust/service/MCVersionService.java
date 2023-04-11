@@ -4,7 +4,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import makjust.entity.MCServer;
+import makjust.pojo.MCServer;
 
 public interface MCVersionService {
     //获取已装版本

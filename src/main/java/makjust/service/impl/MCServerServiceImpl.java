@@ -14,9 +14,9 @@ import makjust.dao.MCSettingDao;
 import makjust.dao.impl.MCConfigFileDaoImpl;
 import makjust.dao.impl.MCServerDaoImpl;
 import makjust.dao.impl.MCSettingDaoImpl;
-import makjust.entity.MCServer;
-import makjust.entity.MCServerConfigFile;
-import makjust.entity.MCSetting;
+import makjust.pojo.MCServer;
+import makjust.pojo.MCServerConfigFile;
+import makjust.pojo.MCSetting;
 import makjust.serverCore.ProcessServer;
 import makjust.service.MCServerService;
 import makjust.utils.DBPool;
@@ -46,7 +46,13 @@ public class MCServerServiceImpl implements MCServerService {
     public void setServerSetting(MCServer mcServer, Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao
                 .updateMCServerInfo(mcServer)
-                .onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成").put("code", 200))))
+                .onSuccess(rows -> {
+                    if (rows.rowCount() > 0) {
+                        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "成功更新" + rows.rowCount() + "条记录")));
+                    } else {
+                        resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "更新失败")));
+                    }
+                })
                 .onFailure(e -> {
                     e.printStackTrace();
                     resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新失败").put("code", 500)));
@@ -56,7 +62,13 @@ public class MCServerServiceImpl implements MCServerService {
     @Override
     public void setCoreSetting(MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler) {
         mcSettingDao.updateSetting(setting)
-                .onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成"))))
+                .onSuccess(rows -> {
+                    if (rows.rowCount() > 0) {
+                        resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "成功更新" + rows.rowCount() + "条记录")));
+                    } else {
+                        resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "更新失败")));
+                    }
+                })
                 .onFailure(e -> {
                     resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "更新失败").put("data", e.toString())));
                     e.printStackTrace();
@@ -257,8 +269,8 @@ public class MCServerServiceImpl implements MCServerService {
                         File location = new File(DIR + mcServer.getLocation());
                         System.out.println(location.exists());
                         if (location.exists() && rows.iterator().hasNext()) {
-                            MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
                             try {
+//                            MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
 //                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
                                 /*
                                  * 用于测试CMD使用

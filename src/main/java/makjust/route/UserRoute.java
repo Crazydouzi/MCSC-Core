@@ -3,7 +3,7 @@ package makjust.route;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import makjust.annotation.*;
-import makjust.entity.User;
+import makjust.pojo.User;
 import makjust.service.UserService;
 import makjust.service.impl.UserServiceImpl;
 

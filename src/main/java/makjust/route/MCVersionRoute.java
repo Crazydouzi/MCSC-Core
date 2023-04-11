@@ -4,7 +4,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import makjust.annotation.*;
-import makjust.entity.MCServer;
+import makjust.dto.RemoteVersionInfoDTO;
+import makjust.pojo.MCServer;
+import makjust.pojo.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.MCVersionService;
 import makjust.service.impl.MCServerServiceImpl;
@@ -47,9 +49,17 @@ public class MCVersionRoute extends AbstractRoute {
 
 
     //文件上传
-    @Request(value = "/MCServerUpload", method = HttpMethod.POST)
-    public RoutingContext MCServerUpload(RoutingContext ctx, @RequestParam("object") JsonObject object, @RequestParam("file") FileUpload file, @RequestParam("file2") FileUpload file2) {
-        ctx.json(new JsonObject().put("K", "OK"));
+    @Request(value = "/mcServerUpload", method = HttpMethod.POST)
+    public RoutingContext mcServerUpload(RoutingContext ctx, @RequestParam("MCServer")MCServer mcServer,@RequestParam("MCSetting") MCSetting mcSetting, @RequestParam("file") FileUpload file) {
+
+        ctx.json(new JsonObject().put("K", file.fileName()  ));
+        return ctx;
+    }
+    @Request(value = "/installRemoteMCServer", method = HttpMethod.POST)
+    public RoutingContext installRemoteMCServer(RoutingContext ctx, @JsonData("MCServer")MCServer mcServer, @JsonData("MCSetting") MCSetting mcSetting, @JsonData("versionInfo") RemoteVersionInfoDTO paperInfo) {
+        System.out.println(mcServer);
+        System.out.println(mcSetting);
+        System.out.println(paperInfo);
         return ctx;
     }
 

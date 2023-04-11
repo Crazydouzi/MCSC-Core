@@ -4,9 +4,9 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import makjust.entity.MCServer;
-import makjust.entity.MCServerConfigFile;
-import makjust.entity.MCSetting;
+import makjust.pojo.MCServer;
+import makjust.pojo.MCServerConfigFile;
+import makjust.pojo.MCSetting;
 
 public interface MCServerService {
     //核心基本配置设定

@@ -3,7 +3,7 @@ package makjust.dao;
 import io.vertx.core.Future;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
-import makjust.entity.MCSetting;
+import makjust.pojo.MCSetting;
 
 public interface MCSettingDao {
     Future<RowSet<Row>> getSettingById(Integer id);

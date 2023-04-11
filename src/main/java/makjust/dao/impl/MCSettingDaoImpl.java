@@ -5,7 +5,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.MCSettingDao;
-import makjust.entity.MCSetting;
+import makjust.pojo.MCSetting;
 import makjust.utils.DBPool;
 
 public class MCSettingDaoImpl implements MCSettingDao {

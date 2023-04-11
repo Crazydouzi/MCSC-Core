@@ -1,7 +1,7 @@
 package DBTest;
 
 import io.vertx.core.json.JsonObject;
-import makjust.entity.User;
+import makjust.pojo.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

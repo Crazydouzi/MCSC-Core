@@ -5,9 +5,9 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
-import makjust.entity.MCServer;
-import makjust.entity.MCServerConfigFile;
-import makjust.entity.MCSetting;
+import makjust.pojo.MCServer;
+import makjust.pojo.MCServerConfigFile;
+import makjust.pojo.MCSetting;
 import makjust.service.MCServerService;
 import makjust.service.impl.MCServerServiceImpl;
 import makjust.utils.EnvOptions;
@@ -34,7 +34,7 @@ public class MCServerRoute extends AbstractRoute {
 
     // 根据服务器id查询全部设置
     @Request(value = "/getSettingList", method = HttpMethod.GET)
-    public RoutingContext getSetting(RoutingContext ctx, MCSetting setting) {
+    public RoutingContext getSetting(RoutingContext ctx, @JsonData MCSetting setting) {
         serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
@@ -76,7 +76,7 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     @Request(value = "/getPluginList", method = HttpMethod.GET)
-    public RoutingContext getPluginList(RoutingContext ctx, MCServer mcServer) {
+    public RoutingContext getPluginList(RoutingContext ctx, @JsonData MCServer mcServer) {
         serverService.getPluginList(vertx, mcServer, ar -> {
             if (ar.succeeded()) {
                 ctx.json(returnJson(200, ar.result()));
@@ -91,13 +91,13 @@ public class MCServerRoute extends AbstractRoute {
     public RoutingContext enablePlugin(RoutingContext ctx, @JsonData("MCServer") MCServer mcServer, @JsonData("plugin") String plugin) {
         System.out.println(mcServer);
         System.out.println(plugin);
-//        serverService.enablePlugins(vertx, mcServer, plugin, ar -> {
-//            if (ar.succeeded()) {
-//                ctx.json(returnJson(200, ar.result()));
-//            } else {
-//                ctx.json(returnJson(500, ar.cause().getMessage()));
-//            }
-//        });
+        serverService.enablePlugins(vertx, mcServer, plugin, ar -> {
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, ar.cause().getMessage()));
+            }
+        });
         ctx.json(null);
         return ctx;
 

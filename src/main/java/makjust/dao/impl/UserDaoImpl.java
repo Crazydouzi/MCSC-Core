@@ -2,11 +2,10 @@ package makjust.dao.impl;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.UserDao;
-import makjust.entity.User;
+import makjust.pojo.User;
 import makjust.utils.DBPool;
 
 public class UserDaoImpl implements UserDao {

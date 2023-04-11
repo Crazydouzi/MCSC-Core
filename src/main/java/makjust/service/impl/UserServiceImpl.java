@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import makjust.dao.UserDao;
 import makjust.dao.impl.UserDaoImpl;
-import makjust.entity.User;
+import makjust.pojo.User;
 import makjust.service.UserService;
 
 public class UserServiceImpl implements UserService {
