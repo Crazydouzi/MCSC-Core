@@ -133,8 +133,12 @@ public class DBPool {
             return Future.failedFuture("Query is null or empty");
         }
         String key = param.getMap().keySet().toString().replace("[", "(").replace("]", ")").replace(" ", "");
-        String query = "insert into " + table + key + " VALUES " + key.replaceAll("([A-Za-z0-9]+)\\b", "?");
+        String query = "insert into " + table +toSnakeCase (key) + " VALUES " + key.replaceAll("([A-Za-z0-9]+)\\b", "?");
+        System.out.println(query);
         return pool.preparedQuery(query).execute(Tuple.tuple(new ArrayList<>(param.getMap().values())));
+    }
+    public static Future<RowSet<Row>> getLastRowId(){
+        return executeRowSQL("select last_insert_rowid() id;");
     }
 
     public static Future<RowSet<Row>> insert(String table, Object param) {
