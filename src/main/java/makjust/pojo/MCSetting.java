@@ -10,6 +10,11 @@ import lombok.Data;
 //@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 
 public class MCSetting {
+    {
+        this.javaVersion="java";
+        this.memMin="1G";
+        this.memMax="2G";
+    }
     private Integer id;
     private Integer serverId;
     private String javaVersion;

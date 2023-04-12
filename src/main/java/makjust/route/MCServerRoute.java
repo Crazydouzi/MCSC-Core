@@ -76,7 +76,7 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     @Request(value = "/getPluginList", method = HttpMethod.GET)
-    public RoutingContext getPluginList(RoutingContext ctx, @JsonData MCServer mcServer) {
+    public RoutingContext getPluginList(RoutingContext ctx, @RequestParam MCServer mcServer) {
         serverService.getPluginList(vertx, mcServer, ar -> {
             if (ar.succeeded()) {
                 ctx.json(returnJson(200, ar.result()));
@@ -116,7 +116,7 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     @Request(value = "/deletePlugin", method = HttpMethod.DELETE)
-    public RoutingContext deletePlugin(RoutingContext ctx, MCServer mcServer, String plugin) {
+    public RoutingContext deletePlugin(RoutingContext ctx, @RequestParam MCServer mcServer,@RequestParam String plugin) {
         serverService.deletePlugins(vertx, mcServer, plugin, ar -> {
             if (ar.succeeded()) {
                 ctx.json(returnJson(200, ar.result()));

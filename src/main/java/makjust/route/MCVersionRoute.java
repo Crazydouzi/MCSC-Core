@@ -67,8 +67,13 @@ public class MCVersionRoute extends AbstractRoute {
         });
         return ctx;
     }
+    @Request(value = "uninstallMCServer",method = HttpMethod.DELETE)
+    public  RoutingContext uninstallMCServer(RoutingContext ctx,@RequestParam MCServer server){
+        System.out.println(server);
+        ctx.json(null);
+        return ctx;
 
-    @Request(value = "/scanVersion", method = HttpMethod.POST)
+    }    @Request(value = "/scanVersion", method = HttpMethod.POST)
     //扫描版本
     public RoutingContext scanVersion(RoutingContext ctx) {
         versionService.serverScanner(vertx, ar -> ctx.json(returnJson(200, ar.result())));

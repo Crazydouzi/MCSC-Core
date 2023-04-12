@@ -25,7 +25,7 @@ public class ProcessServer {
     public void start() throws IOException {
         process = builder.start();
         reader = new BufferedReader(new InputStreamReader(getInputStream(),
-                (String) SysConfig.getConf("cmd_charset")));
+                (String) SysConfig.getConf("charset")));
         OutputStream os = process.getOutputStream();
         //获取Socket接收到的指令
         msgConsumer = vertx.eventBus().consumer("processServer.cmdReq", data -> {
