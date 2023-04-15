@@ -98,7 +98,6 @@ public class MCServerRoute extends AbstractRoute {
                 ctx.json(returnJson(500, ar.cause().getMessage()));
             }
         });
-        ctx.json(null);
         return ctx;
 
     }

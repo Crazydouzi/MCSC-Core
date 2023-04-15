@@ -4,6 +4,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.FileUpload;
 import makjust.dto.RemoteVersionInfoDTO;
 import makjust.pojo.MCServer;
 import makjust.pojo.MCSetting;
@@ -18,4 +19,5 @@ public interface MCVersionService {
     //切换启用版本
     void changeEnableVersion(MCServer server,Handler<AsyncResult<JsonObject>> resultHandler);
     void installMCServerFromRemote(Vertx vertx,MCServer server, MCSetting setting, RemoteVersionInfoDTO versionInfo,Handler<AsyncResult<JsonObject>> resultHandler);
+    void uploadMCServer(Vertx vertx, FileUpload file, MCServer server, MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler);
 }

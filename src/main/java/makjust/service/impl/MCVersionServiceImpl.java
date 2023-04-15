@@ -7,6 +7,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
 import makjust.dao.MCServerDao;
@@ -119,5 +120,49 @@ public class MCVersionServiceImpl implements MCVersionService {
                     throwable.printStackTrace();
                     resultHandler.handle(Future.failedFuture(throwable.getMessage()));
                 });
+    }
+
+    @Override
+    public void uploadMCServer(Vertx vertx, FileUpload file, MCServer server, MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler) {
+        FileSystem fileSystem = vertx.fileSystem();
+        String fileLOC = SysConfig.getCorePath(server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID());
+        Future<Void> f = fileSystem.mkdir(fileLOC);
+        System.out.println(file.fileName().endsWith(".jar"));
+        if (file.fileName().endsWith(".jar")) {
+            f.compose(v1 ->{
+                server.setLocation(server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID());
+                setting.setJarName(file.fileName());
+                System.out.println(file.name());
+                System.out.println(fileLOC  + file.fileName());
+                return fileSystem.move(file.uploadedFileName(), fileLOC  + file.fileName());
+                    }
+            );
+        } else if (file.fileName().endsWith(".zip")) {
+            //Zip解压识别
+        } else {
+            f.compose(v -> Future.failedFuture("文件类型错误"));
+        }
+        f.compose(v -> mcServerDao.insertMCServer(server)
+                        .compose(rows -> {
+                            if (rows.rowCount()>=1){
+                                return getLastRowId();
+                            }else {
+                                return Future.failedFuture("插入失败");
+                            }
+                        })
+                        .compose(rows -> {
+                            int id = rows.iterator().next().getInteger("id");
+                            setting.setServerId(id);
+                            return mcSettingDao.insertSetting(setting);
+                        }).onFailure(throwable -> {
+                            throwable.printStackTrace();
+                            resultHandler.handle(Future.failedFuture("数据库插入失败，请尝试扫描服务器"));
+                        }))
+                .onSuccess(successResult -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "新建成功！"))))
+                .onFailure(throwable -> {
+                    throwable.printStackTrace();
+                    resultHandler.handle(Future.failedFuture(throwable.getMessage()));
+                });
+
     }
 }

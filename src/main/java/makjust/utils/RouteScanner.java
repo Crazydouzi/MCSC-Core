@@ -137,9 +137,9 @@ public class RouteScanner {
                                         //Normal Type
                                     } else if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)) {
                                         Type[] genericParameterTypes = method.getGenericParameterTypes();
-                                        argValues[i] = parseSimpleTypeOrArrayOrCollection(params, paramType, requestParam.value(), genericParameterTypes[i]);
+                                        argValues[i] = parseSimpleTypeOrArrayOrCollection(params, paramType, paramNames[i], genericParameterTypes[i]);
                                     } else {
-                                        argValues[i] = parseBeanType(params, paramType);
+                                        argValues[i] = parseBeanType(params, paramType,paramNames[i]);
                                     }
                                 } else {
                                     if (paramType == FileUpload.class) {
@@ -147,9 +147,9 @@ public class RouteScanner {
                                         //Normal Type
                                     } else if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)) {
                                         Type[] genericParameterTypes = method.getGenericParameterTypes();
-                                        argValues[i] = parseSimpleTypeOrArrayOrCollection(params, paramType, paramNames[i], genericParameterTypes[i]);
+                                        argValues[i] = parseSimpleTypeOrArrayOrCollection(params, paramType,requestParam.value() , genericParameterTypes[i]);
                                     } else {
-                                        argValues[i] = parseBeanType(params, paramType);
+                                        argValues[i] = parseBeanType(params, paramType,requestParam.value());
                                     }
                                 }
                             }
@@ -301,15 +301,23 @@ public class RouteScanner {
      * @param paramType 实体参数类型
      * @return 已经注入字段的实体对象
      */
-    private Object parseBeanType(MultiMap allParams, Class<?> paramType) throws Throwable {
+    private Object parseBeanType(MultiMap allParams, Class<?> paramType,String paramName) throws Throwable {
+        System.out.println("Bean Type"+paramName);
         Object bean = paramType.getDeclaredConstructor().newInstance();
         Field[] fields = paramType.getDeclaredFields();
         Object value;
-        for (Field field : fields) {
-            value = parseSimpleTypeOrArrayOrCollection(allParams, field.getType(), field.getName(), field.getGenericType());
-            field.setAccessible(true);
-            field.set(bean, value);
+
+        if (allParams.get(paramName)!=null){
+            return Json.decodeValue(allParams.get(paramName),paramType);
         }
+        else {
+            for (Field field : fields) {
+                value = parseSimpleTypeOrArrayOrCollection(allParams, field.getType(), field.getName(), field.getGenericType());
+                field.setAccessible(true);
+                field.set(bean, value);
+            }
+        }
+
         return bean;
     }
 }
