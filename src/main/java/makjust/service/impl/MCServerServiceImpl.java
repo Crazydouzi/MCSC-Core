@@ -271,7 +271,7 @@ public class MCServerServiceImpl implements MCServerService {
                         if (location.exists() && rows.iterator().hasNext()) {
                             try {
 //                            MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
-//                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.getCMD(), vertx);
+//                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.returnCMD(), vertx);
                                 /*
                                  * 用于测试CMD使用
                                  * */

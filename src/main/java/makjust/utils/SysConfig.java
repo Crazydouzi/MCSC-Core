@@ -22,7 +22,8 @@ public class SysConfig {
             path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
             return path + "/";
         } else {
-            path = path.replace("file:", "");
+            path = path.replace("file:/", "");
+            if (path.startsWith("/")) path=path.substring(1);
             return path;
         }
     }
@@ -38,15 +39,8 @@ public class SysConfig {
     }
     //定位到MC服务器包下
     public static String getCorePath(String location) {
-        try {
-            String path = pathURL.toURI().getPath();
-            if (getENV()) {
-                path = new StringBuilder(path).substring(0, (path.lastIndexOf("/")));
-            }
-            return path + "/resources/package/" + location+"/";
-        } catch (URISyntaxException e) {
-            return "";
-        }
+        String path=resourcesPath();
+        return path + "package/" + location+"/";
 
     }
     //定位到静态资源位置

@@ -20,7 +20,6 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import makjust.annotation.*;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
@@ -239,7 +238,6 @@ public class RouteScanner {
             paramName, Type genericParameterTypes) {
         try {
             if (object.getValue(paramName) == null) {
-                System.out.println(11);
                 if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)){
                     return null;
                 }else {
@@ -279,7 +277,7 @@ public class RouteScanner {
      */
     @SuppressWarnings("unchecked")
     private <T> T parseSimpleType(String value, Class<T> targetClass) throws Throwable {
-        if (StringUtils.isBlank(value)) {
+        if (isBlank(value)) {
             return null;
         }
 
@@ -302,7 +300,6 @@ public class RouteScanner {
      * @return 已经注入字段的实体对象
      */
     private Object parseBeanType(MultiMap allParams, Class<?> paramType,String paramName) throws Throwable {
-        System.out.println("Bean Type"+paramName);
         Object bean = paramType.getDeclaredConstructor().newInstance();
         Field[] fields = paramType.getDeclaredFields();
         Object value;
@@ -319,5 +316,17 @@ public class RouteScanner {
         }
 
         return bean;
+    }
+    public static boolean isBlank(CharSequence cs) {
+        int strLen = (cs == null ? 0 : cs.length());
+        if (strLen != 0) {
+            for (int i = 0; i < strLen; ++i) {
+                if (!Character.isWhitespace(cs.charAt(i))) {
+                    return false;
+                }
+            }
+
+        }
+        return true;
     }
 }

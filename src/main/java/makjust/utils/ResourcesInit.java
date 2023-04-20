@@ -50,7 +50,6 @@ public class ResourcesInit {
 
     //复制全部
     private void copyResources() throws Exception {
-        System.out.println("URI:" + path);
         if (getENV()) {
             resourcesPath = new StringBuilder(path.getPath()).substring(0, (path.getPath().lastIndexOf("/"))) + "/resources/";
             copyJarResourcesFileToTemp(path, resourcesPath, "webroot");
@@ -70,7 +69,6 @@ public class ResourcesInit {
      * @param nf 目标
      */
     private static void copyLocalResourcesFileToTemp(File f, File nf) throws Exception {
-        System.out.println(f.getPath() + "-----------------------" + nf.getPath());
         // 判断是否存在
         if (f.exists()) {
             if (f.isDirectory()) {

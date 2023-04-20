@@ -11,6 +11,7 @@ import makjust.utils.SysConfig;
 public class MainVerticle extends AbstractVerticle {
     @Override
     public void start(){
+        System.out.println("主VERTICLE挂载中。。。。。");
         AbstractRoute.vertx = vertx;
         BodyHandler bodyHandler=BodyHandler.create().setUploadsDirectory(SysConfig.resourcesPath()+SysConfig.getConf("fileOptions.dir")).setDeleteUploadedFilesOnEnd((Boolean) SysConfig.getConf("fileOptions.deleteUploadedFilesOnEnd"));
         //扫描路由
