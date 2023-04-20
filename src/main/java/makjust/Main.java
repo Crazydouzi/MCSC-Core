@@ -23,6 +23,7 @@ public class Main {
         AbstractRoute.vertx=vertx;
         DBPool.conn(vertx);
         Set<Class<?>> classes = ClassScanUtil.scanByAnnotation("makjust.verticle", Deploy.class);
+
         for (Class<?> cls : classes) {
             Deploy deployAnnotation = cls.getAnnotation(Deploy.class);
             DeploymentOptions options = new DeploymentOptions();
@@ -30,7 +31,12 @@ public class Main {
             int instance = deployAnnotation.instance();
             options.setWorker(worker);
             options.setInstances(instance);
-            vertx.deployVerticle(cls.getName(), options);
-        }
+            try {
+                vertx.deployVerticle(cls.getName(), options);
+
+            }catch (Exception e){
+                e.printStackTrace();
+                System.out.println(cls.getSimpleName()+"挂载失败");
+            }        }
     }
 }
