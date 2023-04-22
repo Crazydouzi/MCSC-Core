@@ -5,6 +5,7 @@ import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.MCServerDao;
 import makjust.pojo.MCServer;
+import makjust.pojo.MCSetting;
 import makjust.utils.DBPool;
 
 public class MCServerDaoImpl implements MCServerDao {
@@ -44,4 +45,8 @@ public class MCServerDaoImpl implements MCServerDao {
     public Future<RowSet<Row>> insertMCServer(MCServer mcServer) {
         return DBPool.insert("mc_server",mcServer);
     }
+    public  Future<Integer> deleteMCServer(MCServer mcServer){
+        return DBPool.executeSQL("delete from mc_server where id=#{id}",mcServer).compose(rows ->Future.succeededFuture(rows.rowCount()));
+    };
+
 }

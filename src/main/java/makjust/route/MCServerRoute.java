@@ -1,6 +1,7 @@
 package makjust.route;
 
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -69,9 +70,31 @@ public class MCServerRoute extends AbstractRoute {
         return ctx;
     }
 
-    @Request(value = "/getServerInfo/:id", method = HttpMethod.GET)
-    public RoutingContext getServerInfo(RoutingContext ctx) {
-        ctx.json(new JsonObject().put("id", ctx.request().getParam("id")));
+    @Request(value = "/getServerInfo", method = HttpMethod.GET)
+    public RoutingContext getServerInfo(RoutingContext ctx,@RequestParam MCServer server) {
+        serverService.getServerInfo(server,ar->{
+            if (ar.succeeded()) {
+                ctx.json(returnJson(200, ar.result()));
+            } else {
+                ctx.json(returnJson(500, ar.cause().getMessage()));
+            }
+        });
+        return ctx;
+    }
+
+    @Request(value = "/uploadPlugin", method = HttpMethod.POST)
+    public RoutingContext uploadPlugin(RoutingContext ctx, @RequestParam("plugin") FileUpload fileUpload, @RequestParam("MCServer") MCServer server) {
+        if (fileUpload == null) {
+            ctx.json(returnJson(500, "未发现文件"));
+        } else {
+            serverService.uploadPlugins(vertx, server, fileUpload, ar -> {
+                if (ar.succeeded()) {
+                    ctx.json(returnJson(200, ar.result()));
+                } else {
+                    ctx.json(returnJson(500, ar.cause().getMessage()));
+                }
+            });
+        }
         return ctx;
     }
 
@@ -115,7 +138,7 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     @Request(value = "/deletePlugin", method = HttpMethod.DELETE)
-    public RoutingContext deletePlugin(RoutingContext ctx, @RequestParam MCServer mcServer,@RequestParam String plugin) {
+    public RoutingContext deletePlugin(RoutingContext ctx, @RequestParam MCServer mcServer, @RequestParam String plugin) {
         serverService.deletePlugins(vertx, mcServer, plugin, ar -> {
             if (ar.succeeded()) {
                 ctx.json(returnJson(200, ar.result()));

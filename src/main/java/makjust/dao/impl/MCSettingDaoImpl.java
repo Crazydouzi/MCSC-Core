@@ -5,6 +5,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.MCSettingDao;
+import makjust.pojo.MCServer;
 import makjust.pojo.MCSetting;
 import makjust.utils.DBPool;
 
@@ -23,5 +24,9 @@ public class MCSettingDaoImpl implements MCSettingDao {
     @Override
     public Future<RowSet<Row>> insertSetting(MCSetting mcSetting) {
         return DBPool.insert("mc_setting",mcSetting);
+    }
+
+    public  Future<Integer> deleteSetting(MCServer server){
+        return DBPool.executeSQL("delete from mc_setting where server_id=#{id}",server).compose(rows -> Future.succeededFuture(rows.rowCount()));
     }
 }

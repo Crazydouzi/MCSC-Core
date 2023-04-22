@@ -6,6 +6,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.FileUpload;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import makjust.dao.MCConfigFileDao;
@@ -57,6 +58,14 @@ public class MCServerServiceImpl implements MCServerService {
                     e.printStackTrace();
                     resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新失败").put("code", 500)));
                 });
+    }
+
+    @Override
+    public void getServerInfo(MCServer server, Handler<AsyncResult<JsonObject>> resultHandler) {
+        mcServerDao.getServerById(server).onSuccess(rows -> resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(rows)))).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture(throwable));
+        });
     }
 
     @Override
@@ -251,6 +260,27 @@ public class MCServerServiceImpl implements MCServerService {
             throwable.printStackTrace();
             resultHandler.handle(Future.failedFuture("删除失败"));
         });
+    }
+
+    @Override
+    public void uploadPlugins(Vertx vertx, MCServer server, FileUpload file, Handler<AsyncResult<JsonObject>> resultHandler) {
+        FileSystem fs = vertx.fileSystem();
+        mcServerDao.getServerById(server).compose(rows -> Future.succeededFuture(DBPool.camelMapping(rows).mapTo(MCServer.class))).compose(mcServer -> {
+                    server.setLocation(SysConfig.getCorePath(mcServer.getLocation()));
+                    return fs.exists(server.getLocation() + "plugins");
+                }).compose(exist -> {
+                    if (exist) {
+                        return fs.copy(file.uploadedFileName(), server.getLocation() + "plugins/" + file.fileName());
+                    } else {
+                        return Future.failedFuture("上传失败");
+                    }
+                }).onSuccess(v -> {
+                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "上传成功")));
+                })
+                .onFailure(throwable -> {
+                    throwable.printStackTrace();
+                    resultHandler.handle(Future.failedFuture((throwable)));
+                });
     }
 
     @Override

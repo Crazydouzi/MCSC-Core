@@ -20,4 +20,6 @@ public interface MCVersionService {
     void changeEnableVersion(MCServer server,Handler<AsyncResult<JsonObject>> resultHandler);
     void installMCServerFromRemote(Vertx vertx,MCServer server, MCSetting setting, RemoteVersionInfoDTO versionInfo,Handler<AsyncResult<JsonObject>> resultHandler);
     void uploadMCServer(Vertx vertx, FileUpload file, MCServer server, MCSetting setting, Handler<AsyncResult<JsonObject>> resultHandler);
+    void uninstallMCServer(Vertx vertx,MCServer server, Handler<AsyncResult<JsonObject>> resultHandler);
+
 }

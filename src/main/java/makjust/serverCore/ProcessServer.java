@@ -62,26 +62,6 @@ public class ProcessServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        vertx.eventBus().consumer("processServer.cmdRes", data -> {
-//                    if (data.body().toString().contains("Saving chunks for level")) {
-//                        try {
-//                            process.waitFor();
-//                            process.destroy();
-//                            process.destroyForcibly();
-//                        } catch (Exception ignored) {
-//                        }
-//                        if (msgConsumer != null) {
-//                            msgConsumer.unregister();
-//                            vertx.eventBus().unregisterCodec("processServer.cmdRes");
-//                        }
-//                        msgThead.interrupt();
-//                        process = null;
-//                        System.gc();
-//                        EnvOptions.setServerStatus(false);
-//                    }
-//                }
-//
-//        );
         try {
             process.waitFor();
             process.destroy();

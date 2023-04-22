@@ -4,17 +4,17 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.FileUpload;
 import makjust.pojo.MCServer;
 import makjust.pojo.MCServerConfigFile;
 import makjust.pojo.MCSetting;
 
 public interface MCServerService {
+    void getServerInfo(MCServer server,Handler<AsyncResult<JsonObject>> resultHandler);
     //核心基本配置设定
     void setCoreSetting( MCSetting setting,Handler<AsyncResult<JsonObject>> resultHandler);
-
     //服务器配置设定
     void setServerSetting( MCServer mcServer,Handler<AsyncResult<JsonObject>> resultHandler);
-
     //获取设置
     void getSetting(Vertx vertx, MCSetting mcSetting, Handler<AsyncResult<JsonObject>> resultHandler);
     //获取服务器配置文件列表
@@ -30,9 +30,9 @@ public interface MCServerService {
     //删除插件
     void deletePlugins(Vertx vertx,MCServer mcServer,String plugin,Handler<AsyncResult<JsonObject>> resultHandler);
     //插件上传
+    void uploadPlugins(Vertx vertx, MCServer server, FileUpload file,Handler<AsyncResult<JsonObject>> resultHandler);
     //开启服务器
     void serverStart(Vertx vertx, Handler<AsyncResult<JsonObject>> resultHandler);
-
     //关闭服务器
     boolean serverStop(Vertx vertx);
     boolean serverStatus();

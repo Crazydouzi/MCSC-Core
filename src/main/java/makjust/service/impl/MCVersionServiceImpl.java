@@ -180,4 +180,29 @@ public class MCVersionServiceImpl implements MCVersionService {
 
 
     }
+
+    @Override
+    public void uninstallMCServer(Vertx vertx, MCServer server, Handler<AsyncResult<JsonObject>> resultHandler) {
+        FileSystem fs = vertx.fileSystem();
+        mcServerDao.getServerById(server).compose(rows -> Future.succeededFuture(DBPool.camelMapping(rows).mapTo(MCServer.class)))
+                .compose(mcServer -> {
+                    String loc = SysConfig.getCorePath(mcServer.getLocation());
+                    return mcSettingDao.deleteSetting(server).compose(integer -> {
+                        if (integer > 0) {
+                            return mcServerDao.deleteMCServer(server);
+                        } else {
+                            return Future.failedFuture("删除配置失败");
+                        }
+                    }).compose(integer -> {
+                        if (integer > 0) {
+                            return fs.deleteRecursive(loc,true);
+                        } else {
+                            return Future.failedFuture("删除服务器失败");
+                        }
+                    });
+                }).onSuccess(v -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "删除服务器成功")))).onFailure(throwable -> {
+                    throwable.printStackTrace();
+                    resultHandler.handle(Future.failedFuture(throwable));
+                });
+    }
 }

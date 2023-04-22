@@ -132,7 +132,7 @@ public class RouteScanner {
                                 if (requestParam.value().isEmpty()) {
                                     //FileType
                                     if (paramType == FileUpload.class) {
-                                        argValues[i] = uploadMap.get(requestParam.value());
+                                        argValues[i] = uploadMap.get(paramNames[i]);
                                         //Normal Type
                                     } else if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)) {
                                         Type[] genericParameterTypes = method.getGenericParameterTypes();
@@ -142,7 +142,8 @@ public class RouteScanner {
                                     }
                                 } else {
                                     if (paramType == FileUpload.class) {
-                                        argValues[i] = uploadMap.get(paramNames[i]);
+                                        argValues[i] = uploadMap.get(requestParam.value());
+
                                         //Normal Type
                                     } else if (paramType == JsonArray.class || paramType == JsonObject.class || paramType.isArray() || Collection.class.isAssignableFrom(paramType) || isStringOrPrimitiveType(paramType)) {
                                         Type[] genericParameterTypes = method.getGenericParameterTypes();
