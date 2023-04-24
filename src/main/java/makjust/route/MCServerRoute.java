@@ -6,6 +6,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import makjust.annotation.*;
+import makjust.dto.MCServerDTO;
 import makjust.pojo.MCServer;
 import makjust.pojo.MCServerConfigFile;
 import makjust.pojo.MCSetting;
@@ -34,8 +35,8 @@ public class MCServerRoute extends AbstractRoute {
     }
 
     // 根据服务器id查询全部设置
-    @Request(value = "/getSettingList", method = HttpMethod.GET)
-    public RoutingContext getSetting(RoutingContext ctx, @JsonData MCSetting setting) {
+    @Request(value = "/getSetting", method = HttpMethod.GET)
+    public RoutingContext getSetting(RoutingContext ctx, @RequestParam MCSetting setting) {
         serverService.getSetting(vertx, setting, ar -> {
             ctx.response().setStatusCode(200);
             ctx.json(returnJson(200, ar.result()));
@@ -74,7 +75,7 @@ public class MCServerRoute extends AbstractRoute {
     public RoutingContext getServerInfo(RoutingContext ctx,@RequestParam MCServer server) {
         serverService.getServerInfo(server,ar->{
             if (ar.succeeded()) {
-                ctx.json(returnJson(200, ar.result()));
+                ctx.json(returnJson(200, ar.result().mapTo(MCServerDTO.class)));
             } else {
                 ctx.json(returnJson(500, ar.cause().getMessage()));
             }

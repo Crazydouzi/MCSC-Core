@@ -53,7 +53,7 @@ public class MCVersionServiceImpl implements MCVersionService {
         JsonArray jsonArray = new JsonArray();
         fileSystem.readDir(DIR, "[^.]*").onSuccess(dirList -> {
             for (String loc : dirList) {
-                List<String> jarList = fileSystem.readDirBlocking(loc, "\\w*.jar");
+                List<String> jarList = fileSystem.readDirBlocking(loc, ".*(.jar)");
                 // 空文件夹不返回
                 if (!jarList.isEmpty()) {
                     jarList.replaceAll(f -> f.substring(f.lastIndexOf("\\") + 1));
@@ -86,7 +86,8 @@ public class MCVersionServiceImpl implements MCVersionService {
     @Override
     public void installMCServerFromRemote(Vertx vertx, MCServer server, MCSetting setting, RemoteVersionInfoDTO versionInfo, Handler<AsyncResult<JsonObject>> resultHandler) {
         FileSystem fs = vertx.fileSystem();
-        String fileLOC = SysConfig.getCorePath(server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID());
+        String baseLOC=server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID();
+        String fileLOC = SysConfig.getCorePath(baseLOC);
         String jarFileLoc = fileLOC + versionInfo.getCoreName();
         fs.mkdir(fileLOC)
                 .compose(v -> fs.createFile(jarFileLoc))
@@ -101,7 +102,7 @@ public class MCVersionServiceImpl implements MCVersionService {
                         return Future.failedFuture(v.bodyAsJsonObject().toString());
                     } else {
                         return fs.writeFile(jarFileLoc, v.bodyAsBuffer()).onSuccess(s -> {
-                            server.setLocation(server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID());
+                            server.setLocation(baseLOC);
                             setting.setJarName(versionInfo.getCoreName());
                         });
                     }

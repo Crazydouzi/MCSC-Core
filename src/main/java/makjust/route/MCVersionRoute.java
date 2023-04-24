@@ -52,7 +52,7 @@ public class MCVersionRoute extends AbstractRoute {
     @Request(value = "/mcServerUpload", method = HttpMethod.POST)
     public RoutingContext mcServerUpload(RoutingContext ctx, @RequestParam("MCServer") MCServer mcServer, @RequestParam("MCSetting") MCSetting mcSetting, @RequestParam("file") FileUpload file) {
         if (file==null){
-            ctx.json(returnJson(400,"你文件呢？"));
+            ctx.json(returnJson(400,new JsonObject().put("data","你文件呢？")));
         }else {
             versionService.uploadMCServer(vertx,file,mcServer,mcSetting,ar->{
                 if (ar.succeeded()) {

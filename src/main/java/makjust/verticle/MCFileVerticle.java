@@ -48,7 +48,7 @@ public class MCFileVerticle extends AbstractVerticle {
             String tempFile = object.getString("tempFile");
             //相对位置
             String baseFileLoc = object.getString("fileLOC");
-            StringBuilder fileLOC = new StringBuilder();
+            StringBuilder fileLOC = new StringBuilder(baseFileLoc);
             fs.exists(tempFile).compose(promise -> {
                         try {
                             ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(tempFile)), Charset.forName("GBK"));
@@ -59,8 +59,8 @@ public class MCFileVerticle extends AbstractVerticle {
                                 File file = new File(SysConfig.getCorePath(baseFileLoc) + fileName_zip);
                                 if (fileName_zip.endsWith("/")) {
                                     //判断子文件夹嵌套
-                                    if (fileLOC.length() <= 0) {
-                                        fileLOC.append(baseFileLoc).append("/").append(fileName_zip);
+                                    if (fileLOC.length()==baseFileLoc.length()) {
+                                        fileLOC.append("/").append(fileName_zip);
                                     }
                                     if (!file.mkdirs()) {
                                         System.out.println("创建失败");
@@ -81,7 +81,7 @@ public class MCFileVerticle extends AbstractVerticle {
                             return Future.failedFuture(e);
                         }
                     })
-                    .compose(v1 -> fs.readDir(SysConfig.getCorePath(String.valueOf(fileLOC)), "\\w*.*.jar")
+                    .compose(v1 -> fs.readDir(SysConfig.getCorePath(String.valueOf(fileLOC)), ".*(.jar)")
                     ).compose(v1 -> {
                         System.out.println("11");
                         if (!v1.isEmpty()) {
