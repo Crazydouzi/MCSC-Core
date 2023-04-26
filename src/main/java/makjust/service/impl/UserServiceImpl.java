@@ -6,16 +6,22 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.HashString;
+import io.vertx.ext.auth.impl.hash.SHA256;
 import io.vertx.sqlclient.Row;
 import makjust.dao.UserDao;
 import makjust.dao.impl.UserDaoImpl;
 import makjust.pojo.User;
 import makjust.service.UserService;
+import makjust.utils.SysConfig;
 
 public class UserServiceImpl implements UserService {
     private final UserDao userDao=new UserDaoImpl();
     @Override
     public void userLogin(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+        //加密
+        SHA256 sha256=new SHA256();
+        user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")),user.getPwd()));
         userDao.selectUserByName(vertx,user).onSuccess(ar->{
             JsonObject result = new JsonObject();
             for (Row row:ar){

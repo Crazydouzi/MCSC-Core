@@ -4,6 +4,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -158,7 +159,7 @@ public class RouteUtils {
     }
 
     public void startHttpServer(int port) {
-        server.requestHandler(getRouter()).listen(port);
+        server.requestHandler(router()).listen(port);
 
     }
 
@@ -170,7 +171,9 @@ public class RouteUtils {
     //装载到子路由
 
 
-    public Router getRouter() {
+    public Router router() {
         return router;
     }
+    public Route route(){return router.route();}
+
 }

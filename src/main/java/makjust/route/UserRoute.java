@@ -1,6 +1,9 @@
 package makjust.route;
 
+import io.vertx.core.http.Cookie;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.HashString;
+import io.vertx.ext.auth.impl.hash.SHA256;
 import io.vertx.ext.web.RoutingContext;
 import makjust.annotation.HttpMethod;
 import makjust.annotation.JsonData;
@@ -9,6 +12,8 @@ import makjust.annotation.RoutePath;
 import makjust.pojo.User;
 import makjust.service.UserService;
 import makjust.service.impl.UserServiceImpl;
+import makjust.utils.SysConfig;
+import sun.security.provider.SHA;
 
 @RoutePath("/user")
 public class UserRoute extends AbstractRoute {
@@ -19,9 +24,11 @@ public class UserRoute extends AbstractRoute {
     public RoutingContext userLogin(RoutingContext ctx, @JsonData User user) {
         userService.userLogin(vertx, user, ar -> {
             if (ar.succeeded()) {
-                String sessionName = "user-" + user.getId();
+                User u=ar.result().getJsonObject("data").mapTo(User.class);
+                String sessionName = "user-" + u.getId();
                 if (ctx.session().get(sessionName) == null) {
-                    ctx.session().put(sessionName, user);
+                    ctx.session().put(sessionName, u);
+                    ctx.response().addCookie(Cookie.cookie("ssid",u.getId().toString()));
                     ctx.json(returnJson(200, "登录成功"));
                 } else {
                     ctx.json(returnJson(200, "请勿重复登录"));
@@ -44,11 +51,15 @@ public class UserRoute extends AbstractRoute {
     // 登出
     @Request(value = "/userLogout", method = HttpMethod.POST)
     public RoutingContext userLogout(RoutingContext ctx, @JsonData User user) {
-        String sessionName = "user-" + user.getId();
-        if (ctx.session().remove(sessionName) != null) {
+//        String sessionName = "user-" + user.getId();
+        if (!ctx.session().isEmpty()) {
+            ctx.session().destroy();
+        }
+        if (ctx.session().isDestroyed()){
             ctx.json(returnJson(200, "退出成功"));
-        } else {
-            ctx.json(returnJson(200, "您还没有登录"));
+        }
+        else {
+            ctx.json(returnJson(200, "登出失败"));
         }
         return ctx;
     }
