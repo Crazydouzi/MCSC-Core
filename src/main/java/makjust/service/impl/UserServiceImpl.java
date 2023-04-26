@@ -16,20 +16,16 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao=new UserDaoImpl();
     @Override
     public void userLogin(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.selectUserByName(vertx,user.getUsername()).onSuccess(ar->{
+        userDao.selectUserByName(vertx,user).onSuccess(ar->{
             JsonObject result = new JsonObject();
             for (Row row:ar){
                 result = row.toJson();
             }
-            System.out.println(result);
-            System.out.println(result.size());
-            if (result.size()<=0){
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","用户或密码错误")));
+            if (ar.size()<=0){
+                resultHandler.handle(Future.failedFuture("用户或密码错误"));
             }
-            else if (result.getString("pwd").equals(user.getPwd())) {
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "登录成功")));
-            }else{
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg","用户或密码错误")));
+          else{
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "登录成功").put("data",result)));
             }
         });
     }
@@ -49,10 +45,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void modifyUser(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.updateUser(vertx,user).onSuccess(ar->{
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data","更新完成")
-            ));
-        }).onFailure(e->{
+        userDao.updateUser(vertx,user).onSuccess(ar-> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data","更新完成")
+        ))).onFailure(e->{
             e.printStackTrace();
             resultHandler.handle(Future.succeededFuture(new JsonObject().put("data","更新失败")));
         });

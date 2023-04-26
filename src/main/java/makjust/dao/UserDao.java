@@ -14,5 +14,5 @@ public interface UserDao {
 
     Future<RowSet<Row>> selectUser(Vertx vertx);
 
-    Future<RowSet<Row>> selectUserByName(Vertx vertx, String username);
+    Future<RowSet<Row>> selectUserByName(Vertx vertx, User user);
 }

@@ -26,7 +26,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Future<RowSet<Row>> selectUserByName(Vertx vertx, String username) {
-        return DBPool.executeRowSQL("select username,pwd from User where username=?;",username);
+    public Future<RowSet<Row>> selectUserByName(Vertx vertx,User user) {
+        return DBPool.executeSQL("select id,username from user where username=#{username} and pwd=#{pwd};",user);
     }
 }
