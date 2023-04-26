@@ -16,45 +16,45 @@ import makjust.service.UserService;
 import makjust.utils.SysConfig;
 
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao=new UserDaoImpl();
+    private final UserDao userDao = new UserDaoImpl();
+
     @Override
-    public void userLogin(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void userLogin(Vertx vertx, User user, Handler<AsyncResult<JsonObject>> resultHandler) {
         //加密
-        SHA256 sha256=new SHA256();
-        user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")),user.getPwd()));
-        userDao.selectUserByName(vertx,user).onSuccess(ar->{
+        SHA256 sha256 = new SHA256();
+        user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")), user.getPwd()));
+        userDao.selectUserByName(vertx, user).onSuccess(ar -> {
             JsonObject result = new JsonObject();
-            for (Row row:ar){
+            for (Row row : ar) {
                 result = row.toJson();
             }
-            if (ar.size()<=0){
+            if (ar.size() <= 0) {
                 resultHandler.handle(Future.failedFuture("用户或密码错误"));
-            }
-          else{
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "登录成功").put("data",result)));
+            } else {
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "登录成功").put("data", result)));
             }
         });
     }
 
     @Override
-    public void addUser(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.insertUser(vertx,user).onSuccess(ar->{
-            JsonArray jsonArray=new JsonArray();
-            for (Row row:ar){
+    public void addUser(Vertx vertx, User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+        userDao.insertUser(vertx, user).onSuccess(ar -> {
+            JsonArray jsonArray = new JsonArray();
+            for (Row row : ar) {
                 jsonArray.add(row.toJson());
             }
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",jsonArray)
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", jsonArray)
             ));
 
         });
     }
 
     @Override
-    public void modifyUser(Vertx vertx,User user, Handler<AsyncResult<JsonObject>> resultHandler) {
-        userDao.updateUser(vertx,user).onSuccess(ar-> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data","更新完成")
-        ))).onFailure(e->{
+    public void modifyUser(Vertx vertx, User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+        userDao.updateUser(vertx, user).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成")
+        ))).onFailure(e -> {
             e.printStackTrace();
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data","更新失败")));
+            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新失败")));
         });
     }
 }

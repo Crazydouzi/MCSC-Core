@@ -28,7 +28,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RouteScanner {
@@ -120,7 +123,7 @@ public class RouteScanner {
                                 }
                             }
                             if (jsonData != null) {
-                                JsonObject jsonObject=ctx.body().isEmpty()?new JsonObject():ctx.body().asJsonObject();
+                                JsonObject jsonObject = ctx.body().isEmpty() ? new JsonObject() : ctx.body().asJsonObject();
                                 Type[] genericParameterTypes = method.getGenericParameterTypes();
                                 if (jsonData.value().isEmpty()) {
                                     argValues[i] = parseSimpleTypeOrArrayOrCollection(jsonObject, paramType, paramNames[i], genericParameterTypes[i]);
