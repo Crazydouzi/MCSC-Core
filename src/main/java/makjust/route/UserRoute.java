@@ -18,19 +18,19 @@ public class UserRoute extends AbstractRoute {
     // 用户登录
     @Request(value = "/userLogin", method = HttpMethod.POST)
     public RoutingContext userLogin(RoutingContext ctx, @JsonData User user) {
-        userService.userLogin(vertx, user, ar -> {
+        userService.userLogin(user, ar -> {
             if (ar.succeeded()) {
                 User u = ar.result().getJsonObject("data").mapTo(User.class);
                 String sessionName = "user-" + u.getId();
                 if (ctx.session().get(sessionName) == null) {
                     ctx.session().put(sessionName, u);
                     ctx.response().addCookie(Cookie.cookie("ssid", u.getId().toString()));
-                    ctx.json(returnJson(200, "登录成功"));
+                    ctx.json(returnJson(200,ar.result()));
                 } else {
-                    ctx.json(returnJson(200, "请勿重复登录"));
+                    ctx.json(returnJson(201, "请勿重复登录"));
                 }
             } else {
-                ctx.response().setStatusCode(500);
+//                ctx.response().setStatusCode(500);
                 ctx.json(returnJson(345, ar.cause().getMessage()));
             }
         });
@@ -40,7 +40,7 @@ public class UserRoute extends AbstractRoute {
     // 修改用户信息
     @Request(value = "/userUpdate", method = HttpMethod.POST)
     public RoutingContext userUpdate(RoutingContext ctx, @JsonData User user) {
-        userService.modifyUser(vertx, user, ar -> ctx.json(returnJson(200, ar.result())));
+        userService.modifyUser( user, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
 
