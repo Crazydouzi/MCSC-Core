@@ -18,10 +18,10 @@ public class MainVerticle extends AbstractVerticle {
         //扫描路由
         RouteUtils routeUtils = new RouteUtils(vertx);
         routeUtils.enableCORS();
-        routeUtils.enableSockJSCORS();
+//        routeUtils.enableSockJSCORS();
         routeUtils.scanRoute("makjust.route");
         routeUtils.createLocalSession();
-//        routeUtils.route().handler(ctx -> new UserAuth(ctx).auth("/api/user/userLogin"));
+        routeUtils.route().handler(ctx -> new UserAuth(ctx).auth("/api/user/userLogin"));
         if ((Boolean) SysConfig.getConf("enWeb"))
             routeUtils.setStaticRoute(SysConfig.getStaticPath(), "(?!/(api|ws))/.*");
         routeUtils.setVueRouteEnable("(?!/(api|ws))/.*");

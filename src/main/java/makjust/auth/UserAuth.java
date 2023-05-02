@@ -12,13 +12,14 @@ public class UserAuth {
         this.ctx=ctx;
     }
     public RoutingContext auth(String... url) {
-        if (Arrays.asList(url).contains(ctx.request().uri())) {
-            ctx.next();
-        } else if (!ctx.session().isEmpty()) {
-            ctx.next();
-        } else {
-            ctx.json(new JsonObject().put("code", 400).put("msg", "权限验证失败，请先登录"));
-        }
+//        if (Arrays.asList(url).contains(ctx.request().uri())) {
+//            ctx.next();
+//        } else if (!ctx.session().isEmpty()) {
+//            ctx.next();
+//        } else {
+//            ctx.json(new JsonObject().put("code", 400).put("msg", "权限验证失败，请先登录"));
+//        }
+        ctx.next();
         return ctx;
     }
     public Route auth() {

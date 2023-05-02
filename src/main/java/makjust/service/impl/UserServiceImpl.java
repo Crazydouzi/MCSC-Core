@@ -3,12 +3,10 @@ package makjust.service.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.HashString;
 import io.vertx.ext.auth.impl.hash.SHA256;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.sqlclient.Row;
 import makjust.dao.UserDao;
 import makjust.dao.impl.UserDaoImpl;
@@ -21,7 +19,7 @@ public class UserServiceImpl implements UserService {
     private final SHA256 sha256 = new SHA256();
 
     @Override
-    public void userLogin( User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void userLogin(User user, Handler<AsyncResult<JsonObject>> resultHandler) {
         //加密
         user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")), user.getPwd()));
         userDao.selectUserByName(user).onSuccess(ar -> {
@@ -54,7 +52,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void modifyUser(User user, Handler<AsyncResult<JsonObject>> resultHandler) {
         //加密
-        if(!user.getPwd().isEmpty()){
+        if (!user.getPwd().isEmpty()) {
             user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")), user.getPwd()));
         }
         userDao.updateUser(user).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成")

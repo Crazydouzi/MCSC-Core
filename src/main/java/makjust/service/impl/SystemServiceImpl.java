@@ -1,7 +1,11 @@
 package makjust.service.impl;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.JsonObject;
+import makjust.dto.SystemConfigDTO;
 import makjust.service.SystemService;
+import makjust.utils.SysConfig;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -95,6 +99,24 @@ public class SystemServiceImpl implements SystemService {
         jsonObject.put("jvmMemFree", free);
         jsonObject.put("memUsage", new DecimalFormat("#").format(((totalByte - acaliableByte) * 1.0 / totalByte) * 100));
         return jsonObject;
+    }
+
+    @Override
+    public JsonObject getSystemConfig() {
+        JsonObject object = new JsonObject();
+        SysConfig.getConf("port");
+        SysConfig.getConf("charset");
+        SysConfig.getConf("fileOptions");
+        object.put("port", SysConfig.getConf("port")).put("charset", SysConfig.getConf("charset")).put("fileOptions", SysConfig.getConf("fileOptions"));
+        return object;
+    }
+
+    @Override
+    public JsonObject saveSystemConfig(Vertx vertx, SystemConfigDTO config) {
+        FileSystem fs = vertx.fileSystem();
+        String loc=SysConfig.resourcesPath()+"config";
+
+        return null;
     }
 
     private static String formatByte(long byteNumber) {
