@@ -8,11 +8,11 @@ import makjust.pojo.User;
 
 public interface UserDao {
 
-    Future<RowSet<Row>> insertUser(Vertx vertx, User user);
+    Future<RowSet<Row>> insertUser(User user);
 
-    Future<RowSet<Row>> updateUser(Vertx vertx, User user);
+    Future<RowSet<Row>> updateUser( User user);
 
-    Future<RowSet<Row>> selectUser(Vertx vertx);
+    Future<RowSet<Row>> selectUser();
 
-    Future<RowSet<Row>> selectUserByName(Vertx vertx, User user);
+    Future<RowSet<Row>> selectUserByName(User user);
 }

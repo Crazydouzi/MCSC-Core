@@ -13,7 +13,7 @@ public abstract class AbstractRoute {
         vertx.eventBus().send(path, jsonObject);
     }
 
-    private JsonObject returnJson(int statusCode, String msg, JsonObject data) {
+    public JsonObject returnJson(int statusCode, String msg, JsonObject data) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("code", statusCode);
         jsonObject.put("msg", msg);
