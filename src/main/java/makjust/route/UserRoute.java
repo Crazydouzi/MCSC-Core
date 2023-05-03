@@ -56,8 +56,8 @@ public class UserRoute extends AbstractRoute {
     }
 
     // session认证
-    @Request(value = "/userAuth", method = HttpMethod.POST, async = false)
-    public JsonObject sessionAuth(RoutingContext ctx, @JsonData User user) {
+    @Request(value = "/forget", method = HttpMethod.POST, async = false)
+    public JsonObject forget(RoutingContext ctx, @JsonData("user") User user,@JsonData("code")String code) {
         String sessionName = "user-" + user.getId();
         User u = ctx.session().get(sessionName);
         return new JsonObject().put("data", u.equals(user));

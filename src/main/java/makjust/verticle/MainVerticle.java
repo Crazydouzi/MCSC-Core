@@ -21,7 +21,7 @@ public class MainVerticle extends AbstractVerticle {
 //        routeUtils.enableSockJSCORS();
         routeUtils.scanRoute("makjust.route");
         routeUtils.createLocalSession();
-        routeUtils.route().handler(ctx -> new UserAuth(ctx).auth("/api/user/userLogin"));
+//        routeUtils.route().handler(ctx -> new UserAuth(ctx).auth("/api/user/userLogin"));
         if ((Boolean) SysConfig.getConf("enWeb"))
             routeUtils.setStaticRoute(SysConfig.getStaticPath(), "(?!/(api|ws))/.*");
         routeUtils.setVueRouteEnable("(?!/(api|ws))/.*");

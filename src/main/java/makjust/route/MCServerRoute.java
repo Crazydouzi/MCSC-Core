@@ -166,8 +166,8 @@ public class MCServerRoute extends AbstractRoute {
         JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
         if (flag) {
-            return jsonObject.put("msg", "服务器关闭成功").put("data", true);
-        } else return jsonObject.put("msg", "关闭失败").put("data", false);
+            return returnJson(200,"服务器关闭成功");
+        } else return returnJson(500,"服务器关闭失败");
     }
 
     @Request(value = "/status", method = HttpMethod.GET)

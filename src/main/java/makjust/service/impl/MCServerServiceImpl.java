@@ -333,7 +333,6 @@ public class MCServerServiceImpl implements MCServerService {
         if (Server != null) {
             Server.stop();
             Server = null;
-            System.gc();
             return true;
         }
         return false;
