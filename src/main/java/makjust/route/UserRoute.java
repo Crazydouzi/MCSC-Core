@@ -1,6 +1,5 @@
 package makjust.route;
 
-import io.vertx.core.http.Cookie;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import makjust.annotation.HttpMethod;
@@ -24,11 +23,8 @@ public class UserRoute extends AbstractRoute {
                 String sessionName = "user-" + u.getId();
                 if (ctx.session().get(sessionName) == null) {
                     ctx.session().put(sessionName, u);
-                    ctx.response().addCookie(Cookie.cookie("ssid", u.getId().toString()));
-                    ctx.json(returnJson(200,ar.result()));
-                } else {
-                    ctx.json(returnJson(201, "请勿重复登录"));
                 }
+                ctx.json(returnJson(200, ar.result()));
             } else {
 //                ctx.response().setStatusCode(500);
                 ctx.json(returnJson(345, ar.cause().getMessage()));
@@ -40,13 +36,13 @@ public class UserRoute extends AbstractRoute {
     // 修改用户信息
     @Request(value = "/userUpdate", method = HttpMethod.POST)
     public RoutingContext userUpdate(RoutingContext ctx, @JsonData User user) {
-        userService.modifyUser( user, ar -> ctx.json(returnJson(200, ar.result())));
+        userService.modifyUser(user, ar -> ctx.json(returnJson(200, ar.result())));
         return ctx;
     }
 
     // 登出
     @Request(value = "/userLogout", method = HttpMethod.POST)
-    public RoutingContext userLogout(RoutingContext ctx, @JsonData User user) {
+    public RoutingContext userLogout(RoutingContext ctx) {
 //        String sessionName = "user-" + user.getId();
         if (!ctx.session().isEmpty()) {
             ctx.session().destroy();
@@ -60,8 +56,8 @@ public class UserRoute extends AbstractRoute {
     }
 
     // session认证
-    @Request(value = "/userAuth", method = HttpMethod.POST, async = false)
-    public JsonObject sessionAuth(RoutingContext ctx, @JsonData User user) {
+    @Request(value = "/forget", method = HttpMethod.POST, async = false)
+    public JsonObject forget(RoutingContext ctx, @JsonData("user") User user,@JsonData("code")String code) {
         String sessionName = "user-" + user.getId();
         User u = ctx.session().get(sessionName);
         return new JsonObject().put("data", u.equals(user));

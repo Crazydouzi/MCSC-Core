@@ -59,14 +59,13 @@ public class ProcessServer {
             getOutputStream().flush();
             getOutputStream().write("exit \n".getBytes());
             getOutputStream().flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
             process.waitFor();
             process.destroy();
             process.destroyForcibly();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
+            msgConsumer.unregister();
+            vertx.eventBus().unregisterCodec("processServer.cmdRes");
         }
         if (msgConsumer != null) {
             msgConsumer.unregister();

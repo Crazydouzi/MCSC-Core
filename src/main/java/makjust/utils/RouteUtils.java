@@ -119,6 +119,7 @@ public class RouteUtils {
         router.route().handler(CorsHandler.create()
                 .allowedHeaders(allowedHeaders)
                 .allowedMethods(allowedMethods)
+                .allowCredentials(true)
         );
     }
 
