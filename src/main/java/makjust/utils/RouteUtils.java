@@ -1,6 +1,7 @@
 package makjust.utils;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.http.CookieSameSite;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -10,9 +11,11 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.sstore.LocalSessionStore;
 import io.vertx.ext.web.sstore.SessionStore;
 import makjust.annotation.RoutePath;
 
+import java.net.CookieHandler;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,6 +80,7 @@ public class RouteUtils {
             if (ctx.request().method() == HttpMethod.GET && ctx.request().uri().matches(apiRouteRegex)) {
                 ctx.reroute("/index.html");
             } else {
+                ctx.response().setStatusCode(404);
                 ctx.json(new JsonObject().put("code", 404).put("msg", "页面走丢了哟~"));
             }
         });
@@ -103,7 +107,12 @@ public class RouteUtils {
         allowedHeaders.add("Content-Type");
         allowedHeaders.add("accept");
         allowedHeaders.add("X-PINGARUNER");
-
+        Set<String> exposedHeaders = new HashSet<>();
+        exposedHeaders.add("Access-Control-Allow-Headers");
+        exposedHeaders.add("Access-Control-Allow-Method");
+        exposedHeaders.add("Access-Control-Max-Age");
+        exposedHeaders.add("Access-Control-Request-Headers");
+        exposedHeaders.add("X-Frame-Options");
         Set<HttpMethod> allowedMethods = new HashSet<>();
         allowedMethods.add(HttpMethod.GET);
         allowedMethods.add(HttpMethod.POST);
@@ -119,18 +128,23 @@ public class RouteUtils {
         router.route().handler(CorsHandler.create()
                 .allowedHeaders(allowedHeaders)
                 .allowedMethods(allowedMethods)
+//                .exposedHeaders(exposedHeaders)
                 .allowCredentials(true)
         );
     }
-
-    public void enableSockJSCORS() {
-        Set<String> exposedHeaders = new HashSet<>();
-        exposedHeaders.add("Access-Control-Allow-Headers");
-        exposedHeaders.add("Access-Control-Allow-Method");
-        exposedHeaders.add("Access-Control-Max-Age");
-        exposedHeaders.add("Access-Control-Request-Headers");
-        exposedHeaders.add("X-Frame-Options");
-        wsRouter.route().handler(CorsHandler.create().allowedHeader("Content-Type").exposedHeaders(exposedHeaders).allowCredentials(true));
+    public  void createLocalSession(CookieSameSite cookieSameSite){
+        SessionStore store= LocalSessionStore.create(vertx);
+        SessionHandler sessionHandler=SessionHandler.create(store);
+        sessionHandler
+                .setSessionCookieName("SSID")
+                .setCookieSameSite(cookieSameSite)
+                .setCookieSecureFlag(true);
+        router.route().handler(sessionHandler);
+    }
+    public void createLocalSession() {
+        SessionStore store = SessionStore.create(vertx);
+        SessionHandler sessionHandler = SessionHandler.create(store);
+        router.route().handler(sessionHandler);
     }
 
     public void mountAPIRoute(String URLPrefix) {
@@ -153,11 +167,7 @@ public class RouteUtils {
         router.route(URLPrefix).subRouter(wsRouter);
     }
 
-    public void createLocalSession() {
-        SessionStore store = SessionStore.create(vertx);
-        SessionHandler sessionHandler = SessionHandler.create(store);
-        router.route().handler(sessionHandler);
-    }
+
 
     public void startHttpServer(int port) {
         server.requestHandler(router()).listen(port);

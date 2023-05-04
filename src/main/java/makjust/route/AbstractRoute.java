@@ -32,6 +32,9 @@ public abstract class AbstractRoute {
     JsonObject returnJson(int statusCode, Object data) {
         return returnJson(statusCode, new JsonObject().put("data", data));
     }
+    JsonObject returnJson(int statusCode, String msg,Object data) {
+        return returnJson(statusCode, msg,new JsonObject().put("data", data));
+    }
 
     //对于传入状态码和data
     JsonObject returnJson(int statusCode, JsonObject data) {

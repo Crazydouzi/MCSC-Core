@@ -10,8 +10,10 @@ public interface UserDao {
     Future<RowSet<Row>> insertUser(User user);
 
     Future<RowSet<Row>> updateUser( User user);
-
+    Future<RowSet<Row>> updateUserPwd( User user);
     Future<RowSet<Row>> selectUser();
 
+    Future<RowSet<Row>> selectUserByNameAndPwd(User user);
     Future<RowSet<Row>> selectUserByName(User user);
+
 }

@@ -12,6 +12,7 @@ import makjust.dao.UserDao;
 import makjust.dao.impl.UserDaoImpl;
 import makjust.pojo.User;
 import makjust.service.UserService;
+import makjust.utils.DBPool;
 import makjust.utils.SysConfig;
 
 public class UserServiceImpl implements UserService {
@@ -19,19 +20,16 @@ public class UserServiceImpl implements UserService {
     private final SHA256 sha256 = new SHA256();
 
     @Override
-    public void userLogin(User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void userLogin(User user, Handler<AsyncResult<User>> resultHandler) {
         //加密
         user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")), user.getPwd()));
-        userDao.selectUserByName(user).onSuccess(ar -> {
-            JsonObject result = new JsonObject();
-            for (Row row : ar) {
-                result = row.toJson();
-            }
+        userDao.selectUserByNameAndPwd(user).onSuccess(ar -> {
+            JsonObject result = DBPool.camelMapping(ar);
             if (ar.size() <= 0) {
                 resultHandler.handle(Future.failedFuture("用户或密码错误"));
             } else {
 
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "登录成功").put("data", result)));
+                resultHandler.handle(Future.succeededFuture(result.mapTo(User.class)));
             }
         });
     }
@@ -50,15 +48,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void modifyUser(User user, Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void modifyUser(User user, Handler<AsyncResult<Boolean>> resultHandler) {
         //加密
         if (!user.getPwd().isEmpty()) {
             user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")), user.getPwd()));
         }
-        userDao.updateUser(user).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新完成")
+        userDao.updateUser(user).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(true
         ))).onFailure(e -> {
             e.printStackTrace();
-            resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "更新失败")));
+            resultHandler.handle(Future.succeededFuture(false));
         });
+    }
+    public void modifyUserPwd(User user, Handler<AsyncResult<Boolean>> resultHandler) {
+        //加密
+        if (!user.getPwd().isEmpty()) {
+            user.setPwd(sha256.hash(new HashString((String) SysConfig.getConf("salt")), user.getPwd()));
+        }
+        userDao.updateUserPwd(user).onSuccess(ar -> resultHandler.handle(Future.succeededFuture(true
+        ))).onFailure(e -> {
+            e.printStackTrace();
+            resultHandler.handle(Future.succeededFuture(false));
+        });
+    }
+
+    @Override
+    public void getUser(User user, Handler<AsyncResult<User>> resultHandler) {
+        userDao.selectUserByName(user).onSuccess(rows -> {
+                    if (rows.size() > 0) {
+                        resultHandler.handle(Future.succeededFuture(user));
+                    } else {
+                        resultHandler.handle(Future.succeededFuture(null));
+                    }
+                })
+                .onFailure(throwable -> {
+                    throwable.printStackTrace();
+                    resultHandler.handle(Future.failedFuture(throwable.getCause().getMessage()));
+                });
     }
 }

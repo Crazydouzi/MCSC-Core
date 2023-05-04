@@ -21,12 +21,21 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public Future<RowSet<Row>> updateUserPwd(User user) {
+        return DBPool.update("update user set pwd=#{pwd} where username=#{username};",user);
+    }
+
+    @Override
     public Future<RowSet<Row>> selectUser() {
         return DBPool.executeRowSQL("select * from User;");
     }
 
     @Override
-    public Future<RowSet<Row>> selectUserByName(User user) {
+    public Future<RowSet<Row>> selectUserByNameAndPwd(User user) {
         return DBPool.executeSQL("select id,username from user where username=#{username} and pwd=#{pwd};",user);
+    }
+    @Override
+    public Future<RowSet<Row>> selectUserByName(User user) {
+        return DBPool.executeSQL("select id,username from user where username=#{username};",user);
     }
 }
