@@ -2,7 +2,7 @@ port: 8080
 cluster: False
 charset: GBK
 enWeb: True # True 启用Web界面 index.html于/resources/webroot，False为REST API
-CookieSameSite: None #SameSite设定
+CookieSameSite: NONE #SameSite设定,可选值有NONE、LAX、STRICT，跨域时请设置为NONE，默认为LAX
 CORS: True #跨域 True
 salt: "KrLG4A2fX2vd7wosGdzA0dHW4iTEE" #警告！此项为密码加密盐值，请勿随意修改，否则将导致系统无法正常登录
 fileOptions:
