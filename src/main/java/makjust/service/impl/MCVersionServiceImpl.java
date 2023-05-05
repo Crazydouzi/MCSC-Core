@@ -36,7 +36,10 @@ public class MCVersionServiceImpl implements MCVersionService {
     public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao.selectMCServerList().onComplete(ar -> {
             if (ar != null) {
-                resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar.result())));
+                if (ar.result().rowCount()==1){
+                    resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar.result())));
+                }
+                resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",new JsonArray().add(DBPool.camelMapping(ar.result())))));
             }
         });
 
