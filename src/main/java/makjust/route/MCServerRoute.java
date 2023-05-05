@@ -163,7 +163,6 @@ public class MCServerRoute extends AbstractRoute {
     // 关闭MC服务器
     @Request(value = "/stop", method = HttpMethod.POST, async = false)
     public JsonObject serverStop() {
-        JsonObject jsonObject = new JsonObject();
         boolean flag = serverService.serverStop(vertx);
         if (flag) {
             return returnJson(200,"服务器关闭成功");
@@ -191,6 +190,7 @@ public class MCServerRoute extends AbstractRoute {
                     if (EnvOptions.getServerStatus()) {
                         if (ws.toString().equalsIgnoreCase("STOP")) {
                             this.serverStop();
+                            sockJSSocket.close();
                         } else {
                             // 推送接收到的到的数据
                             vertx.eventBus().send("processServer.cmdReq", ws.toString());
@@ -198,6 +198,7 @@ public class MCServerRoute extends AbstractRoute {
                         }
                     } else {
                         sockJSSocket.write("服务器已关闭。。。");
+                        sockJSSocket.close();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

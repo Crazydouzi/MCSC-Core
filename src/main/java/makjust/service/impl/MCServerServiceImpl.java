@@ -274,9 +274,7 @@ public class MCServerServiceImpl implements MCServerService {
                     } else {
                         return Future.failedFuture("上传失败");
                     }
-                }).onSuccess(v -> {
-                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "上传成功")));
-                })
+                }).onSuccess(v -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "上传成功"))))
                 .onFailure(throwable -> {
                     throwable.printStackTrace();
                     resultHandler.handle(Future.failedFuture((throwable)));
@@ -300,12 +298,12 @@ public class MCServerServiceImpl implements MCServerService {
                         System.out.println(location.exists());
                         if (location.exists() && rows.iterator().hasNext()) {
                             try {
-//                            MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
-//                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.returnCMD(), vertx);
+                            MCSetting setting = Json.decodeValue(DBPool.camelMapping(rows).toString(), MCSetting.class);
+                            Server = new ProcessServer(new File(DIR + mcServer.getLocation()), setting.returnCMD(), vertx);
                                 /*
                                  * 用于测试CMD使用
                                  * */
-                                Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
+//                                Server = new ProcessServer(new File(DIR + mcServer.getLocation()), CMD, vertx);
                                 Server.start();
                                 resultHandler.handle(Future.succeededFuture(new JsonObject().put("code", 200).put("msg", "启动成功")));
                                 EnvOptions.setServerStatus(true);

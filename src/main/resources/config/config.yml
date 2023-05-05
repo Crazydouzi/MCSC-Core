@@ -2,8 +2,9 @@ port: 8080
 cluster: False
 charset: GBK
 enWeb: True # True 启用Web界面 index.html于/resources/webroot，False为REST API
-CookieSameSite: NONE #SameSite设定,可选值有NONE、LAX、STRICT，跨域时请设置为NONE，默认为LAX
+CookieSameSite: NONE #SameSite设定,可选值有NONE、LAX、STRICT，跨域时请设置为NONE，默认为LAX,若启动跨域时请将此选项设置为NONE,关闭跨域时请设置未LAX
 CORS: True #跨域 True
+HTTPS: False
 salt: "KrLG4A2fX2vd7wosGdzA0dHW4iTEE" #警告！此项为密码加密盐值，请勿随意修改，否则将导致系统无法正常登录
 fileOptions:
   dir: "file-upload"

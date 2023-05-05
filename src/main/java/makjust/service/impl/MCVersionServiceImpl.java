@@ -86,7 +86,7 @@ public class MCVersionServiceImpl implements MCVersionService {
     @Override
     public void installMCServerFromRemote(Vertx vertx, MCServer server, MCSetting setting, RemoteVersionInfoDTO versionInfo, Handler<AsyncResult<JsonObject>> resultHandler) {
         FileSystem fs = vertx.fileSystem();
-        String baseLOC=server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID();
+        String baseLOC = server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID();
         String fileLOC = SysConfig.getCorePath(baseLOC);
         String jarFileLoc = fileLOC + versionInfo.getCoreName();
         fs.mkdir(fileLOC)
@@ -196,12 +196,12 @@ public class MCVersionServiceImpl implements MCVersionService {
                         }
                     }).compose(integer -> {
                         if (integer > 0) {
-                            return fs.deleteRecursive(loc,true);
+                            return fs.deleteRecursive(loc, true);
                         } else {
                             return Future.failedFuture("删除服务器失败");
                         }
                     });
-                }).onSuccess(v -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "删除服务器成功")))).onFailure(throwable -> {
+                }).onSuccess(v -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "删除服务器成功")))).onFailure(throwable -> {
                     throwable.printStackTrace();
                     resultHandler.handle(Future.failedFuture(throwable));
                 });

@@ -15,8 +15,6 @@ import io.vertx.ext.web.sstore.LocalSessionStore;
 import io.vertx.ext.web.sstore.SessionStore;
 import makjust.annotation.RoutePath;
 
-import java.net.CookieHandler;
-import java.util.HashSet;
 import java.util.Set;
 
 public class RouteUtils {
@@ -98,49 +96,21 @@ public class RouteUtils {
         mountAPIRoute(apiPathPrefix);
     }
 
-    public void enableCORS() {
-        Set<String> allowedHeaders = new HashSet<>();
-        allowedHeaders.add("x-requested-with");
-        allowedHeaders.add("Access-Control-Allow-Origin");
-        allowedHeaders.add("Access-Control-Request-Headers");
-        allowedHeaders.add("origin");
-        allowedHeaders.add("Content-Type");
-        allowedHeaders.add("accept");
-        allowedHeaders.add("X-PINGARUNER");
-        Set<String> exposedHeaders = new HashSet<>();
-        exposedHeaders.add("Access-Control-Allow-Headers");
-        exposedHeaders.add("Access-Control-Allow-Method");
-        exposedHeaders.add("Access-Control-Max-Age");
-        exposedHeaders.add("Access-Control-Request-Headers");
-        exposedHeaders.add("X-Frame-Options");
-        Set<HttpMethod> allowedMethods = new HashSet<>();
-        allowedMethods.add(HttpMethod.GET);
-        allowedMethods.add(HttpMethod.POST);
-        allowedMethods.add(HttpMethod.OPTIONS);
-        /*
-         * these methods aren't necessary for this sample,
-         * but you may need them for your projects
-         */
-        allowedMethods.add(HttpMethod.DELETE);
-        allowedMethods.add(HttpMethod.PATCH);
-        allowedMethods.add(HttpMethod.PUT);
-        allowedMethods.add(HttpMethod.HEAD);
-        router.route().handler(CorsHandler.create()
-                .allowedHeaders(allowedHeaders)
-                .allowedMethods(allowedMethods)
-//                .exposedHeaders(exposedHeaders)
-                .allowCredentials(true)
+    public void enableCORS(CorsHandler handler) {
+        router.route().handler(handler
         );
     }
-    public  void createLocalSession(CookieSameSite cookieSameSite){
-        SessionStore store= LocalSessionStore.create(vertx);
-        SessionHandler sessionHandler=SessionHandler.create(store);
+
+    public void createLocalSession(CookieSameSite cookieSameSite) {
+        SessionStore store = LocalSessionStore.create(vertx);
+        SessionHandler sessionHandler = SessionHandler.create(store);
         sessionHandler
                 .setSessionCookieName("SSID")
                 .setCookieSameSite(cookieSameSite)
                 .setCookieSecureFlag(true);
         router.route().handler(sessionHandler);
     }
+
     public void createLocalSession() {
         SessionStore store = SessionStore.create(vertx);
         SessionHandler sessionHandler = SessionHandler.create(store);
@@ -166,7 +136,6 @@ public class RouteUtils {
     public void mountWSRoute(String URLPrefix) {
         router.route(URLPrefix).subRouter(wsRouter);
     }
-
 
 
     public void startHttpServer(int port) {

@@ -29,12 +29,20 @@ public class ProcessServer {
         OutputStream os = process.getOutputStream();
         //获取Socket接收到的指令
         msgConsumer = vertx.eventBus().consumer("processServer.cmdReq", data -> {
-            try {
-                os.write((data.body() + "\n").getBytes());
-                os.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
+            System.out.println(os);
+            if (process!=null){
+                try {
+                    os.write((data.body() + "\n").getBytes());
+                    os.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                System.out.println("控制台输出：MC服务器提前关闭！请查看log文件");
+                vertx.eventBus().publish("processServer.cmdRes", "控制台输出：MC服务器提前关闭！请查看log文件");
+                stop();
             }
+
         });
 //      新开一条线程避免阻塞，用于推送消息
         msgThead = new Thread(() -> {
@@ -43,6 +51,12 @@ public class ProcessServer {
                 while ((line = reader.readLine()) != null) {
 //              向Socket推送消息
                     vertx.eventBus().publish("processServer.cmdRes", line);
+                    if (line.contains("Saving chunks for level")){
+                        System.out.println("控制台输出：MC服务器提前关闭！请查看log文件");
+                        vertx.eventBus().publish("processServer.cmdRes", "控制台输出：MC服务器提前关闭！请查看log文件");
+                        stop();
+                        break;
+                    }
                     System.out.println("控制台输出：" + line);
                 }
             } catch (IOException e) {

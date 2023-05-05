@@ -78,7 +78,6 @@ public class MCVersionRoute extends AbstractRoute {
     }
     @Request(value = "/uninstallMCServer",method = HttpMethod.DELETE)
     public  RoutingContext uninstallMCServer(RoutingContext ctx,@RequestParam MCServer server){
-        System.out.println(server);
         versionService.uninstallMCServer(vertx,server,ar->{
             if (ar.succeeded()) {
                 ctx.json(returnJson(ar.result()));
