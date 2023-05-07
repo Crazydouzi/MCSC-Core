@@ -22,6 +22,7 @@ import makjust.utils.DBPool;
 import makjust.utils.EnvOptions;
 import makjust.utils.SysConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,10 +37,11 @@ public class MCVersionServiceImpl implements MCVersionService {
     public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao.selectMCServerList().onComplete(ar -> {
             if (ar != null) {
-                if (ar.result().rowCount()==1){
+                if (ar.result().size()==1){
+                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",new JsonArray().add(DBPool.camelMapping(ar.result())))));
+                }else {
                     resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar.result())));
                 }
-                resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",new JsonArray().add(DBPool.camelMapping(ar.result())))));
             }
         });
 

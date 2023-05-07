@@ -7,7 +7,6 @@ import io.vertx.ext.web.RoutingContext;
 public class UserAuth {
     private String regex="(?!/(api|ws))/.*";
     public void auth(RoutingContext ctx,String... urls){
-        System.out.println(ctx.session().id());
         boolean flag =false;
         for (String url:urls){
             if (ctx.request().uri().contains(url)){
