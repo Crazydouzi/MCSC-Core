@@ -1,0 +1,1 @@
+import{B as r}from"./index.9753a940.js";const a=r("app",{state:()=>({drawer:!1}),getters:{isDrawer:e=>e.drawer},actions:{changeDrawer(){sessionStorage.getItem("user-sessionData")!=null&&(this.drawer=!this.drawer)}}});export{a as u};
