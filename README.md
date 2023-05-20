@@ -13,7 +13,12 @@
 - 增加文件管理。
 - 实现本地容灾。让这玩意难绷(X)点。
 
-## 开发注解
+## 开发相关
+
+### 前端部分
+    [github链接](https://github.com/Crazydouzi/MCSC-Web)
+
+### 注解部分
 ### @RoutePath
 该注解标识在类上，用于标记一个路由
 
