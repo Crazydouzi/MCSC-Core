@@ -34,7 +34,7 @@ public class SysConfig {
 
     public void ConfigInit(Vertx vertx) {
         Yaml yaml = new Yaml();
-        Map<String, Object> ret = yaml.load(Vertx.vertx().fileSystem().readFileBlocking(getBasePath() + "resources/" + "config/config.yml").toString());
+        Map<String, Object> ret = yaml.load(vertx.fileSystem().readFileBlocking(getBasePath() + "resources/" + "config/config.yml").toString());
         object = JsonObject.mapFrom(ret);
     }
     //定位到MC服务器包下
