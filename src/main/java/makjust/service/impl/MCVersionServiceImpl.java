@@ -22,7 +22,6 @@ import makjust.utils.DBPool;
 import makjust.utils.EnvOptions;
 import makjust.utils.SysConfig;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,9 +36,9 @@ public class MCVersionServiceImpl implements MCVersionService {
     public void getVersionList(Handler<AsyncResult<JsonObject>> resultHandler) {
         mcServerDao.selectMCServerList().onComplete(ar -> {
             if (ar != null) {
-                if (ar.result().size()==1){
-                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("data",new JsonArray().add(DBPool.camelMapping(ar.result())))));
-                }else {
+                if (ar.result().size() == 1) {
+                    resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", new JsonArray().add(DBPool.camelMapping(ar.result())))));
+                } else {
                     resultHandler.handle(Future.succeededFuture(DBPool.camelMapping(ar.result())));
                 }
             }
@@ -94,39 +93,32 @@ public class MCVersionServiceImpl implements MCVersionService {
         String baseLOC = server.getServerName() + "-" + server.getVersion() + "-" + UUID.randomUUID();
         String fileLOC = SysConfig.getCorePath(baseLOC);
         String jarFileLoc = fileLOC + versionInfo.getCoreName();
-        fs.mkdir(fileLOC)
-                .compose(v -> fs.createFile(jarFileLoc))
-                .compose(v -> {
-                    WebClient webClient = WebClient.create(vertx);
-                    String filePath = "https://api.papermc.io/v2/projects/" + versionInfo.getFrom() + "/versions/" + versionInfo.getVersion() + "/builds/" + versionInfo.getBuildCode() + "/downloads/" + versionInfo.getCoreName();
-                    return webClient.getAbs(filePath)
-                            .as(BodyCodec.buffer()).send();
-                }).compose(v -> {
-                    //如果不是jar类型直接结束
-                    if (!v.headers().get("Content-Type").equals("application/java-archive")) {
-                        return Future.failedFuture(v.bodyAsJsonObject().toString());
-                    } else {
-                        System.out.println("文件写入中。。。。。。");
-                        return fs.writeFile(jarFileLoc, v.bodyAsBuffer()).onSuccess(s -> {
-                            server.setLocation(baseLOC);
-                            setting.setJarName(versionInfo.getCoreName());
-                        });
-                    }
-                }).compose(v -> mcServerDao.insertMCServer(server)
-                        .compose(rows -> getLastRowId())
-                        .compose(rows -> {
-                            int id = rows.iterator().next().getInteger("id");
-                            setting.setServerId(id);
-                            return mcSettingDao.insertSetting(setting);
-                        }).onFailure(throwable -> {
-                            throwable.printStackTrace();
-                            resultHandler.handle(Future.failedFuture("数据库插入失败，请尝试扫描服务器"));
-                        }))
-                .onSuccess(successResult -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "新建成功！"))))
-                .onFailure(throwable -> {
-                    throwable.printStackTrace();
-                    resultHandler.handle(Future.failedFuture(throwable.getMessage()));
+        fs.mkdir(fileLOC).compose(v -> fs.createFile(jarFileLoc)).compose(v -> {
+            WebClient webClient = WebClient.create(vertx);
+            String filePath = "https://api.papermc.io/v2/projects/" + versionInfo.getFrom() + "/versions/" + versionInfo.getVersion() + "/builds/" + versionInfo.getBuildCode() + "/downloads/" + versionInfo.getCoreName();
+            return webClient.getAbs(filePath).as(BodyCodec.buffer()).send();
+        }).compose(v -> {
+            //如果不是jar类型直接结束
+            if (!v.headers().get("Content-Type").equals("application/java-archive")) {
+                return Future.failedFuture(v.bodyAsJsonObject().toString());
+            } else {
+                System.out.println("文件写入中。。。。。。");
+                return fs.writeFile(jarFileLoc, v.bodyAsBuffer()).onSuccess(s -> {
+                    server.setLocation(baseLOC);
+                    setting.setJarName(versionInfo.getCoreName());
                 });
+            }
+        }).compose(v -> mcServerDao.insertMCServer(server).compose(rows -> getLastRowId()).compose(rows -> {
+            int id = rows.iterator().next().getInteger("id");
+            setting.setServerId(id);
+            return mcSettingDao.insertSetting(setting);
+        }).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture("数据库插入失败，请尝试扫描服务器"));
+        })).onSuccess(successResult -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "新建成功！")))).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture(throwable.getMessage()));
+        });
     }
 
     @Override
@@ -141,31 +133,26 @@ public class MCVersionServiceImpl implements MCVersionService {
         Future<Void> f = fs.mkdir(fileLOC);
         if (file.fileName().endsWith(".jar")) {
             f.compose(v1 -> {
-                                server.setLocation(baseLoc);
-                                setting.setJarName(file.fileName());
-                                return fs.copy(file.uploadedFileName(), fileLOC + file.fileName());
-                            }
-                    ).compose(v -> mcServerDao.insertMCServer(server)
-                            .compose(rows -> {
-                                if (rows.rowCount() >= 1) {
-                                    return getLastRowId();
-                                } else {
-                                    return Future.failedFuture("插入失败");
-                                }
-                            })
-                            .compose(rows -> {
-                                int id = rows.iterator().next().getInteger("id");
-                                setting.setServerId(id);
-                                return mcSettingDao.insertSetting(setting);
-                            }).onFailure(throwable -> {
-                                throwable.printStackTrace();
-                                resultHandler.handle(Future.failedFuture("数据库插入失败，请尝试扫描服务器"));
-                            }))
-                    .onSuccess(successResult -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "新建成功！"))))
-                    .onFailure(throwable -> {
-                        throwable.printStackTrace();
-                        resultHandler.handle(Future.failedFuture(throwable.getMessage()));
-                    });
+                server.setLocation(baseLoc);
+                setting.setJarName(file.fileName());
+                return fs.copy(file.uploadedFileName(), fileLOC + file.fileName());
+            }).compose(v -> mcServerDao.insertMCServer(server).compose(rows -> {
+                if (rows.rowCount() >= 1) {
+                    return getLastRowId();
+                } else {
+                    return Future.failedFuture("插入失败");
+                }
+            }).compose(rows -> {
+                int id = rows.iterator().next().getInteger("id");
+                setting.setServerId(id);
+                return mcSettingDao.insertSetting(setting);
+            }).onFailure(throwable -> {
+                throwable.printStackTrace();
+                resultHandler.handle(Future.failedFuture("数据库插入失败，请尝试扫描服务器"));
+            })).onSuccess(successResult -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("data", "新建成功！")))).onFailure(throwable -> {
+                throwable.printStackTrace();
+                resultHandler.handle(Future.failedFuture(throwable.getMessage()));
+            });
         } else if (file.fileName().endsWith(".zip")) {
             JsonObject object = new JsonObject();
             fs.copy(file.uploadedFileName(), fileLOC + "temp.zip").onComplete(ar -> {
@@ -191,25 +178,24 @@ public class MCVersionServiceImpl implements MCVersionService {
     @Override
     public void uninstallMCServer(Vertx vertx, MCServer server, Handler<AsyncResult<JsonObject>> resultHandler) {
         FileSystem fs = vertx.fileSystem();
-        mcServerDao.getServerById(server).compose(rows -> Future.succeededFuture(DBPool.camelMapping(rows).mapTo(MCServer.class)))
-                .compose(mcServer -> {
-                    String loc = SysConfig.getCorePath(mcServer.getLocation());
-                    return mcSettingDao.deleteSetting(server).compose(integer -> {
-                        if (integer > 0) {
-                            return mcServerDao.deleteMCServer(server);
-                        } else {
-                            return Future.failedFuture("删除配置失败");
-                        }
-                    }).compose(integer -> {
-                        if (integer > 0) {
-                            return fs.deleteRecursive(loc, true);
-                        } else {
-                            return Future.failedFuture("删除服务器失败");
-                        }
-                    });
-                }).onSuccess(v -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "删除服务器成功")))).onFailure(throwable -> {
-                    throwable.printStackTrace();
-                    resultHandler.handle(Future.failedFuture(throwable));
-                });
+        mcServerDao.getServerById(server).compose(rows -> Future.succeededFuture(DBPool.camelMapping(rows).mapTo(MCServer.class))).compose(mcServer -> {
+            String loc = SysConfig.getCorePath(mcServer.getLocation());
+            return mcSettingDao.deleteSetting(server).compose(integer -> {
+                if (integer > 0) {
+                    return mcServerDao.deleteMCServer(server);
+                } else {
+                    return Future.failedFuture("删除配置失败");
+                }
+            }).compose(integer -> {
+                if (integer > 0) {
+                    return fs.deleteRecursive(loc, true);
+                } else {
+                    return Future.failedFuture("删除服务器失败");
+                }
+            });
+        }).onSuccess(v -> resultHandler.handle(Future.succeededFuture(new JsonObject().put("msg", "删除服务器成功")))).onFailure(throwable -> {
+            throwable.printStackTrace();
+            resultHandler.handle(Future.failedFuture(throwable));
+        });
     }
 }
