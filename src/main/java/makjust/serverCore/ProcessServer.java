@@ -80,15 +80,17 @@ public class ProcessServer {
             e.printStackTrace();
             msgConsumer.unregister();
             vertx.eventBus().unregisterCodec("processServer.cmdRes");
+        }finally {
+            if (msgConsumer != null) {
+                msgConsumer.unregister();
+                vertx.eventBus().unregisterCodec("processServer.cmdRes");
+            }
+            msgThead.interrupt();
+            process = null;
+            System.gc();
+            EnvOptions.setServerStatus(false);
         }
-        if (msgConsumer != null) {
-            msgConsumer.unregister();
-            vertx.eventBus().unregisterCodec("processServer.cmdRes");
-        }
-        msgThead.interrupt();
-        process = null;
-        System.gc();
-        EnvOptions.setServerStatus(false);
+
     }
 
 

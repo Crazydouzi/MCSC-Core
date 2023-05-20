@@ -106,6 +106,7 @@ public class MCVersionServiceImpl implements MCVersionService {
                     if (!v.headers().get("Content-Type").equals("application/java-archive")) {
                         return Future.failedFuture(v.bodyAsJsonObject().toString());
                     } else {
+                        System.out.println("文件写入中。。。。。。");
                         return fs.writeFile(jarFileLoc, v.bodyAsBuffer()).onSuccess(s -> {
                             server.setLocation(baseLOC);
                             setting.setJarName(versionInfo.getCoreName());
