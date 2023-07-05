@@ -10,8 +10,8 @@ import makjust.dao.MCServerDao;
 import makjust.dao.MCSettingDao;
 import makjust.dao.impl.MCServerDaoImpl;
 import makjust.dao.impl.MCSettingDaoImpl;
-import makjust.pojo.MCServer;
-import makjust.pojo.MCSetting;
+import makjust.bean.MCServer;
+import makjust.bean.MCSetting;
 import makjust.utils.SysConfig;
 
 import java.io.BufferedOutputStream;

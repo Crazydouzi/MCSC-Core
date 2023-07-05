@@ -10,7 +10,7 @@ import io.vertx.ext.auth.impl.hash.SHA256;
 import io.vertx.sqlclient.Row;
 import makjust.dao.UserDao;
 import makjust.dao.impl.UserDaoImpl;
-import makjust.pojo.User;
+import makjust.bean.User;
 import makjust.service.UserService;
 import makjust.utils.DBPool;
 import makjust.utils.SysConfig;

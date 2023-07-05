@@ -3,7 +3,7 @@ package makjust.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import makjust.pojo.MCSetting;
+import makjust.bean.MCSetting;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

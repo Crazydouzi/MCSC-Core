@@ -1,4 +1,4 @@
-package makjust.pojo;
+package makjust.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

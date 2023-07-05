@@ -3,7 +3,7 @@ package makjust.dao;
 import io.vertx.core.Future;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
-import makjust.pojo.MCServer;
+import makjust.bean.MCServer;
 
 public interface MCServerDao {
     Future<RowSet<Row>> getServerByEnable(boolean flag);

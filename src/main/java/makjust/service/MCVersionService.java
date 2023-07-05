@@ -6,8 +6,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import makjust.dto.RemoteVersionInfoDTO;
-import makjust.pojo.MCServer;
-import makjust.pojo.MCSetting;
+import makjust.bean.MCServer;
+import makjust.bean.MCSetting;
 
 public interface MCVersionService {
     //获取已装版本

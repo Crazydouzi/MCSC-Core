@@ -2,10 +2,8 @@ package makjust.service;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
-import makjust.pojo.User;
+import makjust.bean.User;
 
 public interface UserService {
     void userLogin(User user, Handler<AsyncResult<User>> resultHandler);

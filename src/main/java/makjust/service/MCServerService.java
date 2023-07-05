@@ -5,9 +5,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
-import makjust.pojo.MCServer;
-import makjust.pojo.MCServerConfigFile;
-import makjust.pojo.MCSetting;
+import makjust.bean.MCServer;
+import makjust.bean.MCServerConfigFile;
+import makjust.bean.MCSetting;
 
 public interface MCServerService {
     void getServerInfo(MCServer server,Handler<AsyncResult<JsonObject>> resultHandler);

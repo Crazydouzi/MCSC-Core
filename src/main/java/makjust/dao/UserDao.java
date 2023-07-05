@@ -3,7 +3,7 @@ package makjust.dao;
 import io.vertx.core.Future;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
-import makjust.pojo.User;
+import makjust.bean.User;
 
 public interface UserDao {
 
