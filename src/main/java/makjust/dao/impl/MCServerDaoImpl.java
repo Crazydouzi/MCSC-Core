@@ -46,6 +46,6 @@ public class MCServerDaoImpl implements MCServerDao {
     }
     public  Future<Integer> deleteMCServer(MCServer mcServer){
         return DBPool.executeSQL("delete from mc_server where id=#{id}",mcServer).compose(rows ->Future.succeededFuture(rows.rowCount()));
-    };
+    }
 
 }

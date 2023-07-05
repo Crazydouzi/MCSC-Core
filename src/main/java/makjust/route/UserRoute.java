@@ -112,7 +112,7 @@ public class UserRoute extends AbstractRoute {
     }
 
     // 远程认证
-    public JsonObject RemoteAuth(@JsonData User user) {
+    public JsonObject RemoteAuth() {
         return new JsonObject();
     }
 
