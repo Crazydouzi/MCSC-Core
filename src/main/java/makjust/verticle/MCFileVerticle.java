@@ -51,7 +51,7 @@ public class MCFileVerticle extends AbstractVerticle {
             StringBuilder fileLOC = new StringBuilder(baseFileLoc);
             fs.exists(tempFile).compose(promise -> {
                         try {
-                            ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(tempFile)), Charset.forName((String) SysConfig.getConf("charset")));
+                            ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(tempFile)), Charset.forName("GBK"));
                             ZipEntry zipEntry;
                             byte[] byte_s = new byte[1024];
                             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
@@ -83,6 +83,7 @@ public class MCFileVerticle extends AbstractVerticle {
                     })
                     .compose(v1 -> fs.readDir(SysConfig.getCorePath(String.valueOf(fileLOC)), ".*(.jar)")
                     ).compose(v1 -> {
+                        System.out.println("11");
                         if (!v1.isEmpty()) {
                             v1.replaceAll(item -> item.substring(item.lastIndexOf("\\") + 1));
                             //将第一个找到的jar作为启动参数，目前无法匹配启动命令

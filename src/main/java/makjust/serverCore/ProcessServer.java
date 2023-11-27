@@ -12,7 +12,7 @@ public class ProcessServer {
     private Process process;
     private final Vertx vertx;
     private BufferedReader reader;
-    private volatile Thread  msgThead;
+    private Thread msgThead;
     private MessageConsumer<String> msgConsumer;
 
     public ProcessServer(File path, String command, Vertx vertx) {
@@ -85,9 +85,7 @@ public class ProcessServer {
                 msgConsumer.unregister();
                 vertx.eventBus().unregisterCodec("processServer.cmdRes");
             }
-
             msgThead.interrupt();
-            msgThead=null;
             process = null;
             System.gc();
             EnvOptions.setServerStatus(false);
